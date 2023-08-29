@@ -1,0 +1,33 @@
+
+body{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    background: #000000;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#guiOverlay, #contentHolder{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+}
+#contentHolder{
+    pointer-events: none;
+}
+
+*{
+    color: white;
+}
+
+.diceLabel{
+    font-family: Georgia, serif;
+    font-size: 4vw;
+    margin-top: -.5vw;
+    text-decoration: underline;
+    color: #FFE0A0;
+}
