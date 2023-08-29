@@ -589,13 +589,13 @@ class BasicWorldDemo {
     spawnDice() {
         const diceTypes = ["d20","d6"];
         //const diceType = ranList(diceTypes);
-        const diceType = "d6";
+        const diceType = "d20";
 
-        const meshName = diceType+"phy";
+        const meshName = diceType+"a";
         const meshPhy = diceType+"phy";
         const [mesh, rb] = this.createMeshPhysLOD(meshName, meshPhy);
 
-        //randomizeModelMaterial(mesh, meshName);
+        randomizeModelMaterial(mesh, meshName);
 
         this.rollingDices.push(rb);
         this.rollingDicesMesh.push(mesh);

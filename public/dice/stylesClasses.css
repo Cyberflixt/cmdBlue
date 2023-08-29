@@ -72,6 +72,12 @@ body{
 	overflow-x: scroll;
 }
 
+.nopointer{
+	pointer-events: none;
+}.pointer{
+	pointer-events: auto;
+}
+
 .rel{
 	position: relative;
 }.abs{
