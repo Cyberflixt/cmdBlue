@@ -17,6 +17,26 @@ document.body.appendChild(cssRenderer.domElement);
 
 var volume3D = 2;
 
+const cubeLoader = new THREE.CubeTextureLoader();
+const texLoader = new THREE.TextureLoader();
+
+
+
+function skybox(a,b,c,d,e,f){
+    if (b) {
+        return cubeLoader.load([a,b,c,d,e,f]);
+    } else {
+        return cubeLoader.load([
+            a+'/px.png',
+            a+'/nx.png',
+            a+'/py.png',
+            a+'/ny.png',
+            a+'/pz.png',
+            a+'/nz.png',
+        ]);
+    }
+}
+
 var meshesLoaded = {};
 var meshesPaths = {
     "d20phy": "assets/meshes/dice20phy.glb",
@@ -51,25 +71,32 @@ var audioPath = {
     "sfxHorn0": "assets/audio/sfxHorn0.mp3",
 };
 
-var pbrMatsLoaded = {};
-var pbrMatsFolder = "assets/textures";
-var pbrMatsPath = {
-    "Planks024":  ["map", "normalMap", "roughnessMap", "metalnessMap", "-tile:4","-normalScale:10"],
-    "Marble009":  ["map", "normalMap", "roughnessMap", "-tile:2"],
-    "Marble008":  ["map", "normalMap", "roughnessMap", "-tile:2", "-side:DoubleSide"],
-    //"Wood060a":   ["map", "normalMap", "roughnessMap", "aoMap", "displacementMap", "-tile:8"],
-    "Lava001":    ["map", "normalMap", "roughnessMap", "emissiveMap", "-tile:2", "_emissiveIntensity:1", "_emissive:0xFF0000"],
+const skyRefraction = texLoader.load( 'assets/textures/planks024b.jpg' );
+skyRefraction.mapping = THREE.EquirectangularRefractionMapping;
+skyRefraction.colorSpace = THREE.SRGBColorSpace;
 
-    "Glass0":    ["-mat:MeshPhysicalMaterial", "_transmission:1", "_thickness:1", "_roughness:.2"],
+const skyReflection = skybox("assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg");
+
+const matTest = new THREE.MeshBasicMaterial({envMap: skyRefraction, reflectivity: 1, refractionRatio: .9, transparent: true, opacity: .9, color: 0xFF0000});
+
+
+var matsLoaded = {};
+var matsFolder = "assets/textures";
+var matsDataDict = {
+    "Planks024":  ["-map", "tex:assets/textures/planks024b.jpg", "-normalMap", "tex:assets/textures/planks024norb.jpg", "-tile", 4,"-normalScale", 10],
+    "Marble008":  ["-map", "tex:assets/textures/marble008.jpg", "-tile", 2, "-side", THREE.DoubleSide],
+    "Marble009":  ["-map", "tex:assets/textures/marble009.jpg", "-roughnessMap", "tex:assets/textures/roughnessMap.jpg", "-tile", 2, "-reflectivity", 1,"-envMap", skyReflection],
+    "Glass0": matTest,
 }
+//MeshToonMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial
 
 var modelRandomMaterial = {
     "d20a": [
         ["Marble008"],
-        ["Marble009","Glass0"],
+        ["Marble009", "Glass0"],
     ],
     "d6a": [
-        ["Marble009","Glass0"],
+        ["Marble009", "Glass0"],
         ["Marble008"],
     ],
 }
@@ -80,35 +107,39 @@ var diceFaceVectors = {
         new THREE.Vector3( 1.21, -3.71, -0.74),
         new THREE.Vector3(-0.74,  2.29,  3.16),
         new THREE.Vector3(-1.95, -1.42, -3.16),
-        new THREE.Vector3( 2.41,     0, -3.16),
+        new THREE.Vector3( 2.41,  0,    -3.16),
 
-        new THREE.Vector3(-3.90, 0, 0.74),//6
-        new THREE.Vector3(3.16, 2.29, 0.74),
-        new THREE.Vector3(-0.74, -2.29, 3.15),
-        new THREE.Vector3(-3.15, 2.29, -.74),
-        new THREE.Vector3(1.95, -1.41, 3.15),
+        new THREE.Vector3(-3.90,  0,     0.74),//6
+        new THREE.Vector3( 3.16,  2.29,  0.74),
+        new THREE.Vector3(-0.74, -2.29,  3.15),
+        new THREE.Vector3(-3.15,  2.29, -0.74),
+        new THREE.Vector3( 1.95, -1.41,  3.15),
 
-        new THREE.Vector3(-1.95, 1.41, -3.15),
-        new THREE.Vector3(3.15, -2.29, 0.74),
-        new THREE.Vector3(0.74, 2.29, -3.15),
+        new THREE.Vector3(-1.95,  1.41, -3.15),
+        new THREE.Vector3( 3.15, -2.29,  0.74),
+        new THREE.Vector3( 0.74,  2.29, -3.15),
         new THREE.Vector3(-3.15, -2.29, -0.74),
-        new THREE.Vector3(3.90, 0, -0.74),
+        new THREE.Vector3( 3.90,  0,    -0.74),
 
-        new THREE.Vector3(-2.41, 0, 3.15),
-        new THREE.Vector3(1.95, 1.41, 3.15),
-        new THREE.Vector3(0.74, -2.29, -3.15),
-        new THREE.Vector3(-1.20, 3.71, 0.74),
-        new THREE.Vector3(-1.20, -3.71, 0.74),
+        new THREE.Vector3(-2.41,  0,     3.15),
+        new THREE.Vector3( 1.95,  1.41,  3.15),
+        new THREE.Vector3( 0.74, -2.29, -3.15),
+        new THREE.Vector3(-1.20,  3.71,  0.74),
+        new THREE.Vector3(-1.20, -3.71,  0.74),
     ],
     d6: [
-        new THREE.Vector3(0,0,-3),
-        new THREE.Vector3(0,-3,0),
-        new THREE.Vector3(3,0,0),
-        new THREE.Vector3(-3,0,0),
-        new THREE.Vector3(0,3,0),
-        new THREE.Vector3(0,0,3),
+        new THREE.Vector3( 0, 0,-3),
+        new THREE.Vector3( 0,-3, 0),
+        new THREE.Vector3( 3, 0, 0),
+        new THREE.Vector3(-3, 0, 0),
+        new THREE.Vector3( 0, 3, 0),
+        new THREE.Vector3( 0, 0, 3),
     ],
-}
+};
+
+
+
+
 
 // [a;b[
 function ranRange(a,b) { 
@@ -126,7 +157,7 @@ function setModelMaterial(model, mat) {
 function randomizeModelMaterial(mesh, name) {
     const layers = modelRandomMaterial[name];
     for (let i = 0; i<layers.length; i++){
-        mesh.children[i].material = pbrMatsLoaded[ranList(layers[i])];
+        mesh.children[i].material = matsLoaded[ranList(layers[i])];
     }
 }
 
@@ -173,55 +204,70 @@ function playAudio3D(name, object, ranMax, volume = 1) {
     return sound;
 }
 
+
+const specialMetarialParameter = {
+    tile: (textures, args, v) => {
+        Array.from(Object.values(textures)).map((tex) => {
+            if (typeof(tex) == 'object'){
+                tex.repeat.set(v,v);
+            }
+        });
+    },
+    mat: (textures, args, v) => {
+        args.matType = v;
+    },
+    side: (textures, args, v) => {
+        textures.side = THREE[v];
+    },
+    normalScale: (textures, args, v) => {
+        textures.normalScale = new THREE.Vector2(v,v);
+    },
+};
 function preloadMaterials() {
-    for (const [name, data] of Object.entries(pbrMatsPath)){
-        const folder = pbrMatsFolder+"/"+name+"/";
+    for (const [name, data] of Object.entries(matsDataDict)){
+        if (! Array.isArray(data)) {
+            matsLoaded[name] = data;
+            continue;
+        };
+
+        const dirName = name.split("_")[0];
+        let folder = matsFolder+"/"+dirName+"/";
+        if (matsFolder.charAt(0) == "/"){
+            folder = matsFolder.substring(1,matsFolder.length);
+        }
         const ext = ".jpg";
 
         const textures = {};
-        const args = [];
-        let matType = THREE.MeshStandardMaterial;
+        const speArgs = {
+            matType: THREE.MeshLambertMaterial,
+        };
 
         for (let i = 0; i<data.length; i++){
-            const name = data[i];
+            let name = data[i];
             if (name.charAt(0) == "-") {
-                args.push(name.substring(1,name.length));
+                name = name.substring(1,name.length);
+                const func = specialMetarialParameter[name];
 
-            } else if (name.charAt(0) == "_") {
-                const [k,v] = name.substring(1,name.length).split(":");
-                if (v.startsWith("0x")){
-                    textures[k] = parseInt(v, 16);
+                i++;
+                if (func) {
+                    func(textures, speArgs, data[i]);
                 } else {
-                    textures[k] = parseFloat(v);
+
+                    if (typeof(data[i]) == "string"){
+                        if (data[i].startsWith("tex:")){
+                            data[i] = loadTextureRepeat(data[i].substring(4,data[i].length));
+                        }
+                    }
+                    textures[name] = data[i];
                 }
+
             } else {
                 textures[name] = loadTextureRepeat(folder+name+ext);
             }
         }
 
-        // custom arguments
-        args.map((str) => {
-            const v = str.split(":")[1];
-            if (str.startsWith("tile")){
-                Array.from(Object.values(textures)).map((tex) => {
-                    if (typeof(tex) == 'object'){
-                        tex.repeat.set(v,v);
-                    }
-                });
-            }
-            if (str.startsWith("mat")){
-                matType = THREE[v];
-            }
-            if (str.startsWith("side")){
-                textures.side = THREE[v];
-            }
-            if (str.startsWith("normalScale")){
-                textures.normalScale = new THREE.Vector2(v,v);
-            }
-        });
-
         //MeshPhongMaterial
-        pbrMatsLoaded[name] = new matType(textures);
+        matsLoaded[name] = new speArgs.matType(textures);
     }
 }
 
@@ -242,7 +288,6 @@ function RandomHexFull() {
     return HexByHue(Math.random());
 }
 
-const texLoader = new THREE.TextureLoader();
 function loadTextureRepeat(path){
     const tex = texLoader.load(path);
     tex.wrapS = THREE.RepeatWrapping;
@@ -256,7 +301,7 @@ function loadTextureTile(path, tiling = 1){
 }
 
 function addMiscMaterials(){
-    pbrMatsLoaded['Glass0'] = new THREE.MeshPhysicalMaterial({
+    matsLoaded['Glass0'] = new THREE.MeshPhysicalMaterial({
         transmission: 1,
         thickness: 1,
         roughness: .2,
@@ -477,7 +522,7 @@ class RigidBody {
 }
 
 
-class BasicWorldDemo {
+class World {
     constructor() {
         this.floorY = 10;
         this.rollingDices = [];
@@ -536,13 +581,13 @@ class BasicWorldDemo {
         // lighting setup
         this.scene = new THREE.Scene();
 
-        let light = new THREE.PointLight(0xFFB05C, 1, 100);
+        let light = new THREE.PointLight(0xFFB05C, 3, 100);
         light.position.set(10, 50, 0);
         light.castShadow = true;
-        light.shadow.mapSize.width = 512;
-        light.shadow.mapSize.height = 512;
+        light.shadow.mapSize.width = 128;
+        light.shadow.mapSize.height = 128;
         light.shadow.camera.near = .5;
-        light.shadow.camera.far = 500;
+        light.shadow.camera.far = 400;
         this.scene.add(light);
 
         //light = new THREE.AmbientLight(0x808080);
@@ -557,7 +602,7 @@ class BasicWorldDemo {
         // scene
         const ground = new THREE.Mesh(
             new THREE.BoxGeometry(500, 1, 500),
-            pbrMatsLoaded.Planks024
+            matsLoaded.Planks024
         );
         ground.castShadow = false;
         ground.receiveShadow = true;
@@ -579,7 +624,7 @@ class BasicWorldDemo {
         this.cycle();
 
         for (let i=0; i<this.diceMax; i++){
-            let light = new THREE.PointLight(0xFFB05C, 1, 30);
+            let light = new THREE.PointLight(0xFFB05C, .5, 30);
             light.position.set(500,500,500);
             this.scene.add(light);
             this.rollingDicesLight.push(light);
@@ -745,7 +790,9 @@ class BasicWorldDemo {
             this.rollingDicesOldVel.set(rb, vel);
 
             const light = this.rollingDicesLight[i];
-            light.position.set(mesh.position.x, mesh.position.y+10, mesh.position.z);
+            if (light){
+                light.position.set(mesh.position.x, mesh.position.y+10, mesh.position.z);
+            }
         }
 
         // if finished
@@ -862,7 +909,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     Ammo().then((lib) => {
         Ammo = lib;
-        APP = new BasicWorldDemo();
+        APP = new World();
         APP.initialize();
     });
 });
