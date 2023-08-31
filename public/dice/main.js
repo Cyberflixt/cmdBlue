@@ -8,6 +8,8 @@ const listener = new THREE.AudioListener();
 var loader = new GLTFLoader();
 
 const contentHolder = document.getElementById("contentHolder");
+const elemLoadingBar = document.getElementById("loadingBar");
+const elemLoadingScreen = document.getElementById("elemLoadingScreen");
 
 const cssRenderer = new CSS2DRenderer({element: contentHolder});
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -17,10 +19,13 @@ document.body.appendChild(cssRenderer.domElement);
 
 var volume3D = 2;
 
-const cubeLoader = new THREE.CubeTextureLoader();
-const texLoader = new THREE.TextureLoader();
+const loadingManager = new THREE.LoadingManager();
+
+const cubeLoader = new THREE.CubeTextureLoader(loadingManager);
+const texLoader = new THREE.TextureLoader(loadingManager);
 
 
+var LOD = 0;
 
 function skybox(a,b,c,d,e,f){
     if (b) {
@@ -71,21 +76,22 @@ var audioPath = {
     "sfxHorn0": "assets/audio/sfxHorn0.mp3",
 };
 
-const skyRefraction = texLoader.load( 'assets/textures/planks024b.jpg' );
+const skyRefraction = texLoader.load( 'assets/textures/ice004.jpg' );
 skyRefraction.mapping = THREE.EquirectangularRefractionMapping;
 skyRefraction.colorSpace = THREE.SRGBColorSpace;
 
 const skyReflection = skybox("assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg","assets/textures/ice004.jpg");
 
-const matTest = new THREE.MeshBasicMaterial({envMap: skyRefraction, reflectivity: 1, refractionRatio: .9, transparent: true, opacity: .9, color: 0xFF0000});
+const matTest = new THREE.MeshBasicMaterial({envMap: skyRefraction, reflectivity: 1, refractionRatio: .9, transparent: true, opacity: .9, color: 0x700000});
 
 
 var matsLoaded = {};
 var matsFolder = "assets/textures";
 var matsDataDict = {
-    "Planks024":  ["-map", "tex:assets/textures/planks024b.jpg", "-normalMap", "tex:assets/textures/planks024norb.jpg", "-tile", 4,"-normalScale", 10],
+    "Planks024_low":  ["-map", "tex:assets/textures/planks024v.jpg", "-normalMap", "tex:assets/textures/planks024nor.jpg", "-tile", 1,"-normalScale", 10, "-color", 0xA08060],
+    "Planks024":  ["-map", "tex:assets/textures/planks024v.jpg", "-normalMap", "tex:assets/textures/planks024nor.jpg", "-tile", 1,"-normalScale", 10, "-color", 0xA08060],
+    "Marble009":  ["-map", "tex:assets/textures/marble009.jpg", "-tile", 2, "-reflectivity", 1,"-envMap", skyReflection],
     "Marble008":  ["-map", "tex:assets/textures/marble008.jpg", "-tile", 2, "-side", THREE.DoubleSide],
-    "Marble009":  ["-map", "tex:assets/textures/marble009.jpg", "-roughnessMap", "tex:assets/textures/roughnessMap.jpg", "-tile", 2, "-reflectivity", 1,"-envMap", skyReflection],
     "Glass0": matTest,
 }
 //MeshToonMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial
@@ -223,7 +229,7 @@ const specialMetarialParameter = {
         textures.normalScale = new THREE.Vector2(v,v);
     },
 };
-function preloadMaterials() {
+async function preloadMaterials() {
     for (const [name, data] of Object.entries(matsDataDict)){
         if (! Array.isArray(data)) {
             matsLoaded[name] = data;
@@ -239,7 +245,8 @@ function preloadMaterials() {
 
         const textures = {};
         const speArgs = {
-            matType: THREE.MeshLambertMaterial,
+            //matType: THREE.MeshLambertMaterial,
+            matType: (LOD>0) ? THREE.MeshLambertMaterial : THREE.MeshBasicMaterial,
         };
 
         for (let i = 0; i<data.length; i++){
@@ -255,14 +262,14 @@ function preloadMaterials() {
 
                     if (typeof(data[i]) == "string"){
                         if (data[i].startsWith("tex:")){
-                            data[i] = loadTextureRepeat(data[i].substring(4,data[i].length));
+                            data[i] = await loadTextureRepeat(data[i].substring(4,data[i].length));
                         }
                     }
                     textures[name] = data[i];
                 }
 
             } else {
-                textures[name] = loadTextureRepeat(folder+name+ext);
+                textures[name] = await loadTextureRepeat(folder+name+ext);
             }
         }
 
@@ -288,14 +295,14 @@ function RandomHexFull() {
     return HexByHue(Math.random());
 }
 
-function loadTextureRepeat(path){
-    const tex = texLoader.load(path);
+async function loadTextureRepeat(path){
+    const tex = await texLoader.loadAsync(path);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
     return tex;
 }
-function loadTextureTile(path, tiling = 1){
-    const tex = loadTextureRepeat(path);
+async function loadTextureTile(path, tiling = 1){
+    const tex = await loadTextureRepeat(path);
     tex.repeat.set( tiling, tiling );
     return tex;
 }
@@ -524,7 +531,10 @@ class RigidBody {
 
 class World {
     constructor() {
-        this.floorY = 10;
+        this.rigidBodies = [];
+        this.tmpTransform = new Ammo.btTransform();
+
+        this.floorY = 4.5;
         this.rollingDices = [];
         this.rollingDicesOldVel = new Map();
         this.rollingDicesDist = new Map();
@@ -581,14 +591,16 @@ class World {
         // lighting setup
         this.scene = new THREE.Scene();
 
-        let light = new THREE.PointLight(0xFFB05C, 3, 100);
-        light.position.set(10, 50, 0);
-        light.castShadow = true;
-        light.shadow.mapSize.width = 128;
-        light.shadow.mapSize.height = 128;
-        light.shadow.camera.near = .5;
-        light.shadow.camera.far = 400;
-        this.scene.add(light);
+        if (LOD > 0){
+            let light = new THREE.PointLight(0xFFB05C, 3, 100);
+            light.position.set(10, 50, 0);
+            light.castShadow = true;
+            light.shadow.mapSize.width = 256;
+            light.shadow.mapSize.height = 256;
+            light.shadow.camera.near = .5;
+            light.shadow.camera.far = 400;
+            this.scene.add(light);
+        }
 
         //light = new THREE.AmbientLight(0x808080);
         //this.scene.add(light);
@@ -601,15 +613,16 @@ class World {
 
         // scene
         const ground = new THREE.Mesh(
-            new THREE.BoxGeometry(500, 1, 500),
+            new THREE.PlaneGeometry(100, 100),
             matsLoaded.Planks024
         );
+        ground.rotation.x = -Math.PI / 2;
         ground.castShadow = false;
         ground.receiveShadow = true;
 
 
         const rbGround = new RigidBody();
-        rbGround.createBox(0, ground.position, ground.quaternion, new THREE.Vector3(500, 1, 500));
+        rbGround.createBox(0, new THREE.Vector3(0,-2.5,0), new THREE.Quaternion(), new THREE.Vector3(500, 5, 500));
         rbGround.setRestitution(0.99);
 
         this.physicsWorld.addRigidBody(rbGround.body);
@@ -617,18 +630,17 @@ class World {
 
         this.ground = ground;
 
-        // init
-        this.rigidBodies = [];
-        this.tmpTransform = new Ammo.btTransform();
-
-        this.cycle();
-
-        for (let i=0; i<this.diceMax; i++){
-            let light = new THREE.PointLight(0xFFB05C, .5, 30);
-            light.position.set(500,500,500);
-            this.scene.add(light);
-            this.rollingDicesLight.push(light);
+        if (LOD > 0){
+            for (let i=0; i<this.diceMax; i++){
+                let light = new THREE.PointLight(0xFFB05C, .5, 30);
+                light.position.set(500,500,500);
+                this.scene.add(light);
+                this.rollingDicesLight.push(light);
+            }
         }
+
+        // init
+        this.cycle();
     }
 
     spawnDice() {
@@ -760,7 +772,8 @@ class World {
             
             if (oldVel) {
                 const r = oldVel.dot(vel);
-                if (r<.9 || mesh.position.y < this.floorY){
+                if (mesh.position.y < this.floorY){
+                //if (r<.9 || mesh.position.y < this.floorY){
                     if (this.rollingDicesRolled.includes(rb)){
 
                         let x = this.rollingDicesDist.get(rb);
@@ -900,17 +913,34 @@ class World {
 }
 
 
-let APP = null;
 
+loadingManager.onProgress = (url, loaded, total) => {
+    elemLoadingBar.value = (loaded / total) * 100;
+}
+loadingManager.onLoad = () => {
+    elemLoadingScreen.style.display = "none";
+}
+
+
+let APP = null;
 window.addEventListener('DOMContentLoaded', async () => {
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+        LOD = 0;
+    } else {
+        LOD = 1;
+    }
+
     await preloadMeshes();
     await preloadAudio();
-    preloadMaterials();
+    await preloadMaterials();
 
     Ammo().then((lib) => {
         Ammo = lib;
         APP = new World();
-        APP.initialize();
+
+        setTimeout(() => {
+            APP.initialize();
+        })
     });
 });
 

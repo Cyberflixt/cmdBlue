@@ -38,14 +38,14 @@ body{
 }
 
 
-.screeny{
-	height: 100vh;
-}.screenx{
-	width: 100vw;
-}.screen{
+.screen{
 	width: 100vw;
 	height: 100vh;
 	overflow: hidden;
+}.screeny{
+	height: 100vh;
+}.screenx{
+	width: 100vw;
 }.screenxx{
 	width: 100vw;
 	height: 100vw;

@@ -22,10 +22,11 @@ body{
 
 *{
     color: white;
+    font-family: Georgia, serif;
+    font-size: 4vw;
 }
 
 .diceLabel{
-    font-family: Georgia, serif;
     font-size: 4vw;
     margin-top: -.5vw;
     text-decoration: underline;
