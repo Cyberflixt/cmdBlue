@@ -53,6 +53,12 @@ var meshesPaths = {
     "d10phy": "assets/meshes/dice10phy.glb",
     "d10a": "assets/meshes/dice10a.glb",
 
+    "d12phy": "assets/meshes/dice12phy.glb",
+    "d12a": "assets/meshes/dice12a.glb",
+
+    "d16phy": "assets/meshes/dice16phy.glb",
+    "d16a": "assets/meshes/dice16a.glb",
+
     "d20phy": "assets/meshes/dice20phy.glb",
     "d20a": "assets/meshes/dice20a.glb",
 }
@@ -102,35 +108,33 @@ var matsDataDict = {
 }
 //MeshToonMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial
 
-const diceTypes = ["d4","d6","d10","d20"];
-var modelRandomMaterial = {
-    "d4a": [
-        ["Marble008"],
-        ["Marble009", "Glass0"],
-    ],
-    "d6a": [
-        ["Marble009", "Glass0"],
-        ["Marble008"],
-    ],
-    "d10a": [
-        ["Marble008"],
-        ["Marble009", "Glass0"],
-    ],
-    "d20a": [
-        ["Marble008"],
-        ["Marble009", "Glass0"],
-    ],
+var diceThrowList = [4, 6, 10, 12, 16, 20, 999];
+const diceMatSolid = ["Marble009", "Glass0"];
+const diceMatText = ["Marble009", "Glass0"];
+
+const matsRandom = {
+    text: ["Marble008"],
+    solid: ["Marble009", "Glass0"],
+}
+
+var modelMaterialType = {
+    "d4a":  ["text","solid"],
+    "d6a":  ["solid","text"],
+    "d10a": ["text","solid"],
+    "d12a": ["text","solid"],
+    "d16a": ["solid","text"],
+    "d20a": ["text","solid"],
 }
 
 var diceFaceVectors = {
-    d4: [
+    4: [
         new THREE.Vector3(-5.2,-3,-2.7),
         new THREE.Vector3(5.1, -3,-2.7),
         new THREE.Vector3(0,0,5.6),
         new THREE.Vector3(0,6,-2.7),
     ],
 
-    d6: [
+    6: [
         new THREE.Vector3( 0, 0,-3),
         new THREE.Vector3( 0,-3, 0),
         new THREE.Vector3( 3, 0, 0),
@@ -139,7 +143,7 @@ var diceFaceVectors = {
         new THREE.Vector3( 0, 0, 3),
     ],
 
-    d10: [
+    10: [
         new THREE.Vector3(0, -1.96, .8),
         new THREE.Vector3(-1.5, -1.47, -1.32),
         new THREE.Vector3(2.42, -0.2, .82),
@@ -153,7 +157,43 @@ var diceFaceVectors = {
         new THREE.Vector3(0, 3.14, -1.32),
     ],
 
-    d20: [
+    12: [
+        new THREE.Vector3(0,0,3.1),
+        new THREE.Vector3(-.8, -2.6, -1.4),
+        new THREE.Vector3(.8, -2.6, 1.4),
+        new THREE.Vector3(2.3, 1.6, -1.4),
+        new THREE.Vector3(2.8, 0, 1.4),
+        new THREE.Vector3(2.3, -1.6, -1.4),
+
+        new THREE.Vector3(-2.3, 1.6, 1.4),
+        new THREE.Vector3(-2.8, 0, -1.4),
+        new THREE.Vector3(-2.3, -1.6, 1.4),
+        new THREE.Vector3(-.87, 2.7, -1.4),
+        new THREE.Vector3(.87, 2.68, 1.41),
+        new THREE.Vector3(0, 0, -3.15),
+    ],
+
+    16: [
+        new THREE.Vector3( 0.94, 2.27,  1.33),
+        new THREE.Vector3(-2.27, -.94, -1.33),
+        new THREE.Vector3( 2.27, -.94,  1.33),
+        new THREE.Vector3(-.942, 2.27, -1.33),
+        new THREE.Vector3(-.942, -2.27, 1.33),
+        new THREE.Vector3( 2.27, .94,  -1.33),
+        new THREE.Vector3(-2.27, .942,  1.33),
+        new THREE.Vector3( .942, -2.27,-1.33),
+
+        new THREE.Vector3(-.94, 2.27,  1.33),
+        new THREE.Vector3(2.27, -.94, -1.33),
+        new THREE.Vector3(-2.27, -.94, 1.33),
+        new THREE.Vector3(.94,  2.27, -1.33),
+        new THREE.Vector3(.94, -2.27,  1.33),
+        new THREE.Vector3(-2.27, .94, -1.33),
+        new THREE.Vector3(2.27,  .94,  1.33),
+        new THREE.Vector3(-.94, -2.27,-1.33),
+    ],
+
+    20: [
         new THREE.Vector3( 1.21,  3.71, -0.74),
         new THREE.Vector3( 1.21, -3.71, -0.74),
         new THREE.Vector3(-0.74,  2.29,  3.16),
@@ -198,9 +238,10 @@ function setModelMaterial(model, mat) {
     });
 }
 function randomizeModelMaterial(mesh, name) {
-    const layers = modelRandomMaterial[name];
+    const layers = modelMaterialType[name];
     for (let i = 0; i<layers.length; i++){
-        mesh.children[i].material = matsLoaded[ranList(layers[i])];
+        const mats = matsRandom[layers[i]]
+        mesh.children[i].material = matsLoaded[ranList(mats)];
     }
 }
 
@@ -352,24 +393,28 @@ function addMiscMaterials(){
     });
 }
 
-function getDiceUpFace(mesh, name, world){
+function getDiceUpFace(mesh, diceInt, world){
     const quat = mesh.quaternion;
 
     let bestY = -99;
     let bestV;
 
-    const faces = diceFaceVectors[name];
-    for (let i=0; i<faces.length; i++){
-        const blenderVec = faces[i];
-        // blender vectors are ( x , z ,-y );
+    const faces = diceFaceVectors[diceInt];
+    if (faces){
+        for (let i=0; i<faces.length; i++){
+            const blenderVec = faces[i];
+            // blender vectors are ( x , z ,-y );
 
-        const vec = new THREE.Vector3(blenderVec.x, blenderVec.z, -blenderVec.y);
-        vec.normalize();
-        vec.applyQuaternion(quat);
-        if (vec.y > bestY) {
-            bestY = vec.y;
-            bestV = i+1;
+            const vec = new THREE.Vector3(blenderVec.x, blenderVec.z, -blenderVec.y);
+            vec.normalize();
+            vec.applyQuaternion(quat);
+            if (vec.y > bestY) {
+                bestY = vec.y;
+                bestV = i+1;
+            }
         }
+    } else {
+        bestV = Math.floor(Math.random()*(diceInt+1));
     }
 
     return bestV;
@@ -580,6 +625,7 @@ class World {
         this.rollingDicesLight = [];
         this.rollingDicesDone = [];
         this.rollingDiceType = [];
+        this.rollingDiceTextElem = new Map();
         this.diceAnimFinished = [];
 
         this.countdown = 0;
@@ -680,19 +726,35 @@ class World {
         this.cycle();
     }
 
-    spawnDice() {
-        const diceType = ranList(diceTypes);
-        //const diceType = "d20";
+    spawnDice(diceInt) {
+        let meshName = "d"+diceInt+"a";
+        let meshPhy = "d"+diceInt+"phy";
 
-        const meshName = diceType+"a";
-        const meshPhy = diceType+"phy";
+        const faces = diceFaceVectors[diceInt];
+        if (!faces){
+            meshName = "d20a";
+            meshPhy = "d20phy";
+        }
+
         const [mesh, rb] = this.createMeshPhysLOD(meshName, meshPhy);
 
         randomizeModelMaterial(mesh, meshName);
 
         this.rollingDices.push(rb);
         this.rollingDicesMesh.push(mesh);
-        this.rollingDiceType.push(diceType);
+        this.rollingDiceType.push(diceInt);
+
+        if (!faces){
+            const el = document.createElement('div')
+            el.className = "diceLabel";
+            el.innerHTML = "X";
+
+            const objectCSS = new CSS2DObject(el);
+            objectCSS.position.set(0, 0, 0);
+            mesh.add(objectCSS);
+
+            this.rollingDiceTextElem.set(mesh, objectCSS);
+        }
     }
 
     createMesh(name, mat){
@@ -728,7 +790,8 @@ class World {
             this.countdown = .1;
             this.spawnCount += 1;
 
-            this.spawnDice();
+            let diceInt = ranList(diceThrowList);
+            this.spawnDice(diceInt);
         }
     }
 
@@ -768,10 +831,15 @@ class World {
                 if (x/5 < this.diceAllFinisedAnimTime){ //once
                     this.diceAnimFinished.push(mesh);
 
+                    const oldObjCss = this.rollingDiceTextElem.get(mesh);
+                    if (oldObjCss){
+                        mesh.remove(oldObjCss);
+                    }
+                    
                     //CSS2DRenderer
                     const el = document.createElement('div')
                     el.className = "diceLabel";
-                    el.innerHTML = v;
+                    el.innerHTML = oldObjCss ? "x:"+v : v;
                     const objectCSS = new CSS2DObject(el);
                     objectCSS.position.set(0, 0, 0)
 
@@ -781,7 +849,7 @@ class World {
                         const sound = playAudio3D('sfxGongFail', mesh, false, .4);
                     } else {
                         const sound = playAudio3D('sfxGong', mesh);
-                        sound.setDetune((v-5)*100);
+                        sound.setDetune((Math.min(v,30)-5)*100);
 
                         if (v==20){
                             const sound2 = playAudio3D('sfxHorn0', mesh, false, .2);

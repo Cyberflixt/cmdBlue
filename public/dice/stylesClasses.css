@@ -117,6 +117,18 @@ body{
 	aspect-ratio: 1;
 }
 
+.mar0{
+	margin: 0;
+}.mar05{
+	margin: .5vh;
+}.mar1{
+	margin: 1vh;
+}.mar2{
+	margin: 2vh;
+}.mar3{
+	margin: 3vh;
+}
+
 .pad0{
 	padding: 0;
 }.pad05{

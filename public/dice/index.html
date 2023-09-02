@@ -9,14 +9,81 @@
     <script src="https://cdn.jsdelivr.net/gh/kripken/ammo.js@HEAD/builds/ammo.wasm.js"></script>
 </head>
 <body>
-    <div id="guiOverlay" class="abs flexy align nopointer z3">
-        <div class="fullx pointer" style="background: black; height: 5vw;">
-            
-        </div>
-        <div class="fg"></div>
+    <div id="guiOverlay" class="abs screen flexy align nopointer z3">
         <div class="pointer" style="background: black; height: 5vw; width: 30vw;">
-            
+            <div>Above</div>
         </div>
+
+        <div class="flexx screenx fg">
+            <div class="flexy">
+                <div class="fg"></div>
+
+                <div class="flexx mar1 pad1 gap1 colorBtn0 rad2">
+                    <div class="iconDice">
+                        <img src="assets/icons/dice4.png">
+                        <div><div>4</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                    <div class="iconDice">
+                        <img src="assets/icons/dice6.png">
+                        <div><div>6</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                    <div class="iconDice">
+                        <img src="assets/icons/dice10.png">
+                        <div><div>10</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                    <div class="iconDice">
+                        <img src="assets/icons/dice12.png">
+                        <div><div>12</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                    <div class="iconDice">
+                        <img src="assets/icons/dice16.png">
+                        <div><div>16</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                    <div class="iconDice">
+                        <img src="assets/icons/dice20.png">
+                        <div><div>20</div></div>
+                        <img src="assets/icons/iconAdd.png" class="iconSub">
+                    </div>
+                </div>
+            </div>
+
+            <div class="fg"></div>
+
+            <div class="flexy">
+                <div class="fg"></div>
+
+                <div class="flexy pad1 gap1">
+
+                    <div id="elemDiceHolder flexy gap1">
+                        <div class="btn0 flexx">
+                            <img class="iconSmall" src="assets/icons/dice4.png">
+                            <div class="fg">D20</div>
+                            <img class="iconSmall" src="assets/icons/iconClose.png">
+                        </div>
+                    </div>
+
+                    <div class="flexx gap1">
+                        <div class="btn0">
+                            <div>Clear</div>
+                            <img src="assets/icons/iconTrash.png">
+                        </div>
+                        <div class="btn0">
+                            <div>Throw</div>
+                            <img src="assets/icons/iconDice.png" class="blendRainbow">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
     </div>
     <div id="contentHolder" class="abs screen z2"></div>
 
@@ -33,6 +100,7 @@
             </div>
         </div>
     </div>
+
     <!-- Import maps polyfill -->
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
