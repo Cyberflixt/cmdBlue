@@ -44,11 +44,17 @@ function skybox(a,b,c,d,e,f){
 
 var meshesLoaded = {};
 var meshesPaths = {
-    "d20phy": "assets/meshes/dice20phy.glb",
-    "d20a": "assets/meshes/dice20a.glb",
+    "d4phy": "assets/meshes/dice4phy.glb",
+    "d4a": "assets/meshes/dice4a.glb",
 
     "d6phy": "assets/meshes/dice6phy.glb",
     "d6a": "assets/meshes/dice6a.glb",
+
+    "d10phy": "assets/meshes/dice10phy.glb",
+    "d10a": "assets/meshes/dice10a.glb",
+
+    "d20phy": "assets/meshes/dice20phy.glb",
+    "d20a": "assets/meshes/dice20a.glb",
 }
 
 var audioLoaded = {};
@@ -96,8 +102,9 @@ var matsDataDict = {
 }
 //MeshToonMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial
 
+const diceTypes = ["d4","d6","d10","d20"];
 var modelRandomMaterial = {
-    "d20a": [
+    "d4a": [
         ["Marble008"],
         ["Marble009", "Glass0"],
     ],
@@ -105,9 +112,47 @@ var modelRandomMaterial = {
         ["Marble009", "Glass0"],
         ["Marble008"],
     ],
+    "d10a": [
+        ["Marble008"],
+        ["Marble009", "Glass0"],
+    ],
+    "d20a": [
+        ["Marble008"],
+        ["Marble009", "Glass0"],
+    ],
 }
 
 var diceFaceVectors = {
+    d4: [
+        new THREE.Vector3(-5.2,-3,-2.7),
+        new THREE.Vector3(5.1, -3,-2.7),
+        new THREE.Vector3(0,0,5.6),
+        new THREE.Vector3(0,6,-2.7),
+    ],
+
+    d6: [
+        new THREE.Vector3( 0, 0,-3),
+        new THREE.Vector3( 0,-3, 0),
+        new THREE.Vector3( 3, 0, 0),
+        new THREE.Vector3(-3, 0, 0),
+        new THREE.Vector3( 0, 3, 0),
+        new THREE.Vector3( 0, 0, 3),
+    ],
+
+    d10: [
+        new THREE.Vector3(0, -1.96, .8),
+        new THREE.Vector3(-1.5, -1.47, -1.32),
+        new THREE.Vector3(2.42, -0.2, .82),
+        new THREE.Vector3(2.42, 1.37, -1.32),
+        new THREE.Vector3(-1.5, 2.65, 0.83),
+
+        new THREE.Vector3(1.5, -1.47, -1.32),
+        new THREE.Vector3(-2.42, -1.2, .82),
+        new THREE.Vector3(-2.42, 1.37, -1.32),
+        new THREE.Vector3(1.5, 2.65, 0.83),
+        new THREE.Vector3(0, 3.14, -1.32),
+    ],
+
     d20: [
         new THREE.Vector3( 1.21,  3.71, -0.74),
         new THREE.Vector3( 1.21, -3.71, -0.74),
@@ -115,7 +160,7 @@ var diceFaceVectors = {
         new THREE.Vector3(-1.95, -1.42, -3.16),
         new THREE.Vector3( 2.41,  0,    -3.16),
 
-        new THREE.Vector3(-3.90,  0,     0.74),//6
+        new THREE.Vector3(-3.90,  0,     0.74),
         new THREE.Vector3( 3.16,  2.29,  0.74),
         new THREE.Vector3(-0.74, -2.29,  3.15),
         new THREE.Vector3(-3.15,  2.29, -0.74),
@@ -132,14 +177,6 @@ var diceFaceVectors = {
         new THREE.Vector3( 0.74, -2.29, -3.15),
         new THREE.Vector3(-1.20,  3.71,  0.74),
         new THREE.Vector3(-1.20, -3.71,  0.74),
-    ],
-    d6: [
-        new THREE.Vector3( 0, 0,-3),
-        new THREE.Vector3( 0,-3, 0),
-        new THREE.Vector3( 3, 0, 0),
-        new THREE.Vector3(-3, 0, 0),
-        new THREE.Vector3( 0, 3, 0),
-        new THREE.Vector3( 0, 0, 3),
     ],
 };
 
@@ -644,9 +681,8 @@ class World {
     }
 
     spawnDice() {
-        const diceTypes = ["d20","d6"];
-        //const diceType = ranList(diceTypes);
-        const diceType = "d20";
+        const diceType = ranList(diceTypes);
+        //const diceType = "d20";
 
         const meshName = diceType+"a";
         const meshPhy = diceType+"phy";
