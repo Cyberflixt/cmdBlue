@@ -59,9 +59,12 @@ body{
     position: relative;
     width: 5vh;
     height: 5vh;
+    pointer-events: auto;
+    user-select: none;
 }.iconDice>*{
     width: 100%;
     height: 100%;
+    pointer-events: none;
 }.iconDice>div{
     position: absolute;
     left: 0;

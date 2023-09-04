@@ -10,6 +10,9 @@ var loader = new GLTFLoader();
 const contentHolder = document.getElementById("contentHolder");
 const elemLoadingBar = document.getElementById("loadingBar");
 const elemLoadingScreen = document.getElementById("elemLoadingScreen");
+const elemDiceHolder = document.getElementById("elemDiceHolder");
+const elemDiceBtns = document.getElementById("elemDiceBtns");
+
 
 const cssRenderer = new CSS2DRenderer({element: contentHolder});
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -420,6 +423,47 @@ function getDiceUpFace(mesh, diceInt, world){
     return bestV;
 }
 
+function clearDiceList(){
+    diceThrowList = [];
+}
+function addDiceList(diceMax){
+    diceThrowList.push(diceMax);
+
+    elemDiceBtns.innerHTML += `
+    <div class="iconDice" data-dice-value="4">
+        <img src="assets/icons/dice4.png">
+        <div><div>4</div></div>
+        <img src="assets/icons/iconAdd.png" class="iconSub">
+    </div>
+    `;
+}
+
+function initDiceBtns(){
+    for (const btn of elemDiceBtns.childNodes){
+        if (btn.className == "iconDice"){
+            btn.addEventListener("click", () => {
+                const diceMax = btn.dataset.diceValue;
+                addDiceList(diceMax);
+            }, false)
+        }
+    }
+    clearDiceList();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class RigidBody {
     constructor(){ }
 
@@ -629,10 +673,10 @@ class World {
         this.diceAnimFinished = [];
 
         this.countdown = 0;
-        this.spawnCount = 0;
         this.lastTick = 0;
-        this.diceMax = 5;
+        this.diceInt = 0;
         this.diceResults = [];
+        this.lightMax = 10;
     }
 
     initialize() {
@@ -714,7 +758,7 @@ class World {
         this.ground = ground;
 
         if (LOD > 0){
-            for (let i=0; i<this.diceMax; i++){
+            for (let i=0; i<this.lightMax; i++){
                 let light = new THREE.PointLight(0xFFB05C, .5, 30);
                 light.position.set(500,500,500);
                 this.scene.add(light);
@@ -786,12 +830,12 @@ class World {
     spawnObjectCycle() {
         this.countdown -= this.deltaTime;
 
-        if (this.countdown < 0 && this.spawnCount < this.diceMax){
+        if (this.countdown < 0 && this.diceInt < diceThrowList.length){
             this.countdown = .1;
-            this.spawnCount += 1;
 
-            let diceInt = ranList(diceThrowList);
-            this.spawnDice(diceInt);
+            let diceMax = diceThrowList[this.diceInt];
+            this.diceInt += 1;
+            this.spawnDice(diceMax);
         }
     }
 
@@ -913,7 +957,7 @@ class World {
         }
 
         // if finished
-        if (this.diceMax == this.rollingDicesDone.length){
+        if (this.rollingDicesDone.length == this.rollingDices.length){
             this.diceAllFinished();
         }
     }
@@ -1037,6 +1081,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await preloadMeshes();
     await preloadAudio();
     await preloadMaterials();
+    initDiceBtns();
 
     Ammo().then((lib) => {
         Ammo = lib;
