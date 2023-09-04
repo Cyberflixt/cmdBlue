@@ -12,6 +12,10 @@ const elemLoadingBar = document.getElementById("loadingBar");
 const elemLoadingScreen = document.getElementById("elemLoadingScreen");
 const elemDiceHolder = document.getElementById("elemDiceHolder");
 const elemDiceBtns = document.getElementById("elemDiceBtns");
+const elemBtnDiceClear = document.getElementById("elemBtnDiceClear");
+const elemBtnDiceThrow = document.getElementById("elemBtnDiceThrow");
+const elemNumberOutput = document.getElementById("elemNumberOutput");
+const elemNumberOutputRes = document.getElementById("elemNumberOutputRes");
 
 
 const cssRenderer = new CSS2DRenderer({element: contentHolder});
@@ -111,7 +115,6 @@ var matsDataDict = {
 }
 //MeshToonMaterial, MeshPhysicalMaterial, MeshLambertMaterial, MeshBasicMaterial
 
-var diceThrowList = [4, 6, 10, 12, 16, 20, 999];
 const diceMatSolid = ["Marble009", "Glass0"];
 const diceMatText = ["Marble009", "Glass0"];
 
@@ -396,13 +399,13 @@ function addMiscMaterials(){
     });
 }
 
-function getDiceUpFace(mesh, diceInt, world){
+function getDiceUpFace(mesh, diceMax, world){
     const quat = mesh.quaternion;
 
     let bestY = -99;
     let bestV;
 
-    const faces = diceFaceVectors[diceInt];
+    const faces = diceFaceVectors[diceMax];
     if (faces){
         for (let i=0; i<faces.length; i++){
             const blenderVec = faces[i];
@@ -417,50 +420,11 @@ function getDiceUpFace(mesh, diceInt, world){
             }
         }
     } else {
-        bestV = Math.floor(Math.random()*(diceInt+1));
+        bestV = Math.floor(Math.random()*(diceMax+1));
     }
 
     return bestV;
 }
-
-function clearDiceList(){
-    diceThrowList = [];
-}
-function addDiceList(diceMax){
-    diceThrowList.push(diceMax);
-
-    elemDiceBtns.innerHTML += `
-    <div class="iconDice" data-dice-value="4">
-        <img src="assets/icons/dice4.png">
-        <div><div>4</div></div>
-        <img src="assets/icons/iconAdd.png" class="iconSub">
-    </div>
-    `;
-}
-
-function initDiceBtns(){
-    for (const btn of elemDiceBtns.childNodes){
-        if (btn.className == "iconDice"){
-            btn.addEventListener("click", () => {
-                const diceMax = btn.dataset.diceValue;
-                addDiceList(diceMax);
-            }, false)
-        }
-    }
-    clearDiceList();
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -661,16 +625,20 @@ class World {
         this.tmpTransform = new Ammo.btTransform();
 
         this.floorY = 4.5;
-        this.rollingDices = [];
+        this.rollingDiceMeshTextElem = new Map();
         this.rollingDicesOldVel = new Map();
         this.rollingDicesDist = new Map();
-        this.rollingDicesRolled = [];
-        this.rollingDicesMesh = [];
+        this.rollingDiceAnimFinished = [];
+        this.rollingDicesGrounded = [];
         this.rollingDicesLight = [];
+        this.rollingDicesMesh = [];
         this.rollingDicesDone = [];
         this.rollingDiceType = [];
-        this.rollingDiceTextElem = new Map();
-        this.diceAnimFinished = [];
+        this.rollingDicesRb = [];
+        this.numberOutputList = [];
+
+        this.diceAwaitThrowList = [];
+        this.diceThrowList = [];
 
         this.countdown = 0;
         this.lastTick = 0;
@@ -767,14 +735,15 @@ class World {
         }
 
         // init
+        this.initDiceBtns();
         this.cycle();
     }
 
-    spawnDice(diceInt) {
-        let meshName = "d"+diceInt+"a";
-        let meshPhy = "d"+diceInt+"phy";
+    spawnDice(diceMax) {
+        let meshName = "d"+diceMax+"a";
+        let meshPhy = "d"+diceMax+"phy";
 
-        const faces = diceFaceVectors[diceInt];
+        const faces = diceFaceVectors[diceMax];
         if (!faces){
             meshName = "d20a";
             meshPhy = "d20phy";
@@ -784,20 +753,20 @@ class World {
 
         randomizeModelMaterial(mesh, meshName);
 
-        this.rollingDices.push(rb);
+        this.rollingDicesRb.push(rb);
         this.rollingDicesMesh.push(mesh);
-        this.rollingDiceType.push(diceInt);
+        this.rollingDiceType.push(diceMax);
 
         if (!faces){
             const el = document.createElement('div')
             el.className = "diceLabel";
             el.innerHTML = "X";
 
-            const objectCSS = new CSS2DObject(el);
-            objectCSS.position.set(0, 0, 0);
-            mesh.add(objectCSS);
+            const objectCss = new CSS2DObject(el);
+            objectCss.position.set(0, 0, 0);
+            mesh.add(objectCss);
 
-            this.rollingDiceTextElem.set(mesh, objectCSS);
+            this.rollingDiceMeshTextElem.set(mesh, objectCss);
         }
     }
 
@@ -828,12 +797,11 @@ class World {
     }
 
     spawnObjectCycle() {
-        this.countdown -= this.deltaTime;
 
-        if (this.countdown < 0 && this.diceInt < diceThrowList.length){
-            this.countdown = .1;
+        if (Date.now() > this.diceThrowTick && this.diceInt < this.diceThrowList.length){
+            this.diceThrowTick = Date.now()+100;
 
-            let diceMax = diceThrowList[this.diceInt];
+            let diceMax = this.diceThrowList[this.diceInt];
             this.diceInt += 1;
             this.spawnDice(diceMax);
         }
@@ -845,7 +813,14 @@ class World {
         const v = getDiceUpFace(mesh, name, this);
         this.diceResults.push(v);
     }
-    diceAllFinished() {
+    outputAddNumber(n){
+        elemNumberOutput.innerHTML += `
+        <div class="numberOutput">${n}</div>
+        `;
+        this.numberOutputList.push(n);
+        this.refreshNumberOutputList();
+    }
+    diceAllFinishedFrame() {
         if (! this.diceAllFinisedBool) {
             this.diceAllFinisedBool = true;
             this.diceAllFinisedAnimTime = 0;
@@ -871,11 +846,11 @@ class World {
             const v = this.diceResults[i];
             const mesh = this.rollingDicesDone[i];
 
-            if (!this.diceAnimFinished.includes(mesh)){
+            if (!this.rollingDiceAnimFinished.includes(mesh)){
                 if (x/5 < this.diceAllFinisedAnimTime){ //once
-                    this.diceAnimFinished.push(mesh);
+                    this.rollingDiceAnimFinished.push(mesh);
 
-                    const oldObjCss = this.rollingDiceTextElem.get(mesh);
+                    const oldObjCss = this.rollingDiceMeshTextElem.get(mesh);
                     if (oldObjCss){
                         mesh.remove(oldObjCss);
                     }
@@ -884,10 +859,11 @@ class World {
                     const el = document.createElement('div')
                     el.className = "diceLabel";
                     el.innerHTML = oldObjCss ? "x:"+v : v;
-                    const objectCSS = new CSS2DObject(el);
-                    objectCSS.position.set(0, 0, 0)
+                    const objectCss = new CSS2DObject(el);
+                    objectCss.position.set(0, 0, 0);
 
-                    mesh.add(objectCSS);
+                    mesh.add(objectCss);
+                    this.rollingDiceMeshTextElem.set(mesh, objectCss);
 
                     if (v == 1){
                         const sound = playAudio3D('sfxGongFail', mesh, false, .4);
@@ -900,14 +876,107 @@ class World {
                             sound2.setDetune(500);
                         }
                     }
+                    this.outputAddNumber(v);
                 }
             }
         }
     }
 
+    clearAllRollingDices(){
+
+        // remove old
+        for (const [mesh, css] of this.rollingDiceMeshTextElem.entries()){
+            mesh.remove(css);
+        }
+        this.rollingDicesMesh.map((group) => {
+            this.scene.remove(group);
+        });
+
+        this.rollingDicesRb.map((rb) => {
+            for (let i=0; i<this.rigidBodies.length; i++){
+                if (this.rigidBodies[i].rigidBody == rb){
+                    this.rigidBodies.splice(i,1);
+                    i--;
+                }
+            }
+            this.physicsWorld.removeRigidBody(rb);
+        });
+
+        this.rollingDicesLight.map((light) => {
+            light.position.set(300, 300, 300);
+        });
+
+        // empty out arrays & maps
+        this.rollingDiceMeshTextElem = new Map();
+        this.rollingDicesOldVel = new Map();
+        this.rollingDicesDist = new Map();
+        this.rollingDiceAnimFinished = [];
+        this.rollingDicesGrounded = [];
+        this.rollingDicesMesh = [];
+        this.rollingDicesDone = [];
+        this.rollingDiceType = [];
+        this.rollingDicesRb = [];
+
+        this.diceThrowList = [];
+        this.diceResults = [];
+        this.diceThrowTick = 0;
+        this.diceInt = 0;
+        this.diceAllFinisedBool = false;
+    }
+
+    refreshNumberOutputList(){
+        let r = 0;
+        this.numberOutputList.map((v) => {
+            r += v;
+        })
+        elemNumberOutputRes.innerHTML = `∑ = ${r}`;
+    }
+
+    clearDiceAwaitList(){
+        this.diceAwaitThrowList = [];
+        elemDiceHolder.innerHTML = "";
+        elemNumberOutput.innerHTML = "";
+        this.numberOutputList = [];
+        this.refreshNumberOutputList()
+    }
+    throwDiceList(){
+        this.clearAllRollingDices();
+
+        this.diceThrowList = [...this.diceAwaitThrowList];
+        this.clearDiceAwaitList();
+    }
+    addDiceList(diceMax){
+        this.diceAwaitThrowList.push(diceMax);
+
+        elemDiceHolder.innerHTML += `
+        <div class="btn0 flexx">
+            <img class="iconSmall" src="assets/icons/dice${diceMax}.png">
+            <div class="fg">D${diceMax}</div>
+            <img class="iconSmall" src="assets/icons/iconClose.png">
+        </div>
+        `;
+    }
+    initDiceBtns(){
+        for (const btn of elemDiceBtns.childNodes){
+            if (btn.className == "iconDice"){
+                btn.addEventListener("click", () => {
+                    const diceMax = btn.dataset.diceValue;
+                    this.addDiceList(diceMax);
+                }, false)
+            }
+        }
+        elemBtnDiceClear.addEventListener("click", () => {
+            this.clearDiceAwaitList();
+        }, false);
+        elemBtnDiceThrow.addEventListener("click", () => {
+            this.throwDiceList();
+        }, false);
+        this.clearDiceAwaitList();
+    }
+
     refreshDices(){
-        for (let i = 0; i<this.rollingDices.length; i++) {
-            const rb = this.rollingDices[i];
+        for (let i = 0; i<this.rollingDicesRb.length; i++) {
+            const rb = this.rollingDicesRb[i];
             const mesh = this.rollingDicesMesh[i];
             const name = this.rollingDiceType[i];
 
@@ -921,8 +990,8 @@ class World {
             if (oldVel) {
                 const r = oldVel.dot(vel);
                 if (mesh.position.y < this.floorY){
-                //if (r<.9 || mesh.position.y < this.floorY){
-                    if (this.rollingDicesRolled.includes(rb)){
+                    //if (r<.9 || mesh.position.y < this.floorY){
+                    if (this.rollingDicesGrounded.includes(rb)){
 
                         let x = this.rollingDicesDist.get(rb);
                         x -= velRef.length()*this.deltaTime;
@@ -941,10 +1010,9 @@ class World {
                             }
                         }
                     } else {
-                        this.rollingDicesRolled.push(rb);
-                        playAudio3D('dice', mesh, 6);
-
+                        this.rollingDicesGrounded.push(rb);
                         this.rollingDicesDist.set(rb, 20);
+                        playAudio3D('dice', mesh, 6);
                     }
                 }
             }
@@ -957,8 +1025,8 @@ class World {
         }
 
         // if finished
-        if (this.rollingDicesDone.length == this.rollingDices.length){
-            this.diceAllFinished();
+        if (this.rollingDicesDone.length == this.diceThrowList.length && this.rollingDicesDone.length>0){
+            this.diceAllFinishedFrame();
         }
     }
 
@@ -1081,7 +1149,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     await preloadMeshes();
     await preloadAudio();
     await preloadMaterials();
-    initDiceBtns();
 
     Ammo().then((lib) => {
         Ammo = lib;

@@ -124,3 +124,10 @@ body{
     animation: 10s linear infinite rainbowHueAnim;
 }
 
+.menuLogo{
+    width: 5vh;
+    height: 5vh;
+}
+.numberOutput{
+    font-size: 5vh;
+}

@@ -10,8 +10,17 @@
 </head>
 <body>
     <div id="guiOverlay" class="abs screen flexy align nopointer z3">
-        <div class="pointer" style="background: black; height: 5vw; width: 30vw;">
-            <div>Above</div>
+        <div class="pointer flexx screenx align justify pad1 padx2" style="background: black; height: 7vh;">
+            <div class="menuTitle flexx align gap1">
+                <img class="menuLogo" src="assets/icons/iconDice.png">
+                <div>DICES</div>
+            </div>
+
+            <div class="fg flexx gap3 justify align" id="elemNumberOutput"></div>
+
+            <div class="menuTitle numberOutput" id="elemNumberOutputRes">
+                Cy
+            </div>
         </div>
 
         <div class="flexx screenx fg">
@@ -59,7 +68,7 @@
 
                 <div class="flexy pad1 gap1">
 
-                    <div id="elemDiceHolder flexy gap1">
+                    <div id="elemDiceHolder" class="flexy gap1">
                         <div class="btn0 flexx">
                             <img class="iconSmall" src="assets/icons/dice4.png">
                             <div class="fg">D20</div>
@@ -68,11 +77,11 @@
                     </div>
 
                     <div class="flexx gap1">
-                        <div class="btn0">
+                        <div class="btn0" id="elemBtnDiceClear">
                             <div>Clear</div>
                             <img src="assets/icons/iconTrash.png">
                         </div>
-                        <div class="btn0">
+                        <div class="btn0" id="elemBtnDiceThrow">
                             <div>Throw</div>
                             <img src="assets/icons/iconDice.png" class="blendRainbow">
                         </div>
