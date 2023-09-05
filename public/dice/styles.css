@@ -131,3 +131,8 @@ body{
 .numberOutput{
     font-size: 5vh;
 }
+
+#elemDiceHolder{
+    max-height: 70vh;
+    overflow-y: scroll;
+}
