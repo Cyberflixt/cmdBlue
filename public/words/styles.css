@@ -1,20 +1,19 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Ubuntu+Condensed&display=swap');
-#content{
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	left: 0px;
-	top: 0px;
-	background: rgb(20,20,20);
-}
 
-.conCen{
+body{
+	margin: 0;
+
+	background: rgb(20,20,20);
+	overflow: hidden;
+	width: 100vw;
+	height: 100vh;
+}
+.flexCen{
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
-
 #popupMain{
 	margin: auto;
 	width: 60%;
@@ -32,15 +31,17 @@
 	justify-content: flex-start;
 }
 
+
+*{
+	color: rgb(220,220,220);
+	font-size: 50px;
+	font-family: 'Concert One', cursive;
+}
 .desc{
 	background: rgb(40,40,40);
 	text-align: left;
 	border-radius: 10px;
 	padding: 15px;
-
-	color: rgb(220,220,220);
-	font-size: 50px;
-	font-family: 'Concert One', cursive;
 
 	transition: 1s ease-in-out;
 	transition-property: width, height;
@@ -50,12 +51,22 @@
 }
 #wordTitle{
 	text-transform: uppercase;
-}
-
-#wordNature{
+}#wordNature{
 	margin-right: 10px;
-}
-#wordDef{
+}#wordDef{
 	margin-top: 10px;
 	font-family: 'Ubuntu Condensed', sans-serif;
+}
+
+#sideBar{
+	position: absolute;
+	height: 100vh;
+	width: 5vw;
+	left: 0;
+	top: 0;
+}
+#sideBar *{
+	writing-mode: vertical-rl;
+	text-orientation: mixed;
+	font-size: 5vh;
 }
