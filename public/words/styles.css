@@ -102,3 +102,18 @@ body{
 	content: "";
 }
 
+/* Bottom Bar */
+
+.bottomBar{
+	top: 93vh;
+	height: 5vh;
+	width: 100vw;
+	
+	opacity: .5;
+}.bottomBar img{
+	width: 4vh;
+	height: 4vh;
+}.bottomBar *{
+	text-decoration: none;
+	font-size: 4vh;
+}

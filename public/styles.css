@@ -1,9 +1,9 @@
 
-#content{
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	left: 0px;
-	top: 0px;
-	font-size: 50px;
+:root{
+	--color-a: rgb(24,22,20);
+	--color-b: rgb(44,42,40);
+}
+
+body{
+	margin: 0;
 }
