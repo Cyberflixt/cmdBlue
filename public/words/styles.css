@@ -1,72 +1,104 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Ubuntu+Condensed&display=swap');
 
-body{
-	margin: 0;
-
-	background: rgb(20,20,20);
-	overflow: hidden;
-	width: 100vw;
-	height: 100vh;
+:root{
+	--color-a: rgb(24,22,20);
+	--color-b: rgb(44,42,40);
 }
-.flexCen{
+
+/* General Classes */
+
+*{
+	color: rgb(220,220,220);
+	font-size: 5vh;
+	font-family: 'Concert One', cursive;
+	border-radius: 2vh;
+	gap: 2vh;
+}
+
+.abs{
+	position: absolute;
+	left: 0;
+	top: 0;
+}.flexCen{
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
-#popupMain{
-	margin: auto;
-	width: 60%;
-	aspect-ratio: 2 / 1;
-	border-radius: 10px;
 
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+/* Background */
+
+body{
+	margin: 0;
+
+	background: var(--color-a);
+	overflow: hidden;
+	width: 100vw;
+	height: 100vh;
 }
 
-#wordHead{
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-}
+/* Main center text */
+/* little gaps, padding, fonts */
 
-
-*{
-	color: rgb(220,220,220);
-	font-size: 50px;
-	font-family: 'Concert One', cursive;
-}
 .desc{
-	background: rgb(40,40,40);
-	text-align: left;
-	border-radius: 10px;
-	padding: 15px;
-
-	transition: 1s ease-in-out;
-	transition-property: width, height;
-	display: block;
+	background: var(--color-b);
+	padding: 2vh;
 	
 	white-space: pre-line;
 }
+
+.popupMain{
+	width: 60vw;
+	aspect-ratio: 2 / 1;
+
+	flex-direction: column;
+	align-items: flex-start;
+}.wordHead{
+	justify-content: flex-start;
+}
+
 #wordTitle{
 	text-transform: uppercase;
-}#wordNature{
-	margin-right: 10px;
 }#wordDef{
-	margin-top: 10px;
 	font-family: 'Ubuntu Condensed', sans-serif;
 }
 
-#sideBar{
-	position: absolute;
+/* Side Bar */
+/* absolute left, vertical text */
+
+.sideBar{
 	height: 100vh;
 	width: 5vw;
-	left: 0;
-	top: 0;
-}
-#sideBar *{
+}.sideBar *{
 	writing-mode: vertical-rl;
 	text-orientation: mixed;
-	font-size: 5vh;
+	font-size: 4.5vh;
 }
+
+/* Top Bar */
+/* absolute top, add arrows to children */
+
+#topBar{
+	left: 2vh;
+	height: 10vh;
+	width: calc(100vw - 4vh);
+
+	justify-content: end;
+	align-items: flex-start;
+	overflow: hidden;
+
+	padding-top: 2vh;
+	gap: 1vh;
+}
+
+#topBar *{
+	display: flex;
+	background: var(--color-b);
+	font-size: 3vh;
+	padding: 1vh;
+}#topBar *::before{
+	content: "> ";
+}#topBar *:nth-child(1):before{
+	content: "";
+}
+
