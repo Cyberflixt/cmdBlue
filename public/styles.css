@@ -1,9 +1,10 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Ubuntu+Condensed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Ubuntu+Condensed&family=Chivo:wght@500&display=swap');
 
 :root[data-theme="light"] {
 	--text: rgb(1, 12, 14);
 	--background: rgb(241, 251, 254);
+	--background3a: rgb(241, 251, 254, .3);
 	--primary: rgb(29, 195, 237);
 	--secondary: rgb(198, 123, 244);
 	--accent: rgb(241, 88, 243);
@@ -11,19 +12,21 @@
 :root[data-theme="dark"] {
 	--text: rgb(241, 252, 254);
 	--background: rgb(1, 11, 14);
+	--background3a: rgba(1, 11, 14, .3);
 	--primary: rgb(18, 185, 226);
-	--primary3: rgba(18, 185, 226,.3);
+	--primary3a: rgba(18, 185, 226,.3);
+	--primary5: rgb(0, 66, 84);
 	--secondary: rgb(86, 11, 132);
-	--secondary3: rgba(86, 11, 132, .3);
+	--secondary3a: rgba(86, 11, 132, .3);
 	--accent: rgb(163, 12, 166);
-	--accent3: rgba(163, 12, 166, .3);
+	--accent3a: rgba(163, 12, 166, .3);
 }
   
 
 
 *{
 	color: var(--text);
-	font-family: Poppins, sans-serif;
+	font-family: 'Chivo', sans-serif;
 	font-weight: 600;
 	font-size: 4vh;
 }
@@ -52,14 +55,14 @@
 	margin-top: 35vmin;
 }
 .banner{
-	background: var(--primary3);
+	background: var(--primary5);
 
 	width: 100vw;
 	height: 25vmin;
 	margin-top: 10vmin;
 
 	transition: .3s;
-	transition-property: height;
+	transition-property: height, padding-top;
 }
 .banner *{
 	font-size: 21vmin;
@@ -83,6 +86,7 @@ body[data-scrollvmin ~= "10"] .banner{
 	margin-top: 0;
 	
 	height: 15vmin;
+	padding-top: 2vmin;
 }body[data-scrollvmin ~= "10"] .bannerTitle{
 	font-size: 12vmin;
 }
@@ -110,7 +114,7 @@ body[data-scrollvmin ~= "10"] .banner{
 	top: -20vh;
 	width: 100vw;
 
-	color: var(--accent-a);
+	color: var(--primary);
 	mix-blend-mode: overlay;
 
 	transform: rotate(20deg) translate(-50%);
@@ -156,12 +160,13 @@ body[data-scrollvmin ~= "10"] .banner{
 .card{
 	position: relative;
 	width: 300px;
-	aspect-ratio: 3 / 5;
+	aspect-ratio: 2 / 3;
 	transition: .1s transform;
-	transform: scale(.9);
+	transform: scale(.95);
 }.card:hover{
 	transform: scale(1.05);
 }
+
 .card > *{
 	position: absolute;
 	height: 100%;
@@ -169,11 +174,11 @@ body[data-scrollvmin ~= "10"] .banner{
 
 	border-radius: calc(2vh + 2px);
 
-	background: linear-gradient(var(--accent-a), var(--accent-b));
+	background: linear-gradient(var(--primary), var(--secondary));
 	box-shadow: 0 0 10px 0px black;
 }
 .card > * > *{
-	background: var(--color-a05);
+	background: var(--background3a);
 	border-radius: 2vh;
 
 	display: flex;
@@ -231,7 +236,7 @@ body[data-scrollvmin ~= "10"] .banner{
 /* card btns */
 
 .card .btn{
-	background: var(--color-b);
+	background: var(--background);
 	border-radius: 2vh;
 	padding: 1vh;
 
