@@ -20,7 +20,7 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-}.flexCen{
+}.flexcen{
 	display: flex;
 	justify-content: center;
 	align-items: center;

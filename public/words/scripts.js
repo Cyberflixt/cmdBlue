@@ -1,5 +1,5 @@
 
-import {dict} from './jsDict.js';
+import dict from './jsondata.json' assert {type: 'json'};
 
 const wordNature = document.getElementById('wordNature');
 const wordTitle = document.getElementById('wordTitle');
