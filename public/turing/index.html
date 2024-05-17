@@ -3,176 +3,24 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Page Title Goes Here</title>
-    <meta name="description" content="Description Goes Here">
-    <link rel="stylesheet" href="/styles.css">
-    <style>
-
-/* CSS */
-
-:root{
-    --bg: rgb(20,22,24);
-    --primary: rgb(32, 33, 34);
-}
-
-*{
-    font-family: Poppins, sans-serif;
-    color: white;
-    font-size: 3vh;
-}
-
-/* Override */
-
-body{
-    background: var(--bg);
-    width: 100vw;
-    overflow-x: hidden;
-    margin: 0;
-    gap: 5vh;
-    display: flex;
-    flex-direction: column;
-}
-
-a{
-    text-decoration: none;
-}
-input, textarea{
-    padding: 1vh;
-    background: none;
-    border-radius: 1vh;
-    outline: none;
-    width: 10vw;
-    border: 0;
-    background: var(--bg);
-}
-button{
-    background: none;
-    border: 0;
-    outline: none;
-    transition: .1s transform;
-    border-radius: 1vh;
-    padding: 1vh;
-    background: var(--bg);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-} button:hover{
-    transform: scale(1.1) rotate(5deg);
-} button>img{
-    height: 3vh;
-}
-
-/* Classes */
-
-.flexx{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1vh;
-}.flexy{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1vh
-}.flexcen{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.icon{
-    aspect-ratio: 1;
-    height: 5vh;
-}
-
-.title{
-    font-size: 10vh;
-}
-
-.padv2{
-    padding: 2vh;
-}.padv1{
-    padding: 1vh;
-}
-
-.prim{background: var(--primary);}
-.rad{
-    border-radius: 2vh;
-}
-.space{
-    justify-content: space-between;
-}
-
-
-
-.fullx{
-    width: 100%;
-}.rel{
-    position: relative;
-}
-
-
-.sides{
-    padding-left: 10vw;
-    padding-right: 10vw;
-}
-
-
-
-
-#turingPar{
-    position: relative;
-    width: 100vw;
-}
-#turingHolder{
-    width: calc(100vw + 100vw/9*2);
-    display: flex;
-    transform: translate(calc(-100vw/9),0);
-}
-#turingHolder>*{
-    aspect-ratio: 1;
-    flex-grow: 1;
-
-    border: 1px solid white;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#turingCenter{
-    position: absolute;
-    left: 50vw;
-    top: 0;
-    width: calc(100vw / 9 + 2vw);
-    aspect-ratio: 1;
-
-
-    transform: translate(calc(-100vw / 18 - 1vw), -1vw);
-}#turingCenter::before{
-    content: " ";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: calc(100% - 4px);
-    height: calc(100% - 4px);
-    border: 2px solid white;
-    border-radius: 1vw;
-}#turingCenter>div{
-    height: 3vw;
-    border-radius: 1vw;
-    border: 2px solid white;
-}
-
-textarea{
-    width: 50vw;
-    height: 30vh;
-}
-
-
-    </style>
+    <title>CMD.BLUE - Turing</title>
+    <meta name="keywords" content="online, turing, machine, cmd, blue, visualization, web"/>
+    <meta name="description" content="Visualization of a Turing machine online">
+    <meta name="og:title" property="og:title" content="Online Turing machine">
+    <meta property="og:description" content="📑 Online visualization of a custom Turing machine">
+    <meta property="og:image" content="/assets/images/iconSettings.png">
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="flexx padv2 sides prim space">
+<body class="noflowx">
+    <div class="bgHolder a">
+        <div>
+            <img src="/assets/images/bgSpaks.webp" id="parallax0">
+            <img src="/assets/images/bgLines.webp" id="parallax1">
+        </div>
+    </div>
+    
+    <div class="flexx padv2 sides prim space shadow alt-pad">
         <a class="flexx" href="/">
             <img src="/favicon.ico" class="icon">
             <b>CMD.BLUE</b>
@@ -181,115 +29,161 @@ textarea{
     </div>
 
     <div class="flexcen">
-        <div class="title">TURING MACHINE</div>
+        <div class="title font0 smoke textcen">TURING MACHINE</div>
     </div>
 
-    <div id="turingPar">
-        <div id="turingOffset">
-            <div id="turingHolder">
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
-                <div><div>A</div></div>
+    <div id="turingPar" class="noflowx">
+        <div class="rel">
+            <div id="turingOffset">
+                <div id="turingHolder">
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                    <div><div>A</div></div>
+                </div>
             </div>
-        </div>
-        <div id="turingCenter">
-            <div class="flexcen prim rel">
-                <div id="elemTuringState">state</div>
+            <div id="turingCenter">
+                <div class="flexcen prim rel">
+                    <div id="elemTuringState">state</div>
+                </div>
+                <span style="flex-grow: 1;"></span>
+                <div class="flexcen prim rel">
+                    <div id="elemTuringPos">value</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="flexcen">
-        <div class="flexy rad prim padv1">
-            <div>Controls</div>
-            <div class="flexx">
-                <button id="elemControlPrevious">
-                    <img src="/assets/images/iconPrevious.png">
-                </button>
-                <button id="elemControlPause">
-                    <img src="/assets/images/iconPause.png">
-                </button>
-                <button id="elemControlPlay">
-                    <img src="/assets/images/iconPlay.png">
-                </button>
+        <div class="flexx gap5 alt-flexy">
+            <div class="flexy rad prim padv1 shadow">
+                <div>Controls</div>
+                <div class="flexx">
+                    <button id="elemControlPrevious" class="smoothopacity">
+                        <img src="/assets/images/iconPrevious.png">
+                    </button>
+                    <button id="elemControlPause" class="smoothopacity">
+                        <img src="/assets/images/iconPause.png">
+                    </button>
+                    <button id="elemControlPlay" class="smoothopacity">
+                        <img src="/assets/images/iconPlay.png">
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flexx gap5">
+                <div class="flexy rad prim padv1 shadow">
+                    <div>Goto</div>
+                    <div class="flexx space fullx">
+                        <input type="number" id="elemInputGoto" placeholder="0">
+                        <button id="elemControlGoto">
+                            <img src="/assets/images/iconGoto.png">
+                        </button>
+                    </div>
+                </div>
+    
+                <div class="flexy rad prim padv1 shadow">
+                    <div>Speed</div>
+                    <div class="flexx space fullx">
+                        <input type="number" id="elemInputSpeed" placeholder="1">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="sides flexcen">
-        <div class="rad prim padv1">
+        <div class="rad prim padv1 shadow alt-rad0 alt-screenx alt-pady">
             <div class="rel flexy" id="elemRulesHolder">
 
-                <div class="flexx space fullx">
-                    <img class="icon" src="/assets/images/iconSettings.png">
-                    <div>Rules</div>
-                    <button id="elemRuleAdd">
-                        <img src="/assets/images/iconAdd.png">
-                    </button>
+                <div class="fullx">
+                    <div class="flexx space alt-sides">
+                        <img class="icon" src="/assets/images/iconSettings.png">
+                        <div>Rules</div>
+                        <button id="elemRuleAdd">
+                            <img src="/assets/images/iconAdd.png">
+                        </button>
+                    </div>
                 </div>
-
-                <!--
+                
+                <div class="barx"></div>
+                
                 <div class="rad prim flexx space">
-                    <div class="flexx">
-                        <input type="text" placeholder="cell"></input>
-                        <input type="text" placeholder="state"></input>
+                    <div class="flexx alt-gap05">
+                        <div class="inputlike">Cell</div>
+                        <div class="inputlike">State</div>
                     </div>
                     <div>➤</div>
-                    <div class="flexx">
-                        <input type="text" placeholder="cell"></input>
-                        <input type="text" placeholder="state"></input>
-                        <input type="number" placeholder="heading"></input>
+                    <div class="flexx alt-gap05">
+                        <div class="inputlike">Cell</div>
+                        <div class="inputlike">State</div>
+                        <div class="inputlike">Dir</div>
                     </div>
-                    <button>
-                        <img src="/assets/images/iconClose.png">
-                    </button>
+                    <div style="width: 5vh;"></div>
                 </div>
-                -->
 
             </div>
         </div>
     </div>
     <div class="flexcen">
-        <div class="prim padv1 rad">
-            <div class="flexx space">
+        <div class="prim padv1 rad flexy shadow alt-screenx alt-rad0">
+            <div class="flexcen">
                 <div>Default data:</div>
-                <button id="elemDataSet">
-                    <div>SET</div>
-                </button>
             </div>
             <textarea id="elemDataDefault"></textarea>
-            <div class="flexx space">
+            <div class="flexcen">
                 <div>Current data:</div>
-                <button id="elemDataCopy">
-                    <img src="/assets/images/iconCopy.png">
-                </button>
             </div>
             <textarea id="elemDataCurrent"></textarea>
+            <div class="flexx">
+                <div>Default position</div>
+                <input type="number" placeholder="0" id="elemDefaultPos"></input>
+            </div>
+            <div class="flexx">
+                <div>Default state</div>
+                <input type="text" placeholder="0" id="elemDefaultState"></input>
+            </div>
         </div>
     </div>
-    <div class="sides">
+    <div class="sides alt-sides">
+        <div class="title font0">📑 Online Turing Machine</div>
+        <h1 class="title1 font0">Programming:</h1>
         <p>
-            
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim facilisis gravida neque convallis a cras semper auctor. Suspendisse faucibus interdum posuere lorem ipsum dolor sit. Iaculis at erat pellentesque adipiscing commodo elit. Eu ultrices vitae auctor eu. Urna nec tincidunt praesent semper. Bibendum arcu vitae elementum curabitur vitae nunc sed. Aliquet lectus proin nibh nisl condimentum id venenatis a condimentum. Ac orci phasellus egestas tellus rutrum tellus pellentesque. Morbi tincidunt ornare massa eget egestas purus.
-            <br><br>
-            Feugiat in ante metus dictum at tempor commodo. At elementum eu facilisis sed odio morbi quis commodo odio. Et molestie ac feugiat sed lectus vestibulum mattis. Feugiat sed lectus vestibulum mattis ullamcorper velit. Diam vel quam elementum pulvinar etiam non quam. Fringilla ut morbi tincidunt augue interdum velit. Amet luctus venenatis lectus magna fringilla urna porttitor rhoncus. Tincidunt tortor aliquam nulla facilisi cras. Viverra nibh cras pulvinar mattis. Tristique senectus et netus et malesuada. Cum sociis natoque penatibus et magnis dis parturient. Dolor sit amet consectetur adipiscing elit. Netus et malesuada fames ac turpis. Duis at tellus at urna condimentum. Lorem mollis aliquam ut porttitor leo a.
-            <br><br>
-            Vel risus commodo viverra maecenas accumsan lacus vel facilisis. Diam volutpat commodo sed egestas egestas fringilla phasellus faucibus scelerisque. Libero justo laoreet sit amet cursus sit amet dictum. Purus sit amet luctus venenatis lectus magna. Est velit egestas dui id ornare arcu odio ut sem. Massa ultricies mi quis hendrerit dolor magna eget est. Integer feugiat scelerisque varius morbi enim nunc. Gravida quis blandit turpis cursus in hac. Enim ut tellus elementum sagittis. Felis imperdiet proin fermentum leo.
-            <br><br>
-            Nibh ipsum consequat nisl vel. Ut consequat semper viverra nam libero justo. Quis eleifend quam adipiscing vitae proin sagittis nisl. Tellus id interdum velit laoreet. Eu volutpat odio facilisis mauris sit amet. Vel quam elementum pulvinar etiam non quam lacus. Felis eget nunc lobortis mattis aliquam faucibus purus in massa. Egestas fringilla phasellus faucibus scelerisque. Ornare aenean euismod elementum nisi quis eleifend quam adipiscing vitae. Vel elit scelerisque mauris pellentesque. Tristique risus nec feugiat in fermentum posuere urna nec. Id donec ultrices tincidunt arcu non. Quam lacus suspendisse faucibus interdum posuere lorem ipsum dolor sit. Neque egestas congue quisque egestas diam in arcu cursus. Dignissim diam quis enim lobortis scelerisque fermentum dui faucibus in. Neque gravida in fermentum et sollicitudin ac. Commodo quis imperdiet massa tincidunt nunc pulvinar sapien et. Fringilla urna porttitor rhoncus dolor purus non enim praesent. Metus aliquam eleifend mi in nulla. Vitae et leo duis ut diam.
-            <br><br>
-            Quisque id diam vel quam elementum pulvinar etiam non quam. Ultricies lacus sed turpis tincidunt id aliquet risus feugiat. Vitae tortor condimentum lacinia quis. In cursus turpis massa tincidunt dui ut ornare. Massa ultricies mi quis hendrerit dolor magna eget est. Et netus et malesuada fames ac turpis egestas sed. Nisl nisi scelerisque eu ultrices vitae auctor eu augue ut. Nibh venenatis cras sed felis. Amet nulla facilisi morbi tempus iaculis urna id volutpat. Malesuada fames ac turpis egestas sed. Ut morbi tincidunt augue interdum velit euismod in. Sed velit dignissim sodales ut. Neque aliquam vestibulum morbi blandit cursus risus at ultrices mi.
-
+            - Create new behaviors in the rules section.<br>
+            - Define the tape values of the turing machine inside the default data section.<br>
+            - Define the default state and position of the cursor in the last section.<br>
+            - The states "end" or "stop" will immediately stop the machine.<br>
+        </p>
+        <h1 class="title1 font0">Testing:</h1>
+        <p>
+            - Control the flow using the reset, pause, and play button.<br>
+            - Change the speed and use the goto block to move the machine's cursor to any position.<br>
+            <br>
+            ( Rules, data, and defaults are saved inside the browser's local storage )<br>
+        </p>
+        <h1 class="title1 font0">Turing machine?</h1>
+        <p>
+            A Turing machine is theoretically capable of implementing any computer algorithm.<br><br>
+            However, this online implementation is a simplification, as it's not capable of giving every instruction to the hardware,<br>
+            Such as graphical instructions to create interfaces used in video games.
         </p>
     </div>
+
+    <div class="flexx padv2 sides prim space alt-pad">
+        <b>CMD.BLUE</b>
+        <a href="https://github.com/Cyberflixt/cmdBlue" target="_blank">
+            <img class="icon" src="/assets/images/iconGithub.png">
+        </a>
+        <b>By Cyberflixt</b>
+    </div>
+
     <script src="scripts.js"></script>
 </body>
 </html>

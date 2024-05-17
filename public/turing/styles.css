@@ -1,0 +1,305 @@
+
+/* CSS */
+
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+
+:root{
+    --bg: rgb(20,22,24);
+    --primary: rgb(32, 33, 34);
+}
+
+*{
+    font-family: Poppins, sans-serif;
+    color: white;
+    font-size: 3vh;
+}
+
+.font0, #turingHolder *{
+    font-family: "Pirata One", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Override */
+
+body{
+    background: var(--bg);
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    gap: 5vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a{
+    text-decoration: none;
+}
+input, textarea, .inputlike{
+    padding: 1vh;
+    background: none;
+    border-radius: 1vh;
+    outline: none;
+    width: 10vw;
+    border: 0;
+    background: var(--bg);
+    height: 3vh;
+} textarea{
+    width: 50vw;
+    height: 30vh;
+} .inputlike{
+    background: none;
+    width: calc(10vw + 2vh);
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+}
+
+
+button{
+    background: none;
+    border: 0;
+    outline: none;
+    transition: .1s transform;
+    border-radius: 1vh;
+    padding: 1vh;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} button:hover{
+    transform: scale(1.1) rotate(5deg);
+} button>img{
+    height: 3vh;
+}
+
+/* Classes */
+
+
+.flexx{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1vh;
+}.flexy{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh;
+}.flexcen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.icon{
+    aspect-ratio: 1;
+    height: 5vh;
+}
+
+.title{
+    font-size: 10vh;
+    text-shadow: 0 10px 10px black;
+}
+
+
+.gap5{
+    gap: 5vh;
+}
+.padv2{
+    padding: 2vh;
+}.padv1{
+    padding: 1vh;
+}
+
+.prim{background: var(--primary);}
+.rad{
+    border-radius: 2vh;
+}
+.space{
+    justify-content: space-between;
+}
+
+
+
+.fullx{
+    width: 100%;
+}.rel{
+    position: relative;
+}
+
+
+.sides{
+    padding-left: 10vw;
+    padding-right: 10vw;
+}
+
+
+
+
+#turingPar{
+    position: relative;
+    width: 100vw;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+}
+#turingHolder{
+    width: calc(100vmax + 100vmax/9*2);
+    display: flex;
+    /*transform: translate(calc(-100vmax/9),0);*/
+    transform: translate(calc((100vw - 100vmax)/2 - 100vmax/9),0);
+} #turingHolder>*{
+    aspect-ratio: 1;
+    flex-grow: 1;
+
+    border: 2px solid white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2vh);
+} #turingHolder>*>*{
+    position: absolute;
+    font-size: 6vh;
+}
+
+
+#turingCenter{
+    position: absolute;
+    left: 50vw;
+    top: 0;
+    width: calc(100vmax / 9 + 2vmax);
+    aspect-ratio: 1;
+
+    transform: translate(calc(-100vmax / 18 - 1vmax), -1vmax);
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 0 50px 0 rgb(58, 150, 255);
+    border-radius: 1vmax;
+}#turingCenter::before{
+    content: " ";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border: 2px solid white;
+    border-radius: 1vmax;
+}#turingCenter>div{
+    height: 3vmax;
+    border-radius: 1vmax;
+    border: 2px solid white;
+}
+
+
+.smoothopacity{
+    transition: .1s;
+    transition-property: transform, opacity;
+}
+
+.barx{
+    height: 3px;
+    width: 100%;
+    background: var(--bg);
+}
+
+.bgHolder{
+    position: fixed;
+    z-index: -1;
+}.bgHolder>div{
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+#parallax0, #parallax1{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+} #parallax0{
+    z-index: -2;
+    opacity: .5;
+}
+
+.noflowx{
+    overflow-x: hidden;
+}
+
+.shadow{
+    box-shadow: 0 10px 20px 0 black;
+}
+.textcen{
+    text-align: center;
+}
+
+/* SCROLL BAR */
+
+body{
+    scrollbar-color: var(--primary);
+}
+::-webkit-scrollbar {
+    width: 12px;
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+}
+
+.title1{
+    font-size: 6vh;
+}
+
+@media (max-aspect-ratio: 10/9) {
+    *{
+        font-size: 2vh;
+    }.title{
+        font-size: 15vw;
+    }.title1{
+        margin-left: 5vw;
+        font-size: 10vw;
+    }
+
+    .sides{
+        padding: 0;
+    }
+    .alt-flexx{
+        display: flex;
+        flex-direction: row;
+    } .alt-flexy{
+        display: flex;
+        flex-direction: column;
+    }
+    .alt-rad0{
+        border-radius: 0;
+    }.alt-screenx{
+        width: 100vw;
+    }.alt-gap05{
+        gap: .5vh;
+    }.alt-pad{
+        padding: 1vh;
+    }
+
+    .alt-sides{
+        padding-left: 5vw;
+        padding-right: 5vw;
+    }
+
+    .bgHolder{
+        display: none;
+    }
+
+    .alt-pady{
+        padding: 0;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+    }
+
+    button:hover{
+        transform: none;
+    } 
+}
+

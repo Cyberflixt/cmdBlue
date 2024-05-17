@@ -3,6 +3,7 @@ const elemTuringOffset = document.getElementById("turingOffset");
 const elemRulesHolder = document.getElementById("elemRulesHolder");
 const elemRuleAdd = document.getElementById("elemRuleAdd");
 const elemTuringState = document.getElementById("elemTuringState");
+const elemTuringPos = document.getElementById("elemTuringPos");
 
 const elemControlPrevious = document.getElementById("elemControlPrevious");
 const elemControlPause = document.getElementById("elemControlPause");
@@ -10,47 +11,121 @@ const elemControlPlay = document.getElementById("elemControlPlay");
 
 const elemDataDefault = document.getElementById("elemDataDefault");
 const elemDataCurrent = document.getElementById("elemDataCurrent");
-const elemDataCopy = document.getElementById("elemDataCopy");
+const elemDefaultPos = document.getElementById("elemDefaultPos");
+const elemDefaultState = document.getElementById("elemDefaultState");
+
+const elemTuringHolder = document.getElementById("turingHolder");
+
+const elemControlGoto = document.getElementById("elemControlGoto");
+const elemInputGoto = document.getElementById("elemInputGoto");
+const elemInputSpeed = document.getElementById("elemInputSpeed");
+
+const elemParallax0 = document.getElementById("parallax0");
+const elemParallax1 = document.getElementById("parallax1");
 
 var turingRules = {};
 var currentData = [];
 var defaultData = [];
+
 var currentPos = 0;
 var currentState = 0;
+var currentStep = 0;
+var currentHeading = 0;
 var defaultPos = 0;
+var defaultState = 0;
 
 var playing = false;
 var lastStep = 0;
-var stepCool = 1000;
+var stepCool = 500;
+var stepSpeed = 1;
 
+var currentPosAnim = currentPos;
+
+var delta = 1/60;
+var oldTime = 0;
+var cursorSpeed = 20;
+var visibleCells = 9;
+
+var holderCellsChildren = Array.from(elemTuringHolder.children);
+var holderCellsChildrenText = [];
+
+//const baseUrl = window.location.origin + window.location.pathname;
+var urlSave = new URL(window.location.href);
 
 function saveRules(){
-    localStorage.setItem("rules", JSON.stringify(turingRules));
+    //localStorage.setItem("rules", JSON.stringify(turingRules));
+    urlSave.searchParams.set('r', encodeURIComponent(JSON.stringify(turingRules)));
+    urlEncode();
+} function saveDefaultData(){
+    //localStorage.setItem("defdata", JSON.stringify(defaultData));
+    urlSave.searchParams.set('d', encodeURIComponent(JSON.stringify(defaultData)));
+    urlEncode();
 }
-function retrieveRules(){
-    const save = localStorage.getItem("rules");
-    if (save){
-        turingRules = JSON.parse(save);
-        rebuildRules();
-    }
+
+function saveDefaultCursor(){
+    //localStorage.setItem("defstate", defaultState);
+    //localStorage.setItem("defpos", defaultPos);
+    //localStorage.setItem("speed", stepSpeed);
+    urlSave.searchParams.set('s', encodeURIComponent(defaultState));
+    urlSave.searchParams.set('p', defaultPos);
+    urlSave.searchParams.set('t', stepSpeed);
+    urlEncode();
 }
+
 function rebuildRules(){
-    console.log(turingRules);
     Object.keys(turingRules).map((k) => {
         const v = turingRules[k];
         const ks = k.split(";");
-        buildRuleElement(ks[0], ks[1], v[0], v[1], v[2]);
+        buildRuleElement(ks[0], ks[1], v[0], v[1], v[2], false);
     });
 }
 
-function buildRuleElement(a,b,c,d,e){
+/*
+function retrieveLocalStorageData(){
+    const saveRules = localStorage.getItem("rules");
+    if (saveRules){
+        turingRules = JSON.parse(saveRules);
+        rebuildRules();
+    }
+
+    const saveDefData = localStorage.getItem("defdata");
+    if (saveDefData){
+        defaultData = JSON.parse(saveDefData);
+        elemDataDefault.value = defaultData.join(',');
+        setCurrentData(defaultData);
+    }
+
+    const saveDefState = localStorage.getItem("defstate");
+    if (saveDefState){
+        elemDefaultState.value = saveDefState;
+        defaultState = saveDefState;
+        setCurrentState(defaultState);
+    } const saveDefPos = localStorage.getItem("defpos");
+    if (saveDefPos){
+        elemDefaultPos.value = saveDefPos;
+        defaultPos = parseInt(saveDefPos);
+        setCurrentPos(defaultPos);
+    } const saveSpeed = localStorage.getItem("speed");
+    if (saveSpeed){
+        elemInputSpeed.value = saveSpeed;
+        stepSpeed = parseInt(saveSpeed) || 1;
+    }
+}
+*/
+
+elemInputSpeed.addEventListener("input", () => {
+    stepSpeed = parseInt(elemInputSpeed.value) || 1;
+    saveDefaultCursor()
+});
+
+function buildRuleElement(a,b,c,d,e, save = true){
     const inner = `
-    <div class="flexx">
+    <div class="flexx alt-gap05">
         <input type="text" placeholder="cell"  id="inputCell"></input>
         <input type="text" placeholder="state" id="inputState"></input>
     </div>
     <div>➤</div>
-    <div class="flexx">
+    <div class="flexx alt-gap05">
         <input type="text" placeholder="cell"      id="outputCell"></input>
         <input type="text" placeholder="state"     id="outputState"></input>
         <input type="number" placeholder="heading" id="outputHeading"></input>
@@ -84,14 +159,16 @@ function buildRuleElement(a,b,c,d,e){
         saveRules();
     });
 
-    function ruleChanged(){
+    function ruleChanged(save){
         delete turingRules[oldKey];
 
         oldKey = inputCell.value + ";" + inputState.value;
-        const v = [outputCell.value, outputState.value, outputHeading.value];
+        const v = [outputCell.value, outputState.value, parseInt(outputHeading.value || 0)];
 
         turingRules[oldKey] = v;
-        saveRules();
+        if (save){
+            saveRules();
+        }
     }
 
     inputCell.addEventListener("input", ruleChanged);
@@ -99,65 +176,226 @@ function buildRuleElement(a,b,c,d,e){
     outputCell.addEventListener("input", ruleChanged);
     outputState.addEventListener("input", ruleChanged);
     outputHeading.addEventListener("input", ruleChanged);
-    ruleChanged();
+    ruleChanged(save);
 
     elemRulesHolder.appendChild(child);
     return child;
 }
 
-function addRule(){
+function addEmptyRule(){
     buildRuleElement();
 }
 
-function setCurrentData(v){
-    currentData = v;
-    elemDataCurrent.value = v.join(',');
-}
 
-elemRuleAdd.addEventListener("click", addRule);
+elemRuleAdd.addEventListener("click", addEmptyRule);
 elemDataDefault.addEventListener("input", () => {
     const text = elemDataDefault.value;
     defaultData = text.split(",");
     setCurrentData(defaultData);
+    saveDefaultData();
 })
 
-
+function turingStop(){
+    setPlaying(false);
+    refreshCurrentData();
+}
 
 elemControlPlay.addEventListener("click", () => {
-    playing = true;
-}); elemControlPause.addEventListener("click", () => {
-    playing = false;
-}); elemControlPrevious.addEventListener("click", () => {
-    playing = false;
-    currentPos = 0;
-    currentData = defaultData;
+    setPlaying(true);
 });
+elemControlPause.addEventListener("click", turingStop);
+elemControlPrevious.addEventListener("click", () => {
+    setPlaying(false);
+    currentStep = 0;
+    setCurrentPos(defaultPos);
+    setCurrentState(defaultState);
+    setCurrentData(defaultData);
+});
+
+elemDefaultState.addEventListener("input", () => {
+    defaultState = elemDefaultState.value;
+    saveDefaultCursor();
+}); elemDefaultPos.addEventListener("input", () => {
+    defaultPos = parseInt(elemDefaultPos.value);
+    saveDefaultCursor();
+});
+
+function enterPressed(elem, callback){
+    elem.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            callback();
+        }
+    })
+}
+
+function setPlaying(v, save = true){
+    playing = v;
+    elemControlPlay.style.opacity = playing ? '.2' : '1';
+    elemControlPause.style.opacity = playing ? '1' : '.2';
+    if (save){
+        urlSave.searchParams.set('f', playing ? 1 : 0);
+        urlEncode();
+    }
+}
+
+function btnGoto(){
+    setCurrentPos(elemInputGoto.value || 0);
+}
+elemControlGoto.addEventListener("click", btnGoto);
+enterPressed(elemInputGoto, btnGoto);
+
+
+
+function setCurrentData(v){
+    currentData = [...v];
+    refreshCurrentData();
+} function refreshCurrentData(){
+    elemDataCurrent.value = currentData.join(',');
+}
+function setCurrentState(v){
+    currentState = v;
+    elemTuringState.innerText = "state: "+v;
+} function setCurrentPos(v){
+    currentPos = v;
+    elemTuringPos.innerText = "x: "+v;
+}
+
 
 
 function turingStep(){
-    const cell = '';
+    
+    let cell = '';
     if (currentPos > -1 && currentPos < currentData.length){
         cell = currentData[currentPos];
     }
     const key = cell + ";" + currentState;
-    const v = turingRules[key];
-    if (v != undefined){
-        currentData[currentPos] = v[0];
-        currentState = v[1];
-        currentPos += v[2];
+    const res = turingRules[key];
+    if (res != undefined){
+        currentData[currentPos] = res[0];
+        setCurrentState(res[1]);
+        currentHeading = res[2] || 0;
     }
-    console.log(currentData);
+
+    if (currentState == "end" || currentState == "stop"){
+        turingStop();
+    }
+
+    setCurrentPos(currentPos + currentHeading);
 }
 
-function cycle(){
+function lerp(a,b,t){
+    return a+(b-a)*t;
+}
+
+
+function initHolderCellsChildrenText(){
+    holderCellsChildren.map((elem) => {
+        holderCellsChildrenText.push(elem.children[0]);
+    })
+}
+
+function refreshTuringBand(centerInt){
+    for (let i=0; i<holderCellsChildren.length; i++){
+        const elemCell = holderCellsChildren[i];
+        const elemText = holderCellsChildrenText[i];
+
+        const vi = i+centerInt - Math.ceil(visibleCells/2);
+        if (vi > -1 && vi < currentData.length){
+            elemText.innerText = currentData[vi];
+        } else {
+            elemText.innerText = '';
+        }
+    }
+}
+
+function parallaxBackground(elem, factor = 1){
+    const screenHeight = window.innerHeight;
+    var pageHeight = (document.height !== undefined) ? document.height : document.body.offsetHeight;
+    const scrollRel = window.scrollY / (pageHeight - screenHeight);
+
+    const imgHeight = elem.offsetHeight;
+    const dif = imgHeight - screenHeight;
+
+    elem.style.transform = `translate(0, ${-dif * scrollRel * factor}px)`;
+}
+
+function cycle(time){
+    delta = (time-oldTime)/1000;
+    oldTime = time;
+
     if (playing && Date.now()>lastStep){
-        lastStep = Date.now() + stepCool;
+        lastStep = Date.now() + stepCool / stepSpeed;
         turingStep();
     }
+
+    // Refresh turing band cells text
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    currentPosAnim = lerp(currentPosAnim, currentPos, Math.min(delta * cursorSpeed, 1));
+    const offset = -innerWidth / visibleCells * (currentPosAnim%1);
+    elemTuringOffset.style.transform = `translate(calc(${offset}px), 0)`;
+
+    refreshTuringBand(Math.floor(currentPosAnim));
+
+    // refresh parallax backgrounds
+    parallaxBackground(elemParallax1, .5);
+    parallaxBackground(elemParallax0, .2);
+
     requestAnimationFrame(cycle);
 }
 
-retrieveRules();
+function urlEncode(){
+    window.history.replaceState(null, null, urlSave.search);
+}
+
+function getUrlData(){
+    const urlParams = new URLSearchParams(window.location.search);
+    let urlRules = urlParams.get('r');
+    let urldata = urlParams.get('d');
+    let urldefstate = urlParams.get('s');
+    let urldefpos = urlParams.get('p');
+    let urldefspeed = urlParams.get('t');
+    let urlplaying = urlParams.get('f');
+
+    if (urlRules){
+        urlRules = decodeURIComponent(urlRules);
+        turingRules = JSON.parse(urlRules);
+        rebuildRules();
+    }
+    if (urldata){
+        urldata = decodeURIComponent(urldata);
+        defaultData = JSON.parse(urldata);
+        elemDataDefault.value = defaultData.join(',');
+        setCurrentData(defaultData);
+    }
+    if (urldefstate){
+        urldefstate = decodeURIComponent(urldefstate);
+        defaultState = urldefstate;
+        setCurrentState(defaultState);
+    }
+    if (urldefpos){
+        elemDefaultPos.value = urldefpos;
+        defaultPos = parseInt(urldefpos);
+        setCurrentPos(defaultPos);
+    }
+    if (urldefspeed){
+        elemInputSpeed.value = urldefspeed;
+        stepSpeed = parseInt(urldefspeed) || 1;
+    }
+    setPlaying(urlplaying == 1, false);
+
+    // ensure same url
+    // urlEncode();
+}
+
+
+setPlaying(false, false);
+initHolderCellsChildrenText();
+//retrieveLocalStorageData();
+getUrlData();
 requestAnimationFrame(cycle);
 
 /*
@@ -181,20 +419,4 @@ rules = {
     ('#', 1): (1, 2),
 }
 
-
-def turing(data, rules, pos = 1, state = 0):
-    cur = (data[pos], state)
-    if cur in rules:
-        res = rules[cur]
-        offset = 0
-        if len(res)>2:
-            offset = res[2]
-
-        data[pos] = res[0]
-        turing(data, rules, pos+offset, res[1])
-    return data
-        
-
-
-print(turing(data, rules, 1, 0))
 */
