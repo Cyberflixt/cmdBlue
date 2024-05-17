@@ -1,4 +1,8 @@
 
+const elemTuringOffset = document.getElementById("turingOffset");
+const elemRulesHolder = document.getElementById("elemRulesHolder");
+const elemRuleAdd = document.getElementById("elemRuleAdd");
+
 /*
 data = ['#',1,0,0,1,1,'#']
 

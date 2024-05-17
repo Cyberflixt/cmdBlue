@@ -9,23 +9,32 @@
     <style>
 :root{
     --bg: rgb(20,22,24);
-    --primary: rgb(67, 69, 70);
+    --primary: rgb(32, 33, 34);
 }
 body{
     background: var(--bg);
     width: 100vw;
     overflow-x: hidden;
     margin: 0;
+    gap: 5vh;
+    display: flex;
+    flex-direction: column;
 }
 *{
     font-family: Poppins, sans-serif;
     color: white;
+    font-size: 3vh;
 }
 .flexx{
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 2vh
+    gap: 1vh;
+}.flexy{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh
 }.flexcen{
     display: flex;
     justify-content: center;
@@ -44,28 +53,135 @@ body{
     padding: 2vh;
 }
 .sides{
-    padding-left: 20vw;
-    padding-right: 20vw;
+    padding-left: 10vw;
+    padding-right: 10vw;
 }
 
+#turingPar{
+    position: relative;
+    width: 100vw;
+}
+#turingHolder{
+    width: calc(100vw + 100vw/9*2);
+    display: flex;
+    transform: translate(calc(-100vw/9),0);
+}
+#turingHolder>*{
+    aspect-ratio: 1;
+    flex-grow: 1;
+
+    border: 1px solid white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#turingCenter{
+    position: absolute;
+    left: 50vw;
+    top: 0;
+    width: calc(100vw / 9 + 2vw);
+    aspect-ratio: 1;
+
+    border-radius: 1vw;
+    border: 2px solid white;
+
+    transform: translate(calc(-100vw / 18 - 1vw), -1vw);
+}
+.bg{background: var(--primary);}
+.rad{
+    border-radius: 2vh;
+}
+.space{
+    justify-content: space-between;
+}
+
+input{
+    padding: 1vh;
+    background: none;
+    border-radius: 1vh;
+    outline: none;
+    width: 10vw;
+    border: 0;
+    background: var(--bg);
+}
+button{
+    background: none;
+    border: 0;
+    outline: none;
+    transition: .1s transform;
+} button:hover{
+    transform: scale(1.1);
+}
+.fullx{
+    width: 100%;
+}.rel{
+    position: relative;
+}
     </style>
 </head>
 <body>
-    <div class="flexx padv2 sides" style="justify-content: space-between; background: var(--primary);">
+    <div class="flexx padv2 sides bg space">
         <div class="flexx">
             <img src="/favicon.ico" class="icon">
-            <div>CMD.BLUE</div>
+            <b>CMD.BLUE</b>
         </div>
-        <div>X</div>
+        <img class="icon" src="/assets/images/iconMenu.png">
     </div>
 
-    <div class="sides">
-        <div class="flexcen padv2">
-            <div class="title">TURING MACHINE</div>
-        </div>
+    <div class="flexcen">
+        <div class="title">TURING MACHINE</div>
+    </div>
 
-        <div>
-            
+    <div id="turingPar">
+        <div id="turingOffset">
+            <div id="turingHolder">
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+                <div><div>A</div></div>
+            </div>
+        </div>
+        <div id="turingCenter"></div>
+    </div>
+
+    <div class="sides flexcen">
+        <div class="rad bg" style="padding: 1vh;">
+            <div class="rel flexy" id="elemRulesHolder">
+
+                <div class="flexx space fullx">
+                    <img class="icon" src="/assets/images/iconSettings.png">
+                    <div>Rules</div>
+                    <button id="elemRuleAdd">
+                        <img class="icon" src="/assets/images/iconAdd.png">
+                    </button>
+                </div>
+
+                <div class="rad bg flexx space">
+                    <div class="flexx">
+                        <input type="text" placeholder="cell"></input>
+                        <input type="text" placeholder="state"></input>
+                    </div>
+                    <div>➤</div>
+                    <div class="flexx">
+                        <input type="text" placeholder="cell"></input>
+                        <input type="text" placeholder="state"></input>
+                        <input type="number" placeholder="heading"></input>
+                    </div>
+                    <button>
+                        <img class="icon" src="/assets/images/iconClose.png">
+                    </button>
+                </div>
+
+            </div>
         </div>
     </div>
     <script src="scripts.js"></script>
