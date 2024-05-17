@@ -6,14 +6,21 @@
 	--background: rgb(241, 251, 254);
 	--background3a: rgb(241, 251, 254, .3);
 	--primary: rgb(29, 195, 237);
+	--primary2a: rgba(29, 195, 237, .2);
 	--secondary: rgb(198, 123, 244);
+	--secondary2a: rgb(198, 123, 244, .2);
 	--accent: rgb(241, 88, 243);
-}
-:root[data-theme="dark"] {
+  }
+  :root[data-theme="dark"] {
 	--text: rgb(241, 252, 254);
 	--background: rgb(1, 11, 14);
 	--background3a: rgba(1, 11, 14, .3);
 	--primary: rgb(18, 185, 226);
+<<<<<<< HEAD
+	--secondary: rgb(86, 11, 132);
+	--accent: rgb(164, 12, 167);
+  }
+=======
 	--primary3a: rgba(18, 185, 226,.3);
 	--primary5: rgb(0, 66, 84);
 	--secondary: rgb(86, 11, 132);
@@ -21,6 +28,7 @@
 	--accent: rgb(163, 12, 166);
 	--accent3a: rgba(163, 12, 166, .3);
 }
+>>>>>>> d2f76392d3428d5b3cc40fcfcc55545768e02e32
   
 
 
@@ -55,29 +63,47 @@
 	margin-top: 35vmin;
 }
 .banner{
+<<<<<<< HEAD
+	background: var(--secondary2a);
+=======
 	background: var(--primary5);
+>>>>>>> d2f76392d3428d5b3cc40fcfcc55545768e02e32
 
 	width: 100vw;
 	height: 25vmin;
 	margin-top: 10vmin;
 
+<<<<<<< HEAD
+	transition: .5s;
+	transition-property: height;
+	z-index: 9;
+=======
 	transition: .3s;
 	transition-property: height, padding-top;
+>>>>>>> d2f76392d3428d5b3cc40fcfcc55545768e02e32
 }
 .banner *{
-	font-size: 21vmin;
 	font-family: 'Concert One', cursive;
 }
 .bannerTitle{
-	padding-bottom: 2vh;
+	padding-bottom: 2vmin;
+	font-size: 21vmin;
 	transition: .5s;
-	transition-property: font-size;
 }
 .bannerTitle.b{
-	background: linear-gradient(120deg,var(--primary),var(--accent));
+	background: linear-gradient(120deg, var(--primary), var(--accent));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+	font-style: italic;
+
+	padding-right: 5vmin;
+}.bannerTitle.a{
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: var(--text);
+    color: transparent;
+
+	padding-left: 5vmin;
 }
 
 body[data-scrollvmin ~= "10"] .banner{
@@ -89,6 +115,10 @@ body[data-scrollvmin ~= "10"] .banner{
 	padding-top: 2vmin;
 }body[data-scrollvmin ~= "10"] .bannerTitle{
 	font-size: 12vmin;
+	padding-bottom: 0;
+}body[data-scrollvmin ~= "10"] .bannerTitle.b{
+	flex-grow: 1;
+}body[data-scrollvmin ~= "10"] .bannerTitle.a{
 }
 
 /* Title Background effect */
