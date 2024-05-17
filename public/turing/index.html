@@ -7,10 +7,22 @@
     <meta name="description" content="Description Goes Here">
     <link rel="stylesheet" href="/styles.css">
     <style>
+
+/* CSS */
+
 :root{
     --bg: rgb(20,22,24);
     --primary: rgb(32, 33, 34);
 }
+
+*{
+    font-family: Poppins, sans-serif;
+    color: white;
+    font-size: 3vh;
+}
+
+/* Override */
+
 body{
     background: var(--bg);
     width: 100vw;
@@ -20,11 +32,38 @@ body{
     display: flex;
     flex-direction: column;
 }
-*{
-    font-family: Poppins, sans-serif;
-    color: white;
-    font-size: 3vh;
+
+a{
+    text-decoration: none;
 }
+input{
+    padding: 1vh;
+    background: none;
+    border-radius: 1vh;
+    outline: none;
+    width: 10vw;
+    border: 0;
+    background: var(--bg);
+}
+button{
+    background: none;
+    border: 0;
+    outline: none;
+    transition: .1s transform;
+    border-radius: 1vh;
+    padding: 1vh;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} button:hover{
+    transform: scale(1.1) rotate(5deg);
+} button>img{
+    height: 3vh;
+}
+
+/* Classes */
+
 .flexx{
     display: flex;
     flex-direction: row;
@@ -51,11 +90,34 @@ body{
 
 .padv2{
     padding: 2vh;
+}.padv1{
+    padding: 1vh;
 }
+
+.prim{background: var(--primary);}
+.rad{
+    border-radius: 2vh;
+}
+.space{
+    justify-content: space-between;
+}
+
+
+
+.fullx{
+    width: 100%;
+}.rel{
+    position: relative;
+}
+
+
 .sides{
     padding-left: 10vw;
     padding-right: 10vw;
 }
+
+
+
 
 #turingPar{
     position: relative;
@@ -84,49 +146,34 @@ body{
     width: calc(100vw / 9 + 2vw);
     aspect-ratio: 1;
 
-    border-radius: 1vw;
-    border: 2px solid white;
 
     transform: translate(calc(-100vw / 18 - 1vw), -1vw);
-}
-.bg{background: var(--primary);}
-.rad{
-    border-radius: 2vh;
-}
-.space{
-    justify-content: space-between;
+}#turingCenter::before{
+    content: " ";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border: 2px solid white;
+    border-radius: 1vw;
+}#turingCenter>div{
+    height: 3vw;
+    border-radius: 1vw;
+    border: 2px solid white;
 }
 
-input{
-    padding: 1vh;
-    background: none;
-    border-radius: 1vh;
-    outline: none;
-    width: 10vw;
-    border: 0;
-    background: var(--bg);
-}
-button{
-    background: none;
-    border: 0;
-    outline: none;
-    transition: .1s transform;
-} button:hover{
-    transform: scale(1.1);
-}
-.fullx{
-    width: 100%;
-}.rel{
-    position: relative;
-}
+
+
+
     </style>
 </head>
 <body>
-    <div class="flexx padv2 sides bg space">
-        <div class="flexx">
+    <div class="flexx padv2 sides prim space">
+        <a class="flexx" href="/">
             <img src="/favicon.ico" class="icon">
             <b>CMD.BLUE</b>
-        </div>
+        </a>
         <img class="icon" src="/assets/images/iconMenu.png">
     </div>
 
@@ -150,22 +197,44 @@ button{
                 <div><div>A</div></div>
             </div>
         </div>
-        <div id="turingCenter"></div>
+        <div id="turingCenter">
+            <div class="flexcen prim rel">
+                <div id="elemTuringState">state</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flexcen">
+        <div class="flexy rad prim padv1">
+            <div>Controls</div>
+            <div class="flexx">
+                <button id="elemControlPrevious">
+                    <img src="/assets/images/iconPrevious.png">
+                </button>
+                <button id="elemControlPause">
+                    <img src="/assets/images/iconPause.png">
+                </button>
+                <button id="elemControlPlay">
+                    <img src="/assets/images/iconPlay.png">
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="sides flexcen">
-        <div class="rad bg" style="padding: 1vh;">
+        <div class="rad prim padv1">
             <div class="rel flexy" id="elemRulesHolder">
 
                 <div class="flexx space fullx">
                     <img class="icon" src="/assets/images/iconSettings.png">
                     <div>Rules</div>
                     <button id="elemRuleAdd">
-                        <img class="icon" src="/assets/images/iconAdd.png">
+                        <img src="/assets/images/iconAdd.png">
                     </button>
                 </div>
 
-                <div class="rad bg flexx space">
+                <!--
+                <div class="rad prim flexx space">
                     <div class="flexx">
                         <input type="text" placeholder="cell"></input>
                         <input type="text" placeholder="state"></input>
@@ -177,12 +246,28 @@ button{
                         <input type="number" placeholder="heading"></input>
                     </div>
                     <button>
-                        <img class="icon" src="/assets/images/iconClose.png">
+                        <img src="/assets/images/iconClose.png">
                     </button>
                 </div>
+                -->
 
             </div>
         </div>
+    </div>
+    <div class="sides">
+        <p>
+            
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim facilisis gravida neque convallis a cras semper auctor. Suspendisse faucibus interdum posuere lorem ipsum dolor sit. Iaculis at erat pellentesque adipiscing commodo elit. Eu ultrices vitae auctor eu. Urna nec tincidunt praesent semper. Bibendum arcu vitae elementum curabitur vitae nunc sed. Aliquet lectus proin nibh nisl condimentum id venenatis a condimentum. Ac orci phasellus egestas tellus rutrum tellus pellentesque. Morbi tincidunt ornare massa eget egestas purus.
+            <br><br>
+            Feugiat in ante metus dictum at tempor commodo. At elementum eu facilisis sed odio morbi quis commodo odio. Et molestie ac feugiat sed lectus vestibulum mattis. Feugiat sed lectus vestibulum mattis ullamcorper velit. Diam vel quam elementum pulvinar etiam non quam. Fringilla ut morbi tincidunt augue interdum velit. Amet luctus venenatis lectus magna fringilla urna porttitor rhoncus. Tincidunt tortor aliquam nulla facilisi cras. Viverra nibh cras pulvinar mattis. Tristique senectus et netus et malesuada. Cum sociis natoque penatibus et magnis dis parturient. Dolor sit amet consectetur adipiscing elit. Netus et malesuada fames ac turpis. Duis at tellus at urna condimentum. Lorem mollis aliquam ut porttitor leo a.
+            <br><br>
+            Vel risus commodo viverra maecenas accumsan lacus vel facilisis. Diam volutpat commodo sed egestas egestas fringilla phasellus faucibus scelerisque. Libero justo laoreet sit amet cursus sit amet dictum. Purus sit amet luctus venenatis lectus magna. Est velit egestas dui id ornare arcu odio ut sem. Massa ultricies mi quis hendrerit dolor magna eget est. Integer feugiat scelerisque varius morbi enim nunc. Gravida quis blandit turpis cursus in hac. Enim ut tellus elementum sagittis. Felis imperdiet proin fermentum leo.
+            <br><br>
+            Nibh ipsum consequat nisl vel. Ut consequat semper viverra nam libero justo. Quis eleifend quam adipiscing vitae proin sagittis nisl. Tellus id interdum velit laoreet. Eu volutpat odio facilisis mauris sit amet. Vel quam elementum pulvinar etiam non quam lacus. Felis eget nunc lobortis mattis aliquam faucibus purus in massa. Egestas fringilla phasellus faucibus scelerisque. Ornare aenean euismod elementum nisi quis eleifend quam adipiscing vitae. Vel elit scelerisque mauris pellentesque. Tristique risus nec feugiat in fermentum posuere urna nec. Id donec ultrices tincidunt arcu non. Quam lacus suspendisse faucibus interdum posuere lorem ipsum dolor sit. Neque egestas congue quisque egestas diam in arcu cursus. Dignissim diam quis enim lobortis scelerisque fermentum dui faucibus in. Neque gravida in fermentum et sollicitudin ac. Commodo quis imperdiet massa tincidunt nunc pulvinar sapien et. Fringilla urna porttitor rhoncus dolor purus non enim praesent. Metus aliquam eleifend mi in nulla. Vitae et leo duis ut diam.
+            <br><br>
+            Quisque id diam vel quam elementum pulvinar etiam non quam. Ultricies lacus sed turpis tincidunt id aliquet risus feugiat. Vitae tortor condimentum lacinia quis. In cursus turpis massa tincidunt dui ut ornare. Massa ultricies mi quis hendrerit dolor magna eget est. Et netus et malesuada fames ac turpis egestas sed. Nisl nisi scelerisque eu ultrices vitae auctor eu augue ut. Nibh venenatis cras sed felis. Amet nulla facilisi morbi tempus iaculis urna id volutpat. Malesuada fames ac turpis egestas sed. Ut morbi tincidunt augue interdum velit euismod in. Sed velit dignissim sodales ut. Neque aliquam vestibulum morbi blandit cursus risus at ultrices mi.
+
+        </p>
     </div>
     <script src="scripts.js"></script>
 </body>
