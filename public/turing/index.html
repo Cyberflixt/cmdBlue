@@ -1,0 +1,73 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Page Title Goes Here</title>
+    <meta name="description" content="Description Goes Here">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+:root{
+    --bg: rgb(20,22,24);
+    --primary: rgb(67, 69, 70);
+}
+body{
+    background: var(--bg);
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+}
+*{
+    font-family: Poppins, sans-serif;
+    color: white;
+}
+.flexx{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2vh
+}.flexcen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.icon{
+    aspect-ratio: 1;
+    height: 5vh;
+}
+
+.title{
+    font-size: 10vh;
+}
+
+.padv2{
+    padding: 2vh;
+}
+.sides{
+    padding-left: 20vw;
+    padding-right: 20vw;
+}
+
+    </style>
+</head>
+<body>
+    <div class="flexx padv2 sides" style="justify-content: space-between; background: var(--primary);">
+        <div class="flexx">
+            <img src="/favicon.ico" class="icon">
+            <div>CMD.BLUE</div>
+        </div>
+        <div>X</div>
+    </div>
+
+    <div class="sides">
+        <div class="flexcen padv2">
+            <div class="title">TURING MACHINE</div>
+        </div>
+
+        <div>
+            
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
