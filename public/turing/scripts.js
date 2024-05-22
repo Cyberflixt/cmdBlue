@@ -31,7 +31,7 @@ var currentPos = 0;
 var currentState = 0;
 var currentStep = 0;
 var currentHeading = 0;
-var defaultPos = 0;
+var defaultPos = 1;
 var defaultState = 0;
 
 var playing = false;
@@ -49,23 +49,17 @@ var visibleCells = 9;
 var holderCellsChildren = Array.from(elemTuringHolder.children);
 var holderCellsChildrenText = [];
 
-//const baseUrl = window.location.origin + window.location.pathname;
 var urlSave = new URL(window.location.href);
 
 function saveRules(){
-    //localStorage.setItem("rules", JSON.stringify(turingRules));
     urlSave.searchParams.set('r', encodeURIComponent(JSON.stringify(turingRules)));
     urlEncode();
 } function saveDefaultData(){
-    //localStorage.setItem("defdata", JSON.stringify(defaultData));
     urlSave.searchParams.set('d', encodeURIComponent(JSON.stringify(defaultData)));
     urlEncode();
 }
 
 function saveDefaultCursor(){
-    //localStorage.setItem("defstate", defaultState);
-    //localStorage.setItem("defpos", defaultPos);
-    //localStorage.setItem("speed", stepSpeed);
     urlSave.searchParams.set('s', encodeURIComponent(defaultState));
     urlSave.searchParams.set('p', defaultPos);
     urlSave.searchParams.set('t', stepSpeed);
@@ -79,39 +73,6 @@ function rebuildRules(){
         buildRuleElement(ks[0], ks[1], v[0], v[1], v[2], false);
     });
 }
-
-/*
-function retrieveLocalStorageData(){
-    const saveRules = localStorage.getItem("rules");
-    if (saveRules){
-        turingRules = JSON.parse(saveRules);
-        rebuildRules();
-    }
-
-    const saveDefData = localStorage.getItem("defdata");
-    if (saveDefData){
-        defaultData = JSON.parse(saveDefData);
-        elemDataDefault.value = defaultData.join(',');
-        setCurrentData(defaultData);
-    }
-
-    const saveDefState = localStorage.getItem("defstate");
-    if (saveDefState){
-        elemDefaultState.value = saveDefState;
-        defaultState = saveDefState;
-        setCurrentState(defaultState);
-    } const saveDefPos = localStorage.getItem("defpos");
-    if (saveDefPos){
-        elemDefaultPos.value = saveDefPos;
-        defaultPos = parseInt(saveDefPos);
-        setCurrentPos(defaultPos);
-    } const saveSpeed = localStorage.getItem("speed");
-    if (saveSpeed){
-        elemInputSpeed.value = saveSpeed;
-        stepSpeed = parseInt(saveSpeed) || 1;
-    }
-}
-*/
 
 elemInputSpeed.addEventListener("input", () => {
     stepSpeed = parseInt(elemInputSpeed.value) || 1;
@@ -203,13 +164,18 @@ function turingStop(){
 elemControlPlay.addEventListener("click", () => {
     setPlaying(true);
 });
-elemControlPause.addEventListener("click", turingStop);
-elemControlPrevious.addEventListener("click", () => {
-    setPlaying(false);
+
+function resetCursor(){
     currentStep = 0;
     setCurrentPos(defaultPos);
     setCurrentState(defaultState);
     setCurrentData(defaultData);
+}
+
+elemControlPause.addEventListener("click", turingStop);
+elemControlPrevious.addEventListener("click", () => {
+    setPlaying(false);
+    resetCursor();
 });
 
 elemDefaultState.addEventListener("input", () => {
@@ -275,13 +241,11 @@ function turingStep(){
         currentData[currentPos] = res[0];
         setCurrentState(res[1]);
         currentHeading = res[2] || 0;
-    }
-
-    if (currentState == "end" || currentState == "stop"){
+        setCurrentPos(currentPos + currentHeading);
+    } else {
         turingStop();
     }
 
-    setCurrentPos(currentPos + currentHeading);
 }
 
 function lerp(a,b,t){
@@ -391,32 +355,8 @@ function getUrlData(){
     // urlEncode();
 }
 
-
+resetCursor();
 setPlaying(false, false);
 initHolderCellsChildrenText();
-//retrieveLocalStorageData();
 getUrlData();
 requestAnimationFrame(cycle);
-
-/*
-
-
-#,1,0,0,1,1,#
-
-
-
-*/
-/*
-data = ['#',1,0,0,1,1,'#']
-
-# data, state
-rules = {
-    (1, 0):   (1, 0, 1),
-    (0, 0):   (0, 0, 1),
-    ('#', 0): ('#', 1, -1),
-    (1, 1):   (0, 1, -1),
-    (0, 1):   (1, 2),
-    ('#', 1): (1, 2),
-}
-
-*/
