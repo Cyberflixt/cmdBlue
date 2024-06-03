@@ -228,6 +228,14 @@ function setCurrentState(v){
 }
 
 
+function turingApplyRule(rule){
+    if (rule[0] !== '' && rule[0] !== '*'){
+        currentData[currentPos] = rule[0];
+    }
+    setCurrentState(rule[1]);
+    currentHeading = rule[2] || 0;
+    setCurrentPos(currentPos + currentHeading);
+}
 
 function turingStep(){
     
@@ -236,14 +244,17 @@ function turingStep(){
         cell = currentData[currentPos];
     }
     const key = cell + ";" + currentState;
-    const res = turingRules[key];
-    if (res != undefined){
-        currentData[currentPos] = res[0];
-        setCurrentState(res[1]);
-        currentHeading = res[2] || 0;
-        setCurrentPos(currentPos + currentHeading);
+    const rule = turingRules[key];
+    if (rule != undefined){
+        turingApplyRule(rule);
     } else {
-        turingStop();
+        const keyDef = "*;" + currentState;
+        const ruleDef = turingRules[keyDef];
+        if (ruleDef != undefined){
+            turingApplyRule(ruleDef);
+        } else {
+            turingStop();
+        }
     }
 
 }
