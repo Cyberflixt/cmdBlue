@@ -160,13 +160,14 @@
             - Define the tape values of the turing machine inside the default data section.<br>
             - Define the default state and position of the cursor in the last section.<br>
             - The states "end" or "stop" will immediately stop the machine.<br>
+            - The cell rule "*" will be used for any cell at a lower priority than a normal rule<br>
         </p>
         <h1 class="title1 font0">Testing:</h1>
         <p>
             - Control the flow using the reset, pause, and play button.<br>
             - Change the speed and use the goto block to move the machine's cursor to any position.<br>
             <br>
-            ( Rules, data, and defaults are saved inside the browser's local storage )<br>
+            ( Rules, data, defaults and flow are saved inside the url parameters )<br>
         </p>
         <h1 class="title1 font0">Turing machine?</h1>
         <p>
