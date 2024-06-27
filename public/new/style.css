@@ -1,0 +1,199 @@
+
+
+:root{
+    --bg: black;
+    --text: white;
+    --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --fontsize: 1.5vh;
+    --bgfit: cover;
+    --bgpos: center;
+
+    --iconsy: start;
+    --iconsx: start;
+    --iconsize: 10vh;
+    --icongap: 1vh;
+    --iconlabelheight: calc(var(--fontsize) + var(--icongap));
+    --iconimgradius: 1vh;
+    --iconimgborder: none;
+
+    --windowborder: 1px solid var(--text);
+    --windowpadout: 10vh;
+    --windowpadin: 2vh;
+    --windowradius: 1vh;
+}
+
+.flexy{
+    display: flex;
+    flex-direction: column;
+}.flexx{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+input, .input{
+    border: none;
+    background: none;
+    outline: none;
+    border-bottom: 1px dashed var(--text);
+    white-space: nowrap;
+    min-width: 5vh;
+    position: relative;
+}
+input::file-selector-button{
+    width: 100%;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.btn{
+    cursor: pointer;
+    transition: .2s;
+    transition-property: transform, opacity;
+}.btn:hover{
+    transform: scale(1.1);
+}
+
+*{
+    font-size: var(--fontsize);
+    color: var(--text);
+    font-family: var(--font);
+    box-sizing: border-box;
+}
+
+#menu{
+    background-color: var(--bg);
+    height: 100vh;
+    padding: 5vh;
+    gap: 1vh;
+
+    justify-content: center;
+    align-items: start;
+} #menu>*{
+    gap: 2vh;
+}
+
+.split{
+    width: 2vw;
+    height: 1px;
+    background: var(--text);
+    margin-bottom: 3vh;
+}
+
+#content{
+    border: var(--windowborder);
+    border-radius: var(--windowradius);
+    height: 100%;
+    padding: var(--windowpadin);
+
+    display: flex;
+    align-items: var(--iconsy);
+    justify-content: var(--iconsx);
+}
+
+#background{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    background-repeat: no-repeat;
+    background-position: var(--bgpos);
+    background-size: var(--bgfit);
+    opacity: var(--bgopacity);
+}
+
+
+.icons>*{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    width: var(--iconsize);
+    height: var(--iconsize);
+    position: absolute;
+    overflow: hidden;
+} .context *, .icons *{
+    user-select: none;
+} .icons>* *{
+    pointer-events: none;
+}
+
+.context{
+    position: absolute;
+    background: var(--bg);
+    box-shadow: 0 0 10px -1px var(--text);
+    border-radius: 1vh;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    display: none;
+}
+.context>*{
+    padding: .5vh;
+    padding-left: 2vh;
+    padding-right: 2vh;
+    position: relative;
+    
+}.context>div::before{
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    
+    background: var(--text);
+    opacity: 0;
+    transition: .2s ease-out;
+    transition-property: width, opacity;
+}.context>div:hover::before{
+    width: 100%;
+    opacity: .2;
+}.context .flexx{
+    gap: 2vh;
+}
+
+.bar{
+    background: var(--text);
+    height: 1px;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    padding: 0;
+}
+
+#iconSizeCells, #iconSizeCells *{
+    gap: 1px;
+} #iconSizeCells>*>*{
+    width: 1.5vh;
+    height: 1.5vh;
+    opacity: .2;
+    background-color: var(--text);
+    transition: .1s;
+    transition-property: background-color, opacity;
+    border-radius: 4px;
+    position: relative;
+}
+
+iframe, iframe * {
+    pointer-events: all !important;
+    user-select: all !important;
+}
+
+.nomouse, .nomouse * {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+iframe{
+    border-radius: var(--iconimgradius);
+    border: var(--iconimgborder);
+    border-left: 0px solid var(--text);
+    transition: .1s;
+    transition-property: border-left-width, border-left-style;
+} iframe:hover{
+    border-left-width: 10px;
+}

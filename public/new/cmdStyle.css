@@ -1,0 +1,129 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono&display=swap');
+
+/* CMD STYLE*/
+
+:root{
+    --cmdcolor: #A05550;
+    --cmdcolorb: #8030A0;
+    --cmdbackfilter: blur(1vh);
+    --cmdback: linear-gradient(to bottom, rgba(0,0,0, .2), rgba(0,0,0, .2) 50%, rgba(0,0,0, .4) 50%, rgba(0,0,0, .4));
+    --cmdbacksize: 100% 4px;
+    --cmdshadow: rgba(0,0,0,.5);
+    --cmdradius: 5px;
+    --cmdheadheight: 4vh;
+    --cmdbtn0: rgb(200, 200, 200);
+    --cmdbtn1: rgb(200, 200, 200);
+    --cmdbtn2: rgb(200, 0, 0);
+    --cmdbtnheight: 1.5vh;
+    --cmdbtnwidth: 3vh;
+    --cmdheadgap: 1vh;
+    --cmdfontsize: 2vh;
+    --cmdtext: white;
+}
+
+.cmd{
+    position: absolute;
+    width: 60vw;
+    height: 60vh;
+
+    border-radius: var(--cmdradius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 2vh 0 var(--cmdshadow);
+    backdrop-filter: var(--cmdbackfilter);
+    pointer-events: auto;
+
+    transition: .2s;
+    transition-property: transform, opacity;
+}.cmd *{
+    color: var(--cmdtext);
+    font-size: var(--cmdfontsize);
+
+    font-family: "Ubuntu Sans Mono", monospace;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.cmdhead{
+    background-color: var(--cmdcolor);
+    border-top-left-radius: var(--cmdradius);
+    border-top-right-radius: var(--cmdradius);
+    height: var(--cmdheadheight);
+    position: relative;
+}.cmdhead *{
+    user-select: none;
+    pointer-events: none;
+}.cmdhead>*:nth-child(1){
+    height: 70%;
+    aspect-ratio: 1;
+    margin-left: var(--cmdheadgap);
+    margin-right: var(--cmdheadgap);
+}.cmdbtn{
+    margin: 0;
+    margin-right: var(--cmdheadgap);
+    position: relative;
+
+    width: var(--cmdbtnwidth);
+    height: 100%;
+
+    transition: .1s;
+    transition-property: transform, opacity;
+    pointer-events: all;
+}.cmdbtn.a::before{
+    background: var(--cmdbtn0);
+}.cmdbtn.b::before{
+    background: var(--cmdbtn1);
+}.cmdbtn.c::before{
+    background: var(--cmdbtn2);
+}.cmdbtn:hover{
+    transform: scale(1.1);
+    opacity: 1;
+}.cmdbtn::before{
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc((var(--cmdheadheight) - var(--cmdbtnheight)) / 2);
+    
+    width: 100%;
+    height: var(--cmdbtnheight);
+    border-radius: 2vh;
+    box-shadow: 0 .2vh 1vh 0 var(--cmdshadow);
+    opacity: .7;
+}
+
+.cmd>div:nth-child(2){
+    border: var(--cmdradius) solid;
+    border-image: linear-gradient(to bottom, var(--cmdcolor), var(--cmdcolorb)) 1;
+    border-top: none;
+
+    width: 100%;
+    height: calc(100% - var(--cmdheadheight));
+}.cmdbody{
+    width: 100%;
+    height: 100%;
+
+    padding-left: 1vh;
+    padding-right: 1vh;
+    padding-bottom: 1vh;
+
+    background: var(--cmdback);
+    background-size: var(--cmdbacksize);
+
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}.cmd input{
+    border: none;
+    padding: 0;
+}
+
+.fullChild{
+    position: relative;
+} .fullChild>*{
+    width: 100%;
+    height: 100%;
+}
