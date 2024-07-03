@@ -38,8 +38,20 @@ function removeEdgeSpaces(text){
     return text;
 }
 
+function httpGet(url, success, failure){
+    var req = new XMLHttpRequest();
+
+    req.onerror = failure;
+    req.onabort = failure;
+    req.onload = success;
+
+    req.open("GET", url, true);
+    req.send(null);
+}
+
 class TerminalCommand{
-    constructor(text){
+    constructor(terminal, text){
+        this.ter = terminal;
         this.raw = text;
 
         this.text = removeEdgeSpaces(text);
@@ -142,17 +154,56 @@ class TerminalGui{
 
     // Dom elements
     
-    setPosition(x, y){
-        this.elem.style.left = `${x}px`;
-        this.elem.style.top = `${y}px`;
-    }
     setSize(x, y){
         this.elem.style.width = `${x}px`;
         this.elem.style.height = `${y}px`;
     }
+    setPosition(x, y){
+        this.elem.style.left = `${x}px`;
+        this.elem.style.top = `${y}px`;
+        this.applyPositionBounds();
+    }
     setCenterPosition(x, y){
         this.elem.style.left = `${x-this.elem.offsetWidth/2}px`;
         this.elem.style.top = `${y-this.elem.offsetHeight/2}px`;
+        this.applyPositionBounds(true);
+    }
+    applyPositionBounds(strict){
+        const sx = this.elem.offsetWidth;
+        
+        if (strict){
+            // No overflow
+            const sy = this.elem.offsetHeight;
+            // y
+            if (this.elem.offsetTop<0){
+                this.elem.style.top = 0;
+            } if (this.elem.offsetTop > window.innerHeight-sy){
+                this.elem.style.top = `${window.innerHeight-sy}px`;
+            }
+
+            // x
+            if (this.elem.offsetLeft < 0){
+                this.elem.style.left = 0;
+            } if (this.elem.offsetLeft > window.innerWidth-sx){
+                this.elem.style.left = `${window.innerWidth-sx}px`;
+            }
+        } else {
+            // Allow overflow but not entirely.
+            const safe = this.elemHead.offsetHeight;
+            // y
+            if (this.elem.offsetTop<0){
+                this.elem.style.top = 0;
+            } if (this.elem.offsetTop > window.innerHeight-safe){
+                this.elem.style.top = `${window.innerHeight-safe}px`;
+            }
+
+            // x
+            if (this.elem.offsetLeft < safe-sx){
+                this.elem.style.left = `${safe-sx}px`;
+            } if (this.elem.offsetLeft > window.innerWidth-safe){
+                this.elem.style.left = `${window.innerWidth-safe}px`;
+            }
+        }
     }
 
     setPrefix(text){
@@ -235,29 +286,33 @@ class Terminal extends TerminalGui{
     
 
     inputCycle(){
+        const ter = this;
         const prefix = this.getFullPath()+'> ';
         this.input(prefix, (input) => {
             this.print(prefix + input);
-            this.command(input);
-            this.inputCycle();
+            this.command(input, () => {
+                ter.inputCycle();
+            });
         });
     }
 
-    command(text){
-        const cmd = new TerminalCommand(text);
+    command(text, resolve){
+        const cmd = new TerminalCommand(this, text);
 
         const funcname = 'cmd_' + cmd.first;
         if (this[funcname] === undefined){
             this.print(`Command "${cmd.first}" is not defined`);
+            resolve();
         } else {
-            this[funcname](cmd);
+            this[funcname](cmd, resolve);
         }
     }
 
-    cmd_cls(cmd){
+    cmd_cls(cmd, resolve){
         this.clearPrints();
+        resolve();
     }
-    cmd_help(cmd){
+    cmd_help(cmd, resolve){
         if (cmd.args.length > 0){
             cmd.args.map((name) => {
                 const funcname = 'cmd_' + name;
@@ -274,17 +329,20 @@ class Terminal extends TerminalGui{
                 this.print(`- [${k}]: ${commandHelp[k]}`);
             });
         }
+        resolve();
     }
-    cmd_exit(cmd){
+    cmd_exit(cmd, resolve){
         this.close();
+        resolve();
     }
-    cmd_(cmd){
+    cmd_(cmd, resolve){
         // add space
         const elem = this.getPrint(-1);
         elem.remove();
         this.print(' ');
+        resolve();
     }
-    cmd_touch(cmd){
+    cmd_touch(cmd, resolve){
         let name = cmd.textRight;
         const relPos = findEmptyCellPlacement();
         
@@ -303,6 +361,23 @@ class Terminal extends TerminalGui{
         widget.save();
         
         this.print(`File "${name}" created successfully.`);
+        resolve();
+    }
+
+    cmd_get(cmd, resolve){
+        const name = cmd.textRight
+        if (name.includes('http')){
+            httpGet(name, (res) => {
+                cmd.ter.print(res);
+                resolve();
+            }, (res) => {
+                console.log(res);
+                cmd.ter.print('Failure', res);
+                resolve();
+            });
+        } else {
+
+        }
     }
 }
 
@@ -320,6 +395,7 @@ function getDirectoryData(pathArr){
     }
     return dir;
 }
+
 
 
 document.addEventListener('mousemove', (e) => {

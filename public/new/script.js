@@ -21,12 +21,14 @@ const elemIconImgFit = document.getElementById('iconImgFit');
 const elemIconSizeCells = document.getElementById('iconSizeCells');
 const elemIconSizeLabel = document.getElementById('iconSizeLabel');
 const elemContextUrl = document.getElementById('elemContextUrl');
+const elemsWidgetProperty = Array.from(document.getElementsByClassName('widgetProperty'));
 
 // Normal context menu
 const elemNormalContext = document.getElementById('normalContext');
 const elemBtnAddIcon = document.getElementById('btnAddIcon');
 const elemBtnAddText = document.getElementById('btnAddText');
 const elemBtnAddWebsite = document.getElementById('btnAddWebsite');
+const elemBtnTextArea = document.getElementById('btnAddTextArea');
 
 // Misc
 const root = document.querySelector(':root');
@@ -282,31 +284,118 @@ class Label extends Widget{
 
         // Create doc elements
         this.label = this.createElement('div');
-
         this.elem.style.display = 'flex';
-        this.elem.style.justifyContent = 'center';
-        this.elem.style.alignItems = 'center';
 
         // Initiate behaviors
 
         this.label.innerText = '?';
+        this.setAlignX(0);
+        this.setAlignY(0);
 
         this.updateSerialized();
     }
 
     setText(text){
         this.label.innerText = text;
+    } setAlignX(v){
+        this.alignx = v;
+        let name = 'center';
+        if (v == 1){
+            name = 'start';
+        } if (v == 2){
+            name = 'end';
+        }
+        this.elem.style.alignItems = name;
+    } setAlignY(v){
+        this.aligny = v;
+        let name = 'center';
+        if (v == 1){
+            name = 'start';
+        } if (v == 2){
+            name = 'end';
+        }
+        this.elem.style.justifyContent = name;
+    } getAlignX(){
+        return this.alignx;
+    } getAlignY(){
+        return this.aligny;
     }
 
     serialize(){
         return this.serializeBase({
             _ : 'Label',
             l : this.label.innerText,
+            ax : this.alignx,
+            ay : this.aligny,
         });
     } unpack(data){
         this.unpackBase(data);
 
         this.setText(data.l);
+        this.setAlignX(data.ax);
+        this.setAlignY(data.ay);
+
+        this.updateSerialized();
+    }
+}
+
+class TextArea extends Widget{
+    constructor(){
+        super();
+
+        // Create doc elements
+        this.label = this.createElement('textarea');
+        this.elem.style.display = 'flex';
+        this.label.className = 'widgetTextArea';
+
+        // Initiate behaviors
+
+        this.label.innerText = '?';
+        this.setAlignX(0);
+        this.setAlignY(0);
+
+        this.updateSerialized();
+    }
+
+    setText(text){
+        this.label.innerText = text;
+    } setAlignX(v){
+        this.alignx = v;
+        let name = 'center';
+        if (v == 1){
+            name = 'start';
+        } if (v == 2){
+            name = 'end';
+        }
+        this.elem.style.alignItems = name;
+    } setAlignY(v){
+        this.aligny = v;
+        let name = 'center';
+        if (v == 1){
+            name = 'start';
+        } if (v == 2){
+            name = 'end';
+        }
+        this.elem.style.justifyContent = name;
+    } getAlignX(){
+        return this.alignx;
+    } getAlignY(){
+        return this.aligny;
+    }
+
+    serialize(){
+        return this.serializeBase({
+            _ : 'TextArea',
+            l : this.label.innerText,
+            ax : this.alignx,
+            ay : this.aligny,
+        });
+    } unpack(data){
+        this.unpackBase(data);
+
+        this.setText(data.l);
+        this.setAlignX(data.ax);
+        this.setAlignY(data.ay);
 
         this.updateSerialized();
     }
@@ -356,6 +445,7 @@ var widgetClasses = {
     'Icon': Icon,
     'Label': Label,
     'Website': Website,
+    'TextArea': TextArea,
 }
 
 //!------------------------- Utilities -------------------------//
@@ -870,7 +960,37 @@ function displayWidgetContext(e, widget){
             }
         }
     }
+
+    // Show selected properties
+    elemsWidgetProperty.map((btn) => {
+        const value = btn.dataset.v;
+        const funcGet = btn.dataset.get;
+
+        if (Number.isInteger(value)){
+            value = parseInt(value);
+        }
+
+        const match = widget[funcGet]() === value;
+        console.log(match);
+
+        btn.style.border = match ? '1px solid var(--text)' : '';
+    });
 }
+
+elemsWidgetProperty.map((btn) => {
+    const functionName = btn.dataset.f;
+    const value = btn.dataset.v;
+
+    if (Number.isInteger(value)){
+        value = parseInt(value);
+    }
+
+    btn.addEventListener('click', (e) => {
+        iconRightClicked[functionName](value);
+        displayWidgetContext(false);
+    });
+});
+
 
 // Size cells
 var iconSizeCellHovered = [0, 0];
@@ -1008,6 +1128,7 @@ elemContextUrl.addEventListener('change', (e) => {
 });
 
 
+
 //!------------------------- NORMAL CONTEXT MENU -------------------------//
 
 var contextpx = 0;
@@ -1070,6 +1191,13 @@ elemBtnOpenCmd.addEventListener('click', (e) => {
     const ter = new Terminal(elemCmdHolder);
     ter.setCenterPosition(e.x, e.y, true);    
 });
+elemBtnTextArea.addEventListener('click', (e) => {
+    addWidget(TextArea, (widget) => {
+        widget.setText('Enter text here');
+        widget.setSize(2, 2);
+    }, contextpx, contextpy);
+});
+
 
 
 //!-------------------------------- INIT ---------------------------------//

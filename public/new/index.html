@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="en">
+<html lang="en" style="overflow: clip">
 <head>
     <meta charset="utf-8">
     <title>/></title>
@@ -12,7 +12,7 @@
     <link rel="preload" href="cmdStyle.css" as="style" onload="this.onload=null; this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="cmdStyle.css"></noscript>
 </head>
-<body style="background: var(--bg); margin: 0; overflow: hidden; width: 100vw; height: 100vh;">
+<body style="background: var(--bg); margin: 0; overflow: clip; width: 100vw; height: 100vh;">
     <div id="background" class="screen" style="pointer-events: none; z-index: -1;"></div>
 
     <div class="flexx screen" style="gap: 0;">
@@ -59,6 +59,8 @@
             </div>
         </div>
     </div>
+    
+    <div id="elemCmdHolder" style="position: absolute; width: 100vw; height: 100vh; overflow: clip; left: 0; top: 0; pointer-events: none;"></div>
 
     <div id="iconEdit" class="flexy context">
         <div class="flexx" data-attr="setText">
@@ -86,6 +88,21 @@
         <div class="flexx" data-attr="setUrl">
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 30c7.732 0 14-6.268 14-14S23.732 2 16 2S2 8.268 2 16s6.268 14 14 14m0-26c1.032 0 2.283.948 3.335 3.227c.373.81.698 1.743.96 2.773h-8.59c.262-1.03.587-1.964.96-2.773C13.717 4.948 14.968 4 16 4m-5.15 2.389c-.49 1.06-.896 2.278-1.201 3.611H5.605a12.04 12.04 0 0 1 6.134-5.222a12 12 0 0 0-.89 1.61M9.278 12A28 28 0 0 0 9 16c0 1.386.097 2.73.279 4H4.683A12 12 0 0 1 4 16c0-1.402.24-2.749.683-4zm.37 10c.305 1.333.711 2.551 1.2 3.611c.263.57.56 1.112.89 1.61A12.04 12.04 0 0 1 5.605 22zm2.057 0h8.588a16 16 0 0 1-.96 2.773C18.284 27.052 17.033 28 16 28s-2.283-.948-3.335-3.227a16 16 0 0 1-.96-2.773m8.993-2H11.3a26 26 0 0 1-.3-4c0-1.407.107-2.752.3-4h9.4c.193 1.248.3 2.593.3 4s-.107 2.752-.3 4m1.652 2h4.044a12.04 12.04 0 0 1-6.134 5.221c.33-.498.627-1.04.89-1.61c.489-1.06.895-2.278 1.2-3.611m4.966-2h-4.596c.182-1.27.279-2.614.279-4s-.097-2.73-.279-4h4.596A12 12 0 0 1 28 16c0 1.402-.24 2.749-.683 4M20.261 4.778A12.04 12.04 0 0 1 26.395 10H22.35c-.305-1.333-.711-2.551-1.2-3.611a12 12 0 0 0-.89-1.61"/></svg>
             <input type="text" id="elemContextUrl" onfocus="this.value=''">
+        </div>
+
+        <div class="flexx" data-attr="setAlignX">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M30 16a1 1 0 0 1-1 1h-2v3.5a3.5 3.5 0 0 1-3.5 3.5h-3a3.5 3.5 0 0 1-3.5-3.5V17h-2v6.5a3.5 3.5 0 0 1-3.5 3.5h-3A3.5 3.5 0 0 1 5 23.5V17H3a1 1 0 1 1 0-2h2V8.5A3.5 3.5 0 0 1 8.5 5h3A3.5 3.5 0 0 1 15 8.5V15h2v-3.5A3.5 3.5 0 0 1 20.5 8h3a3.5 3.5 0 0 1 3.5 3.5V15h2a1 1 0 0 1 1 1m-5-4.5a1.5 1.5 0 0 0-1.5-1.5h-3a1.5 1.5 0 0 0-1.5 1.5v9a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5zM11.5 7h-3A1.5 1.5 0 0 0 7 8.5v15A1.5 1.5 0 0 0 8.5 25h3a1.5 1.5 0 0 0 1.5-1.5v-15A1.5 1.5 0 0 0 11.5 7"/></svg>
+            <div>X Alignment:</div>
+            <div class="btn widgetProperty flexcen" data-v="1" data-f="setAlignX" data-get="getAlignX"><div>&lt</div></div>
+            <div class="btn widgetProperty flexcen" data-v="0" data-f="setAlignX" data-get="getAlignX"><div>x</div></div>
+            <div class="btn widgetProperty flexcen" data-v="2" data-f="setAlignX" data-get="getAlignX"><div>&gt</div></div>
+        </div>
+        <div class="flexx" data-attr="setAlignY">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 30a1 1 0 0 1-1-1v-2h-3.5A3.5 3.5 0 0 1 8 23.5v-3a3.5 3.5 0 0 1 3.5-3.5H15v-2H8.5A3.5 3.5 0 0 1 5 11.5v-3A3.5 3.5 0 0 1 8.5 5H15V3a1 1 0 1 1 2 0v2h6.5A3.5 3.5 0 0 1 27 8.5v3a3.5 3.5 0 0 1-3.5 3.5H17v2h3.5a3.5 3.5 0 0 1 3.5 3.5v3a3.5 3.5 0 0 1-3.5 3.5H17v2a1 1 0 0 1-1 1m4.5-5a1.5 1.5 0 0 0 1.5-1.5v-3a1.5 1.5 0 0 0-1.5-1.5h-9a1.5 1.5 0 0 0-1.5 1.5v3a1.5 1.5 0 0 0 1.5 1.5zM25 11.5v-3A1.5 1.5 0 0 0 23.5 7h-15A1.5 1.5 0 0 0 7 8.5v3A1.5 1.5 0 0 0 8.5 13h15a1.5 1.5 0 0 0 1.5-1.5"/></svg>
+            <div>Y Alignment:</div>
+            <div class="btn widgetProperty flexcen" data-v="1" data-f="setAlignY" data-get="getAlignY"><div>&lt</div></div>
+            <div class="btn widgetProperty flexcen" data-v="0" data-f="setAlignY" data-get="getAlignY"><div>x</div></div>
+            <div class="btn widgetProperty flexcen" data-v="2" data-f="setAlignY" data-get="getAlignY"><div>&gt</div></div>
         </div>
 
         <span class="flexx" data-attr="setSize">
@@ -163,6 +180,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 30c7.732 0 14-6.268 14-14S23.732 2 16 2S2 8.268 2 16s6.268 14 14 14m0-26c1.032 0 2.283.948 3.335 3.227c.373.81.698 1.743.96 2.773h-8.59c.262-1.03.587-1.964.96-2.773C13.717 4.948 14.968 4 16 4m-5.15 2.389c-.49 1.06-.896 2.278-1.201 3.611H5.605a12.04 12.04 0 0 1 6.134-5.222a12 12 0 0 0-.89 1.61M9.278 12A28 28 0 0 0 9 16c0 1.386.097 2.73.279 4H4.683A12 12 0 0 1 4 16c0-1.402.24-2.749.683-4zm.37 10c.305 1.333.711 2.551 1.2 3.611c.263.57.56 1.112.89 1.61A12.04 12.04 0 0 1 5.605 22zm2.057 0h8.588a16 16 0 0 1-.96 2.773C18.284 27.052 17.033 28 16 28s-2.283-.948-3.335-3.227a16 16 0 0 1-.96-2.773m8.993-2H11.3a26 26 0 0 1-.3-4c0-1.407.107-2.752.3-4h9.4c.193 1.248.3 2.593.3 4s-.107 2.752-.3 4m1.652 2h4.044a12.04 12.04 0 0 1-6.134 5.221c.33-.498.627-1.04.89-1.61c.489-1.06.895-2.278 1.2-3.611m4.966-2h-4.596c.182-1.27.279-2.614.279-4s-.097-2.73-.279-4h4.596A12 12 0 0 1 28 16c0 1.402-.24 2.749-.683 4M20.261 4.778A12.04 12.04 0 0 1 26.395 10H22.35c-.305-1.333-.711-2.551-1.2-3.611a12 12 0 0 0-.89-1.61"/></svg>
             <div>Add website</div>
         </div>
+        <div class="flexx btn" id="btnAddTextArea">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m0 5.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1.5 7a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3M14 10.5a1 1 0 0 1 1-1h7a1 1 0 1 1 0 2h-7a1 1 0 0 1-1-1m1 4.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2zm-1 6.5a1 1 0 0 1 1-1h7a1 1 0 1 1 0 2h-7a1 1 0 0 1-1-1M7.5 3A4.5 4.5 0 0 0 3 7.5v17A4.5 4.5 0 0 0 7.5 29h17a4.5 4.5 0 0 0 4.5-4.5v-17A4.5 4.5 0 0 0 24.5 3zM5 7.5A2.5 2.5 0 0 1 7.5 5h17A2.5 2.5 0 0 1 27 7.5v17a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 5 24.5z"/></svg>
+            <div>Add text area</div>
+        </div>
     </div>
 
     <div id="elemIconSize" style="width: calc(var(--iconsize) + var(--icongap)); height: calc(var(--iconsize) + var(--icongap)); visibility: hidden; pointer-events: none;"></div>
@@ -171,8 +192,6 @@
     <div id="elemAnchor" style="position: absolute; display: none; justify-content: center; align-items: center;">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="m17 15l1.55 1.55c-.96 1.69-3.33 3.04-5.55 3.37V11h3V9h-3V7.82C14.16 7.4 15 6.3 15 5c0-1.65-1.35-3-3-3S9 3.35 9 5c0 1.3.84 2.4 2 2.82V9H8v2h3v8.92c-2.22-.33-4.59-1.68-5.55-3.37L7 15l-4-3v3c0 3.88 4.92 7 9 7s9-3.12 9-7v-3zM12 4c.55 0 1 .45 1 1s-.45 1-1 1s-1-.45-1-1s.45-1 1-1"/></svg>
     </div>
-
-    <div id="elemCmdHolder" style="position: absolute; width: 100vw; height: 100vh; overflow: hidden; left: 0; top: 0; pointer-events: none;"></div>
 
     <script src="script.js"></script>
     <script src="cmdScript.js" defer></script>

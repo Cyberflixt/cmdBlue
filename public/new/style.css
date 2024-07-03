@@ -29,6 +29,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+}.flexcen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 input, .input{
@@ -196,4 +200,28 @@ iframe{
     transition-property: border-left-width, border-left-style;
 } iframe:hover{
     border-left-width: 10px;
+}
+
+.widgetProperty{
+    padding: .2vh;
+    padding-left: .5vh;
+    padding-right: .5vh;
+    border-radius: 3px;
+}
+
+.widgetTextArea{
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+    resize: none;
+    background: none;
+    border: 1px solid transparent;
+    border-left-color: var(--text);
+    border-radius: 1vh;
+    outline: none;
+    padding: 1vh;
+    transition: .2s;
+    transition-property: border-color;
+}.widgetTextArea:hover{
+    border-color: var(--text);
 }
