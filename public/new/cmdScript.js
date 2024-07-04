@@ -75,7 +75,7 @@ class TerminalGui{
     constructor(parent){
         // Construct DOM elements
 
-        this.elem = createDiv(undefined, 'cmd');
+        this.elem = createDiv(undefined, 'cmd cmdfont');
         this.elem.style.transform = 'scale(.9)';
         this.elem.style.opacity = '0';
 

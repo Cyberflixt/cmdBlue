@@ -33,6 +33,7 @@ const elemBtnTextArea = document.getElementById('btnAddTextArea');
 // Misc
 const root = document.querySelector(':root');
 const elemBackground = document.getElementById("background");
+const elemsBgImages = document.getElementsByClassName('elemBgImage');
 const elemContent = document.getElementById("content");
 const elemHolder = document.getElementById("holder");
 const elemMenu = document.getElementById("menu");
@@ -41,7 +42,8 @@ const elemIconPreview = document.getElementById('iconPreview');
 const elemIconSize = document.getElementById('elemIconSize');
 const elemIconGap = document.getElementById('elemIconGap');
 const elemAnchor = document.getElementById('elemAnchor');
-
+const elemCssPalettes = Array.from(document.getElementsByClassName('cssvarPalette'));
+const elemCssRadio = Array.from(document.getElementsByClassName('cssvarRadio'));
 
 
 var inputVariables = {};
@@ -344,21 +346,28 @@ class TextArea extends Widget{
         super();
 
         // Create doc elements
-        this.label = this.createElement('textarea');
         this.elem.style.display = 'flex';
-        this.label.className = 'widgetTextArea';
+
+        this.area = this.createElement('textarea');
+        this.area.className = 'widgetTextArea';
+        this.area.placeholder = '...';
+        this.area.style.display = 'flex';
 
         // Initiate behaviors
-
-        this.label.innerText = '?';
+        
         this.setAlignX(0);
         this.setAlignY(0);
 
         this.updateSerialized();
+
+        const widget = this;
+        this.area.addEventListener('input', (e) => {
+            widget.save();
+        });
     }
 
     setText(text){
-        this.label.innerText = text;
+        this.area.value = text;
     } setAlignX(v){
         this.alignx = v;
         let name = 'center';
@@ -367,7 +376,7 @@ class TextArea extends Widget{
         } if (v == 2){
             name = 'end';
         }
-        this.elem.style.alignItems = name;
+        this.area.style.textAlign = name;
     } setAlignY(v){
         this.aligny = v;
         let name = 'center';
@@ -376,7 +385,7 @@ class TextArea extends Widget{
         } if (v == 2){
             name = 'end';
         }
-        this.elem.style.justifyContent = name;
+        this.area.style.alignItems = name;
     } getAlignX(){
         return this.alignx;
     } getAlignY(){
@@ -386,7 +395,7 @@ class TextArea extends Widget{
     serialize(){
         return this.serializeBase({
             _ : 'TextArea',
-            l : this.label.innerText,
+            l : this.area.value,
             ax : this.alignx,
             ay : this.aligny,
         });
@@ -584,65 +593,6 @@ function debugSquare(x,y,w,h, lifetime = 3000){
 }
 
 
-//!------------------------- MISC -------------------------//
-
-
-function refreshAllIconsPositions(){
-    const anchor = getAnchorPoint();
-    objectDataArr.map((icon) => {
-        icon.applyRelPos(anchor);
-    });
-    refreshAnchor(anchor);
-}
-function refreshAnchor(anchor){
-    elemAnchor.style.left = `${anchor.x - elemAnchor.offsetWidth/2}px`;
-    elemAnchor.style.top  = `${anchor.y - elemAnchor.offsetHeight/2}px`;
-}
-
-// Side menu
-function showMenu(show){
-    menuVisible = show;
-    elemMenu.style.display = show ? 'flex' : 'none';
-    elemAnchor.style.display = show ? 'flex' : 'none';
-    refreshAllIconsPositions();
-}
-// Keybind
-document.addEventListener('keydown', function(e){
-	if(e.key === 'Escape'){
-		showMenu(!menuVisible);
-	} if (e.key === 't' && false){
-        const ter = new Terminal(elemCmdHolder);
-        ter.setCenterPosition(window.innerWidth/2 ,window.innerHeight/2);
-        ter.clearInput();
-    }
-}, false);
-
-
-// Background image
-var bgfileopen = function(file) {
-    let input = file.target;
-    let reader = new FileReader();
-    reader.onload = function(){
-        let dataURL = reader.result;
-        elemBackground.style.backgroundImage = `url('${dataURL}')`;
-
-        base64 = btoa(dataURL);
-        localStorage.setItem('bgimg', base64);
-    };
-    reader.readAsDataURL(input.files[0]);
-};
-
-function stopIconDrag(){
-    if (iconDragged){
-        if (iconDragged.iframe){
-            iconDragged.iframe.className = '';
-        }
-    }
-
-    iconDragged = undefined;
-    elemIconPreview.style.display = 'none';
-}
-
 
 //!------------------------- Saves -------------------------//
 
@@ -672,39 +622,241 @@ function loadSavedTab(name){
 
 
 // Css input
-elemsCssVar.map((elem) => {
-    const propName = elem.dataset.propName;
+function newCssVarInput(elem){
+    const prop = elem.dataset.prop;
     elem.addEventListener('change', (e) => {
         const v = getInputValue(elem, true);
-        root.style.setProperty(propName, v);
-        localStorage.setItem(propName, v);
-        inputVariables[propName] = v;
+        root.style.setProperty(prop, v);
+        localStorage.setItem(prop, v);
+        inputVariables[prop] = v;
         refreshAllIconsPositions();
     });
-    let v = localStorage.getItem(propName);
+    let v = localStorage.getItem(prop);
     if (v == undefined){
-        v = defStyle.getPropertyValue(propName);
+        v = defStyle.getPropertyValue(prop);
     } else {
-        root.style.setProperty(propName, v);
+        root.style.setProperty(prop, v);
     }
     setInputValue(elem, v);
-    inputVariables[propName] = v;
-});
+    inputVariables[prop] = v;
+}
+elemsCssVar.map((elem) => newCssVarInput);
+
 // Misc js input
 elemsJsVar.map((elem) => {
-    const propName = elem.dataset.propName;
+    const prop = elem.dataset.prop;
     elem.addEventListener('change', (e) => {
         const v = getInputValue(elem);
-        localStorage.setItem(propName, v ? 1 : 0);
-        inputVariables[propName] = v;
+        localStorage.setItem(prop, v ? 1 : 0);
+        inputVariables[prop] = v;
         refreshAllIconsPositions();
     });
-    let v = localStorage.getItem(propName) == 1;
+    let v = localStorage.getItem(prop) == 1;
     if (v === undefined){
         v = getInputValue(elem);
     }
     setInputValue(elem, v);
-    inputVariables[propName] = v;
+    inputVariables[prop] = v;
+});
+
+const paletteColorsBg = [
+    'black',
+    'white',
+    'hsl(0,   80%, 80%)',
+    'hsl(20,  80%, 80%)',
+    'hsl(40,  80%, 80%)',
+    'hsl(60,  80%, 80%)',
+    'hsl(80,  80%, 80%)',
+    'hsl(100, 80%, 80%)',
+    'hsl(120, 80%, 80%)',
+    'hsl(140, 80%, 80%)',
+    'hsl(160, 80%, 80%)',
+    'hsl(180, 80%, 80%)',
+    'hsl(200, 80%, 80%)',
+    'hsl(220, 80%, 80%)',
+    'hsl(240, 80%, 80%)',
+]
+
+function sethw(elem, v){
+    elem.style.height = v;
+    elem.style.width = v;
+}
+
+class JsInput{
+    constructor(){
+        // Css artificial input, pass events
+        this.listeners = {};
+    }
+
+    fire(name){
+        const onname = 'on'+name;
+        if (typeof this[onname] === 'function'){
+            this[onname](this);
+        }
+        if (typeof this.listeners[name] === 'function'){
+            this.listeners[name](this);
+        }
+    }
+
+    addEventListener(name, func){
+        this.listeners[name] = func;
+    }
+}
+
+class PaletteInput extends JsInput{
+    constructor(parent, colors){
+        super();
+        this.dataset = parent.dataset;
+        this.build(parent, colors);
+    }
+
+    build(parent, colors){
+        // Build palette elements
+        const obj = this;
+
+        const sx = Math.ceil(Math.sqrt(colors.length));
+        const cellSize = '4vh';
+        const gapSize = '2px';
+
+        parent.style.display = 'grid';
+        parent.style.gridGap = gapSize;
+        parent.style.gridTemplateColumns = `repeat(auto-fill, ${cellSize})`;
+        parent.style.width = `calc(calc(${cellSize} + ${gapSize}) * ${sx} - ${gapSize})`;
+
+        // Color cells
+        this.cells = [];
+        for (let i=0; i<colors.length; i++){
+            let child = document.createElement('div');
+            child.className = 'cell paletteCell';
+            child.dataset.v = colors[i];
+            child.style.backgroundColor = colors[i];
+            sethw(child, cellSize);
+            parent.appendChild(child);
+            this.cells.push(child);
+
+            child.addEventListener('click', (e) => {
+                obj.select(child);
+            });
+        }
+
+        // Last customizable color
+        let last = document.createElement('div');
+        last.style.position = 'relative';
+        last.className = 'cell paletteCell';
+        sethw(last, cellSize);
+        parent.appendChild(last);
+
+        let input = document.createElement('input');
+        input.className = 'cell';
+        input.type = 'color';
+        sethw(input, cellSize);
+        last.appendChild(input);
+        this.input = input;
+
+        // Last icon
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.innerHTML = '<path fill="currentColor" d="M21.65 3.434a4.889 4.889 0 1 1 6.915 6.914l-.902.901l-6.914-6.914zM19.335 5.75L4.357 20.73a3.7 3.7 0 0 0-1.002 1.84l-1.333 6.22a1 1 0 0 0 1.188 1.188l6.22-1.333a3.7 3.7 0 0 0 1.84-1.002l14.98-14.98z"/>';
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttribute('viewBox', '0 0 32 32');
+        svg.style.position = 'absolute';
+        svg.style.left = '25%';
+        svg.style.top = '25%';
+        sethw(svg, '50%');
+        svg.style.pointerEvents = 'none';
+        svg.style.mixBlendMode = 'difference';
+        last.appendChild(svg);
+        this.cells.push(input);
+
+        input.addEventListener('input', (e) => {
+            obj.select(input);
+        }); input.addEventListener('click', (e) => {
+            obj.select(input);
+        });
+    }
+
+    select(elem){
+        // Deselect old element
+        const old = this.oldSel;
+        if (old !== undefined){
+            old.className = 'cell paletteCell';
+        }
+        this.oldSel = elem;
+
+        // Select new element
+        if (elem === undefined){
+            this.value = undefined;
+        } else {
+            let v;
+            elem.className = 'cell paletteCell sel';
+            if (elem == this.input){
+                v = elem.value;
+            } else {
+                v = elem.dataset.v;
+            }
+            this.value = v;
+        }
+
+        this.fire('change');
+        this.fire('input');
+    }
+
+}
+
+class RadioInput extends JsInput{
+    constructor(parent){
+        super();
+        this.dataset = parent.dataset;
+
+        // Already built
+        const obj = this;
+        this.children = parent.children;
+        this.values = [];
+        for (let i=0; i < this.children.length; i++){
+            const child = this.children[i];
+            this.values.push(child.dataset.v);
+            child.addEventListener('click', (e) => {
+                obj.select(child);
+            });
+        }
+    }
+
+    select(elem){
+        if (this.oldSel !== undefined){
+            this.oldSel.style.background = '';
+        }
+        this.oldSel = elem;
+
+        if (elem === undefined){
+            this._value = undefined;
+        } else {
+            this._value = elem.dataset.v;
+            elem.style.background = 'color-mix(in srgb, var(--text), transparent 70%)';
+        }
+        this.fire('change');
+        this.fire('input');
+    }
+    
+    // Getter and setter
+    get value(){
+        return this._value;
+    } set value(v){
+        this._value = v;
+
+        // Show selected
+        const i = this.values.indexOf(v);
+        if (i>-1){
+            this.select(this.children[i]);
+        }
+    }
+}
+
+elemCssPalettes.map((elem) => {
+    const palette = new PaletteInput(elem, paletteColorsBg);
+    newCssVarInput(palette);
+});
+elemCssRadio.map((elem) => {
+    const radio = new RadioInput(elem);
+    newCssVarInput(radio);
 });
 
 
@@ -1199,13 +1351,85 @@ elemBtnTextArea.addEventListener('click', (e) => {
 });
 
 
+//!------------------------- MISC -------------------------//
+
+
+function refreshAllIconsPositions(){
+    const anchor = getAnchorPoint();
+    objectDataArr.map((icon) => {
+        icon.applyRelPos(anchor);
+    });
+    refreshAnchor(anchor);
+}
+function refreshAnchor(anchor){
+    elemAnchor.style.left = `${anchor.x - elemAnchor.offsetWidth/2}px`;
+    elemAnchor.style.top  = `${anchor.y - elemAnchor.offsetHeight/2}px`;
+}
+
+// Side menu
+function showMenu(show){
+    menuVisible = show;
+    elemMenu.style.display = show ? 'flex' : 'none';
+    elemAnchor.style.display = show ? 'flex' : 'none';
+    refreshAllIconsPositions();
+}
+// Keybind
+document.addEventListener('keydown', function(e){
+	if(e.key === 'Escape'){
+		showMenu(!menuVisible);
+	} if (e.key === 't' && false){
+        const ter = new Terminal(elemCmdHolder);
+        ter.setCenterPosition(window.innerWidth/2 ,window.innerHeight/2);
+        ter.clearInput();
+    }
+}, false);
+
+function setBackgroundImage(data){
+    root.style.setProperty('--bgimage', `url('${data}')`);
+
+    // Image sources
+    for (let i=0; i<elemsBgImages.length; i++){
+        const elem = elemsBgImages[i];
+        if (elem.tagName === 'IMG'){
+            elem.src = data;
+        }
+    }
+}
+
+
+// Background image
+var bgfileopen = function(file) {
+    let input = file.target;
+    let reader = new FileReader();
+    reader.onload = function(){
+        let dataURL = reader.result;
+        setBackgroundImage(dataURL);
+
+        base64 = btoa(dataURL);
+        localStorage.setItem('bgimg', base64);
+    };
+    reader.readAsDataURL(input.files[0]);
+};
+
+function stopIconDrag(){
+    if (iconDragged){
+        if (iconDragged.iframe){
+            iconDragged.iframe.className = '';
+        }
+    }
+
+    iconDragged = undefined;
+    elemIconPreview.style.display = 'none';
+}
+
+
 
 //!-------------------------------- INIT ---------------------------------//
 
 
 let bgimg = localStorage.getItem('bgimg');
 if (bgimg){
-    elemBackground.style.backgroundImage = `url('${atob(bgimg)}')`;
+    setBackgroundImage(atob(bgimg));
 }
 
 showMenu(false);

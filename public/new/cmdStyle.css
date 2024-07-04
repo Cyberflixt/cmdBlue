@@ -37,7 +37,7 @@
 
     transition: .2s;
     transition-property: transform, opacity;
-}.cmd *{
+}.cmdfont *{
     color: var(--cmdtext);
     font-size: var(--cmdfontsize);
 

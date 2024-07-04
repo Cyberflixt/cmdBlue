@@ -7,6 +7,7 @@
     --fontsize: 1.5vh;
     --bgfit: cover;
     --bgpos: center;
+    --bgren: auto;
 
     --iconsy: start;
     --iconsx: start;
@@ -22,17 +23,65 @@
     --windowradius: 1vh;
 }
 
+body *{
+    user-select: none;
+}
+
+.flexcen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}.flexcenx{
+    display: flex;
+    justify-content: center;
+}.flexceny{
+    display: flex;
+    align-items: center;
+}
+
 .flexy{
     display: flex;
     flex-direction: column;
 }.flexx{
     display: flex;
     flex-direction: row;
-    align-items: center;
-}.flexcen{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+}
+
+.flexwrap{
+    flex-flow: row wrap;
+}.flexy.flexwrap{
+    flex-flow: column wrap;
+}
+
+.rel{
+    position: relative;
+}.abs{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+
+
+.gap{
+    gap: 1vh;
+}.rad{
+    border-radius: 1vh;
+}.pad{
+    padding: 1vh;
+}.mar{
+    margin: 1vh;
+}.ratio{
+    aspect-ratio: 1;
+}
+
+.noflow{
+    overflow: clip;
+}
+
+.start{
+    align-items: start;
+    justify-content: start;
 }
 
 input, .input{
@@ -45,10 +94,47 @@ input, .input{
     position: relative;
 }
 input::file-selector-button{
-    width: 100%;
     position: absolute;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     cursor: pointer;
+}
+
+
+input.cell[type="color"]::-webkit-color-swatch-wrapper{
+	padding: 0;
+}
+input.cell.sel[type="color"]::-webkit-color-swatch-wrapper, div.paletteCell.sel{
+	padding: 1px;
+    border: 1px solid var(--text);
+}
+input.cell[type="color"]::-webkit-color-swatch{
+	border: none;
+}
+input.cell[type="color"]{
+    min-width: initial;
+}div.paletteCell{
+    cursor: pointer;
+    background-clip: content-box;
+    transition: .2s;
+    transition-property: transform, box-shadow;
+}
+div.paletteCell:hover{
+    z-index: 2;
+    box-shadow: 0 0 1vh 1px var(--bg);
+    transform: scale(1.1) rotate(10deg);
+}
+
+.elemBgColor{
+    background-color: var(--bg);
+}.elemBgImage{
+    background-image: var(--bgimage);
+    background-repeat: no-repeat;
+    background-position: var(--bgpos);
+    background-size: var(--bgfit);
+    image-rendering: var(--bgren);
+    opacity: var(--bgopacity);
 }
 
 .btn{
@@ -57,6 +143,10 @@ input::file-selector-button{
     transition-property: transform, opacity;
 }.btn:hover{
     transform: scale(1.1);
+}.fast{
+    transition: .1s;
+}.fast:hover{
+    transform: scale(1.05);
 }
 
 *{
@@ -96,17 +186,12 @@ input::file-selector-button{
     justify-content: var(--iconsx);
 }
 
-#background{
-    width: 100vw;
-    height: 100vh;
+.screen{
     position: absolute;
-    top: 0;
+    height: 100vh;
+    width: 100vw;
     left: 0;
-
-    background-repeat: no-repeat;
-    background-position: var(--bgpos);
-    background-size: var(--bgfit);
-    opacity: var(--bgopacity);
+    top: 0;
 }
 
 
@@ -120,8 +205,6 @@ input::file-selector-button{
     height: var(--iconsize);
     position: absolute;
     overflow: hidden;
-} .context *, .icons *{
-    user-select: none;
 } .icons>* *{
     pointer-events: none;
 }
@@ -145,10 +228,10 @@ input::file-selector-button{
     content: '';
     pointer-events: none;
     position: absolute;
-    left: 0;
-    top: 0;
     bottom: 0;
     width: 0;
+    left: 0;
+    top: 0;
     
     background: var(--text);
     opacity: 0;
@@ -157,7 +240,7 @@ input::file-selector-button{
 }.context>div:hover::before{
     width: 100%;
     opacity: .2;
-}.context .flexx{
+}.context .flexceny{
     gap: 2vh;
 }
 
@@ -167,6 +250,16 @@ input::file-selector-button{
     margin-top: 1vh;
     margin-bottom: 1vh;
     padding: 0;
+}
+
+.flexbar{
+    background: var(--text);
+} .flexx>.flexbar{
+    width: 1px;
+    height: 100%;
+} .flexy>.flexbar{
+    height: 1px;
+    width: 100%;
 }
 
 #iconSizeCells, #iconSizeCells *{
@@ -224,4 +317,71 @@ iframe{
     transition-property: border-color;
 }.widgetTextArea:hover{
     border-color: var(--text);
+}
+
+.btnIconLabel{
+    gap: 1vh;
+    padding: .5vh;
+    position: relative;
+    cursor: pointer;
+
+    opacity: .8;
+    transition: .1s;
+    transition-property: opacity, transform;
+}.btnIconLabel>svg{
+    width: 3vh;
+    height: 3vh;
+}.btnIconLabel>div{
+    position: absolute;
+    left: 130%;
+    top: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: .2s;
+    transition-property: opacity, transform;
+    transform: translate(-2vh, -50%);
+}.btnIconLabel:hover>div{
+    opacity: 1;
+    transform: translate(0, -50%);
+}.btnIconLabel:hover{
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.layers{
+    position: relative;
+}.layers>*{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+}.full{
+    width: 100%;
+    height: 100%;
+}
+.textshadow{
+    text-shadow: -1px -1px 1vh var(--bg), 1px -1px 1vh var(--bg), -1px 1px 1vh var(--bg), 1px 1px 1vh var(--bg);
+}
+
+.fg{
+    flex-grow: 1;
+}
+
+t2{
+    font-size: calc(var(--fontsize) * 2);
+}
+
+.noshrink>*{
+    flex-shrink: 0;
+}
+
+@media (max-aspect-ratio: 10 / 9) {
+    alt-flexx{
+        display: flex;
+        flex-direction: row;
+    } alt-flexy{
+        display: flex;
+        flex-direction: column;
+    }
 }
