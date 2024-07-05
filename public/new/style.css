@@ -102,6 +102,32 @@ input::file-selector-button{
 }
 
 
+
+input[type=range] {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    height: 2vh;
+} input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    cursor: pointer;
+    height: 1vh;
+    width: 1vh;
+    border-radius: 1vh;
+    background: var(--text);
+    justify-self: center;
+    margin-top: calc(-.5vh + 1px);
+} input[type=range]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 1px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: var(--text);
+    border-radius: 1.3px;
+}
+
+
 input.cell[type="color"]::-webkit-color-swatch-wrapper{
 	padding: 0;
 }
@@ -136,6 +162,13 @@ div.paletteCell:hover{
     image-rendering: var(--bgren);
     opacity: var(--bgopacity);
 }
+
+.bg{
+    background: var(--bg);
+}.borderb{
+    border-bottom: 1px solid var(--text);
+}
+
 
 .btn{
     cursor: pointer;
@@ -384,4 +417,24 @@ t2{
         display: flex;
         flex-direction: column;
     }
+}
+
+.btnIcon{
+    width: 1em;
+    height: 1em;
+    transform: .1s transform;
+}.btnIcon.pad{
+    padding: .8vh;
+    width: calc(2vh + 1em);
+    height: calc(2vh + 1em);
+}.btnIcon:hover{
+    transform: scale(1.1);
+}
+
+.gridbtnIcon{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--grid-cell));
+}.gridbtnIcon.grid3{
+    --grid-cell: calc(2vh + 1em);
+    width: calc(var(--grid-cell) * 3);
 }

@@ -44,7 +44,7 @@ const elemIconGap = document.getElementById('elemIconGap');
 const elemAnchor = document.getElementById('elemAnchor');
 const elemCssPalettes = Array.from(document.getElementsByClassName('cssvarPalette'));
 const elemCssRadio = Array.from(document.getElementsByClassName('cssvarRadio'));
-
+const elemSettingsHead = document.getElementById('elemSettingsHead');
 
 var inputVariables = {};
 const iconActionsNames = ['Nothing', 'Link', 'Command', 'Open menu'];
@@ -640,7 +640,7 @@ function newCssVarInput(elem){
     setInputValue(elem, v);
     inputVariables[prop] = v;
 }
-elemsCssVar.map((elem) => newCssVarInput);
+elemsCssVar.map(newCssVarInput);
 
 // Misc js input
 elemsJsVar.map((elem) => {
@@ -813,10 +813,12 @@ class RadioInput extends JsInput{
         this.values = [];
         for (let i=0; i < this.children.length; i++){
             const child = this.children[i];
-            this.values.push(child.dataset.v);
-            child.addEventListener('click', (e) => {
-                obj.select(child);
-            });
+            if (child.dataset.v !== undefined){
+                this.values.push(child.dataset.v);
+                child.addEventListener('click', (e) => {
+                    obj.select(child);
+                });
+            }
         }
     }
 
@@ -1421,6 +1423,27 @@ function stopIconDrag(){
     iconDragged = undefined;
     elemIconPreview.style.display = 'none';
 }
+
+class windowHead{
+    constructor(elemHead){
+        const par = elemHead.parentNode;
+    
+        const btnA = elemHead.children[3];
+        const btnB = elemHead.children[4];
+        const btnC = elemHead.children[5];
+    
+        btnC.addEventListener('click', (e) => {
+            par.remove();
+        });
+        elemHead.addEventListener('mousedown', (e) => {
+            if (e.target === elemHead){
+                console.log('start drag');
+            }
+        });
+    }
+}
+
+new windowHead(elemSettingsHead);
 
 
 
