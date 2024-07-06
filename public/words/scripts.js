@@ -1,5 +1,7 @@
 
-import dict from './jsondata.json' assert {type: 'json'};
+//import dict from './jsondata.json' assert {type: 'json'};
+
+const dict = undefined;
 
 const wordNature = document.getElementById('wordNature');
 const wordTitle = document.getElementById('wordTitle');
@@ -134,6 +136,11 @@ wordDef.onclick = function(e){
 	})
 };
 
-const i = randomNumber(dict.length);
-const e = dict[i];
-showWord(e[0],e[1],e[2]);
+if (dict === undefined){
+	showWord('title','noun','this is an example def.');
+} else {
+	const i = randomNumber(dict.length);
+	const e = dict[i];
+	showWord(e[0],e[1],e[2]);
+}
+

@@ -13,54 +13,19 @@
 <body class="elemBgColor noflow" style="margin: 0; width: 100vw; height: 100vh;">
     <div id="background" class="screen elemBgImage nomouse" style="z-index: -1;"></div>
 
-    <div class="flexx screen" style="gap: 0;">
-        <div id="menu" class="flexy" style="display: none;">
-            <div>/&gt Settings</div>
-    
-            <div class="split"></div>
-            <div class="flexceny"><div>Text Color</div><input type="color" class="cssvar" data-prop="--text"></div>
-            <div class="flexceny"><div>Text Font</div><input type="text" class="cssvar" data-prop="--font"></div>
-            <div class="flexceny"><div>Text Size</div><input type="text" class="cssvar" data-prop="--fontsize"></div>
-    
-            <div class="split"></div>
-            <div class="flexceny"><div>Background Color</div><input type="color" class="cssvar" data-prop="--bg"></div>
-            <div class="flexceny"><div>Background image</div><input type="file" accept="image/*" onchange="bgfileopen(event)"></div>
-            <div class="flexceny"><div>Background fit</div><input type="text" class="cssvar" data-prop="--bgfit"></div>
-            <div class="flexceny"><div>Background position</div><input type="text" class="cssvar" data-prop="--bgpos"></div>
-            <div class="flexceny"><div>Background opacity</div><input type="number" class="cssvar" data-prop="--bgopacity"></div>
-    
-            <div class="split"></div>
-            <div class="flexceny"><div>Icon align x</div><input type="text" class="cssvar" data-prop="--iconsx"></div>
-            <div class="flexceny"><div>Icon align y</div><input type="text" class="cssvar" data-prop="--iconsy"></div>
-            <div class="flexceny"><div>Icon size</div><input type="text" class="cssvar" data-prop="--iconsize"></div>
-            <div class="flexceny"><div>Icon gap</div><input type="text" class="cssvar" data-prop="--icongap"></div>
-            <div class="flexceny"><div>Icon label height</div><input type="text" class="cssvar" data-prop="--iconlabelheight"></div>
-            <div class="flexceny"><div>Icon corner radius</div><input type="text" class="cssvar" data-prop="--iconimgradius"></div>
-            <div class="flexceny"><div>Icon image border</div><input type="text" class="cssvar" data-prop="--iconimgborder"></div>
-            <div class="flexceny"><div>Icon snapping</div><input type="checkbox" class="jsvar" data-prop="iconsnapping" checked></div>
-            <div class="flexceny"><div>Icon corner snapping</div><input type="checkbox" class="jsvar" data-prop="cornersnapping"></div>
-        
-            <div class="split"></div>
-            <div class="flexceny"><div>Window pad in</div><input type="text" class="cssvar" data-prop="--windowpadin"></div>
-            <div class="flexceny"><div>Window pad out</div><input type="text" class="cssvar" data-prop="--windowpadout"></div>
-            <div class="flexceny"><div>Window border</div><input type="text" class="cssvar" data-prop="--windowborder"></div>
-            <div class="flexceny"><div>Window corner radius</div><input type="text" class="cssvar" data-prop="--windowradius"></div>
-        </div>
-        
-        <div id="holder" style="flex-grow: 1; height: 100vh; padding: var(--windowpadout);">
-            <div id="content">
-                <div class="icons" id="grid" style="width:100%; height:100%">
+    <div id="holder" class="screen" style="flex-grow: 1; height: 100vh; padding: var(--windowpadout);">
+        <div id="content">
+            <div class="icons" id="grid" style="width:100%; height:100%">
                     
-                    <div id="iconPreview" style="border: 1px solid var(--text); border-radius: var(--iconimgradius);"></div>
+                <div id="iconPreview" style="border: 1px solid var(--text); border-radius: var(--iconimgradius);"></div>
 
-                </div>
             </div>
         </div>
     </div>
     
     <div id="elemCmdHolder" class="noflow abs" style="width: 100vw; height: 100vh; pointer-events: none;"></div>
 
-    <div id="elemWinSettings" class="cmd flexy" style="position: absolute; left: 1vw; top: 1vh; width: 50vw; height: 50vh">
+    <div id="elemWinSettings" class="cmd flexy" style="position: absolute; left: 1vw; top: 1vh; width: 50vw; height: 50vh; display: none;">
         <div class="flexcen cmdhead" id="elemSettingsHead">
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M16 11a5 5 0 1 0 0 10a5 5 0 0 0 0-10m-3 5a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-.16 13.628c1.035.247 2.096.372 3.16.372a13.6 13.6 0 0 0 3.156-.375a1.48 1.48 0 0 0 1.13-1.276l.234-2.13a1.47 1.47 0 0 1 2.066-1.2l1.955.856a1.47 1.47 0 0 0 1.671-.345a14.25 14.25 0 0 0 3.156-5.443a1.48 1.48 0 0 0-.535-1.627l-1.729-1.275a1.48 1.48 0 0 1 .003-2.396l1.72-1.27a1.47 1.47 0 0 0 .537-1.63a14.2 14.2 0 0 0-3.157-5.443a1.48 1.48 0 0 0-1.674-.345l-1.946.856a1.483 1.483 0 0 1-2.067-1.2l-.236-2.12a1.48 1.48 0 0 0-1.147-1.283a15 15 0 0 0-3.127-.363a15.4 15.4 0 0 0-3.146.363a1.47 1.47 0 0 0-1.147 1.28l-.237 2.122a1.493 1.493 0 0 1-2.073 1.206l-1.946-.857a1.49 1.49 0 0 0-1.67.35a14.25 14.25 0 0 0-3.16 5.446a1.48 1.48 0 0 0 .536 1.625l1.725 1.272a1.488 1.488 0 0 1 0 2.397L3.167 18.47a1.48 1.48 0 0 0-.535 1.63a14.25 14.25 0 0 0 3.16 5.45a1.46 1.46 0 0 0 1.077.465c.203 0 .404-.042.591-.123l1.955-.859a1.485 1.485 0 0 1 2.065 1.2l.235 2.126a1.48 1.48 0 0 0 1.125 1.27m5.501-1.866a11.6 11.6 0 0 1-4.677 0l-.195-1.74a3.48 3.48 0 0 0-1.14-2.208a3.53 3.53 0 0 0-3.718-.6l-1.606.7a12.2 12.2 0 0 1-2.348-4.05l1.424-1.052a3.488 3.488 0 0 0 0-5.616l-1.421-1.05a12.2 12.2 0 0 1 2.348-4.046l1.6.7a3.45 3.45 0 0 0 1.4.294a3.5 3.5 0 0 0 3.467-3.108l.194-1.747c.774-.15 1.56-.23 2.347-.24c.782.01 1.562.09 2.33.24l.186 1.74a3.48 3.48 0 0 0 1.137 2.216a3.53 3.53 0 0 0 3.727.6l1.6-.7a12.2 12.2 0 0 1 2.35 4.047l-1.423 1.046a3.48 3.48 0 0 0 0 5.62l1.422 1.05A12.3 12.3 0 0 1 25 23.901l-1.6-.7a3.473 3.473 0 0 0-4.866 2.81z"/></svg>
             <div>Settings</div>
@@ -71,36 +36,79 @@
         </div>
         <div class="layers">
             <div class="flexceny start">
-                <div class="flexy" style="padding: .5vh; z-index: 2;">
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M29 16a1 1 0 0 1-1 1H6.414l8.293 8.293a1 1 0 0 1-1.414 1.414l-10-10a1 1 0 0 1 0-1.414l10-10a1 1 0 1 1 1.414 1.414L6.414 15H28a1 1 0 0 1 1 1"/></svg>
-                        <div class="textshadow">Back</div>
+                <div class="layers" style="padding: .5vh; z-index: 2; width: 4vh;">
+
+                    <div class="flexy elemCate" data-v="vis">
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="/menu">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M29 16a1 1 0 0 1-1 1H6.414l8.293 8.293a1 1 0 0 1-1.414 1.414l-10-10a1 1 0 0 1 0-1.414l10-10a1 1 0 1 1 1.414 1.414L6.414 15H28a1 1 0 0 1 1 1"/></svg>
+                            <div class="textshadow">Back</div>
+                        </div>
+                        <div class="flexbar"></div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="vis/bg">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M28 10h-6V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M12 28V12h16l.002 16Z"/></svg>
+                            <div class="textshadow">Background</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="vis/grid">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M3 7.5A4.5 4.5 0 0 1 7.5 3h17A4.5 4.5 0 0 1 29 7.5v17a4.5 4.5 0 0 1-4.5 4.5h-17A4.5 4.5 0 0 1 3 24.5zM7.5 5A2.5 2.5 0 0 0 5 7.5V15h10V5zM17 5v10h10V7.5A2.5 2.5 0 0 0 24.5 5zm-2 12H5v7.5A2.5 2.5 0 0 0 7.5 27H15zm2 10h7.5a2.5 2.5 0 0 0 2.5-2.5V17H17z"/></svg>
+                            <div class="textshadow">Grid</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="vis/text">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M6 5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V6h-7v20h2a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2h2V6H8v3a1 1 0 0 1-2 0z"/></svg>
+                            <div class="textshadow">Text</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="vis/win">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M7.5 3A4.5 4.5 0 0 0 3 7.5v17A4.5 4.5 0 0 0 7.5 29h8.792a9 9 0 0 1-1.357-2H7.5A2.5 2.5 0 0 1 5 24.5V11h22v3.935c.728.362 1.4.82 2 1.357V7.5A4.5 4.5 0 0 0 24.5 3zM5 7.5A2.5 2.5 0 0 1 7.5 5h17A2.5 2.5 0 0 1 27 7.5V9H5zm13.343 11.536a1.52 1.52 0 0 1-1.117 1.927l-1.536.351a7.5 7.5 0 0 0-.04 3.189l1.698.423a1.52 1.52 0 0 1 1.096 1.893l-.496 1.724a7.5 7.5 0 0 0 2.75 1.596l1.26-1.3a1.53 1.53 0 0 1 2.193 0l1.236 1.272a7.5 7.5 0 0 0 2.737-1.635l-.467-1.513a1.52 1.52 0 0 1 1.117-1.928l1.536-.35a7.5 7.5 0 0 0 .04-3.19l-1.698-.423a1.52 1.52 0 0 1-1.096-1.892l.496-1.724a7.5 7.5 0 0 0-2.75-1.597l-1.26 1.3a1.53 1.53 0 0 1-2.193 0l-1.236-1.272a7.5 7.5 0 0 0-2.737 1.636zM25 22.999a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/></svg>
+                            <div class="textshadow">Windows</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="vis/misc">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M16 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5m0 9a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5M13.5 25a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"/></svg>
+                            <div class="textshadow">Misc.</div>
+                        </div>
                     </div>
-                    <div class="flexbar"></div>
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M28 10h-6V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2M12 28V12h16l.002 16Z"/></svg>
-                        <div class="textshadow">Background</div>
+
+                    <div class="flexy elemCate" data-v="data">
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="/menu">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M29 16a1 1 0 0 1-1 1H6.414l8.293 8.293a1 1 0 0 1-1.414 1.414l-10-10a1 1 0 0 1 0-1.414l10-10a1 1 0 1 1 1.414 1.414L6.414 15H28a1 1 0 0 1 1 1"/></svg>
+                            <div class="textshadow">Back</div>
+                        </div>
+                        <div class="flexbar"></div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="data/pages">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M10.208 5.5H8.11A4.5 4.5 0 0 1 12.5 2h11A6.5 6.5 0 0 1 30 8.5v11a4.5 4.5 0 0 1-3.502 4.389v-2.096A2.5 2.5 0 0 0 28 19.5v-11A4.5 4.5 0 0 0 23.5 4h-11a2.5 2.5 0 0 0-2.292 1.5M6.5 7A4.5 4.5 0 0 0 2 11.5v14A4.5 4.5 0 0 0 6.5 30h14a4.5 4.5 0 0 0 4.5-4.5v-14A4.5 4.5 0 0 0 20.5 7zM4 11.5A2.5 2.5 0 0 1 6.5 9h14a2.5 2.5 0 0 1 2.5 2.5v14a2.5 2.5 0 0 1-2.5 2.5h-14A2.5 2.5 0 0 1 4 25.5z"/></svg>
+                            <div class="textshadow">Pages</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="data/ports">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12.28 2.22a.75.75 0 0 0-1.06 0l-5 5a.75.75 0 0 0 1.06 1.06L11 4.56v13.69a.75.75 0 0 0 1.5 0V4.56l3.72 3.72a.75.75 0 1 0 1.06-1.06zM5.25 20.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5z"/></svg>
+                            <div class="textshadow">Export/Import</div>
+                        </div>
+                        <div class="btnIconLabel flexceny elemCateBtn" data-v="data/reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M21.707 10.293a1 1 0 0 1 0 1.414L17.414 16l4.293 4.293a1 1 0 0 1-1.414 1.414L16 17.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L14.586 16l-4.293-4.293a1 1 0 1 1 1.414-1.414L16 14.586l4.293-4.293a1 1 0 0 1 1.414 0M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14s14-6.268 14-14S23.732 2 16 2M4 16C4 9.373 9.373 4 16 4s12 5.373 12 12s-5.373 12-12 12S4 22.627 4 16"/></svg>
+                            <div class="textshadow">Reset</div>
+                        </div>
                     </div>
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M3 7.5A4.5 4.5 0 0 1 7.5 3h17A4.5 4.5 0 0 1 29 7.5v17a4.5 4.5 0 0 1-4.5 4.5h-17A4.5 4.5 0 0 1 3 24.5zM7.5 5A2.5 2.5 0 0 0 5 7.5V15h10V5zM17 5v10h10V7.5A2.5 2.5 0 0 0 24.5 5zm-2 12H5v7.5A2.5 2.5 0 0 0 7.5 27H15zm2 10h7.5a2.5 2.5 0 0 0 2.5-2.5V17H17z"/></svg>
-                        <div class="textshadow">Grid</div>
-                    </div>
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M6 5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V6h-7v20h2a1 1 0 1 1 0 2h-6a1 1 0 1 1 0-2h2V6H8v3a1 1 0 0 1-2 0z"/></svg>
-                        <div class="textshadow">Text</div>
-                    </div>
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M7.5 3A4.5 4.5 0 0 0 3 7.5v17A4.5 4.5 0 0 0 7.5 29h8.792a9 9 0 0 1-1.357-2H7.5A2.5 2.5 0 0 1 5 24.5V11h22v3.935c.728.362 1.4.82 2 1.357V7.5A4.5 4.5 0 0 0 24.5 3zM5 7.5A2.5 2.5 0 0 1 7.5 5h17A2.5 2.5 0 0 1 27 7.5V9H5zm13.343 11.536a1.52 1.52 0 0 1-1.117 1.927l-1.536.351a7.5 7.5 0 0 0-.04 3.189l1.698.423a1.52 1.52 0 0 1 1.096 1.893l-.496 1.724a7.5 7.5 0 0 0 2.75 1.596l1.26-1.3a1.53 1.53 0 0 1 2.193 0l1.236 1.272a7.5 7.5 0 0 0 2.737-1.635l-.467-1.513a1.52 1.52 0 0 1 1.117-1.928l1.536-.35a7.5 7.5 0 0 0 .04-3.19l-1.698-.423a1.52 1.52 0 0 1-1.096-1.892l.496-1.724a7.5 7.5 0 0 0-2.75-1.597l-1.26 1.3a1.53 1.53 0 0 1-2.193 0l-1.236-1.272a7.5 7.5 0 0 0-2.737 1.636zM25 22.999a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/></svg>
-                        <div class="textshadow">Windows</div>
-                    </div>
-                    <div class="btnIconLabel flexceny">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M16 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5m0 9a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5M13.5 25a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"/></svg>
-                        <div class="textshadow">Other</div>
-                    </div>
+
                 </div>
                 <div class="flexbar"></div>
                 <div class="flexy fg layers" style="height: 100%;">
-                    <div class="flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+
+                    <div data-v="menu" class="elemCatePage flexy flexcen noshrink gap" style="padding: 2vh; overflow-y: scroll;">
+                        <div class="flexcen">
+                            <t2>Settings</t2>
+                        </div>
+                        <div class="flexcen">
+
+                            <div class="flexcen flexy elemCateBtn btn fast" data-v="vis/bg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10vh" height="10vh" viewBox="0 0 32 32"><path fill="currentColor" d="M3.395 13.208c.253.35.61.613 1.019.75l2.4.782a3.85 3.85 0 0 1 1.825 1.294c.266.344.472.73.608 1.144l.792 2.43A2.07 2.07 0 0 0 11.999 21a2.06 2.06 0 0 0 1.205-.383c.353-.26.62-.62.767-1.033l.781-2.402c.19-.566.508-1.08.93-1.504a3.8 3.8 0 0 1 1.495-.925l2.444-.794a2.076 2.076 0 0 0 .999-3.152a2.13 2.13 0 0 0-1.082-.788l-2.406-.779a3.83 3.83 0 0 1-2.43-2.426l-.794-2.44a2.06 2.06 0 0 0-.756-1a2.11 2.11 0 0 0-2.4 0a2.07 2.07 0 0 0-.77 1.03L9.184 6.86a3.85 3.85 0 0 1-2.36 2.381l-2.44.79a2.077 2.077 0 0 0-.99 3.178M12.007 19h-.012a.07.07 0 0 1-.065-.043l-.782-2.399l-.001-.005a5.8 5.8 0 0 0-.927-1.744l-.002-.003a5.85 5.85 0 0 0-2.768-1.963l-.008-.002l-2.393-.779A.08.08 0 0 1 5 11.99a.08.08 0 0 1 .044-.07l2.42-.785l.025-.009a5.85 5.85 0 0 0 3.587-3.619l.005-.015l.798-2.451q.006-.016.018-.027a.11.11 0 0 1 .11 0q.008.007.012.018l.782 2.4l.004.012a5.83 5.83 0 0 0 3.7 3.695l2.416.783l.008.002a.13.13 0 0 1 .06.042a.07.07 0 0 1-.002.079l-.001.002a.1.1 0 0 1-.029.024l-2.398.78l-.012.004a5.8 5.8 0 0 0-2.282 1.411a5.9 5.9 0 0 0-1.41 2.281l-.002.009l-.77 2.368a.2.2 0 0 1-.05.07zm13.646.841a2.33 2.33 0 0 0 1.474 1.468l1.655.54a1.732 1.732 0 0 1 .05 3.292l-1.673.546a2.3 2.3 0 0 0-.91.56a2.36 2.36 0 0 0-.563.912l-.538 1.65a1.76 1.76 0 0 1-.65.866a1.73 1.73 0 0 1-.994.325a1.73 1.73 0 0 1-1.64-1.16l-.548-1.676a2.3 2.3 0 0 0-.559-.914a2.36 2.36 0 0 0-.914-.565l-1.653-.535a1.75 1.75 0 0 1-.867-.65a1.732 1.732 0 0 1 .841-2.643l1.681-.548a2.33 2.33 0 0 0 1.439-1.47l.535-1.65a1.732 1.732 0 0 1 2.654-.866c.295.207.517.502.634.842zm.843 3.366a4.33 4.33 0 0 1-2.739-2.729l-.003-.009l-.287-.88l-.285.88c-.21.63-.56 1.204-1.024 1.679l-.005.005a4.3 4.3 0 0 1-1.644 1.043l-.022.007l-.905.295l.887.287l.01.004c.636.213 1.214.57 1.69 1.044l.002.002c.48.48.838 1.065 1.047 1.71l.001.004l.282.86l.286-.878l.003-.008a4.36 4.36 0 0 1 1.04-1.684a4.3 4.3 0 0 1 1.709-1.053l.866-.283z"/></svg>
+                                <div class="textshadow">Visual</div>
+                            </div>
+                            <div class="flexcen flexy elemCateBtn btn fast" data-v="data/pages">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10vh" height="10vh" viewBox="0 0 32 32"><path fill="currentColor" d="M5 7.5A2.5 2.5 0 0 1 7.5 5H9v4.5a2.5 2.5 0 0 0 2.5 2.5h8A2.5 2.5 0 0 0 22 9.5V5.04a2.5 2.5 0 0 1 1.318.692l2.95 2.95A2.5 2.5 0 0 1 27 10.45V24.5a2.5 2.5 0 0 1-2 2.45V18.5a2.5 2.5 0 0 0-2.5-2.5h-13A2.5 2.5 0 0 0 7 18.5v8.45a2.5 2.5 0 0 1-2-2.45zM9 27v-8.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5V27zM20 5v4.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5V5zM7.5 3A4.5 4.5 0 0 0 3 7.5v17A4.5 4.5 0 0 0 7.5 29h17a4.5 4.5 0 0 0 4.5-4.5V10.45a4.5 4.5 0 0 0-1.318-3.182l-2.95-2.95A4.5 4.5 0 0 0 21.55 3z"/></svg>
+                                <div class="textshadow">Data</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div data-v="bg" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
                         <div class="flexx gap flexwrap">
 
                             <div class="flexy gap">
@@ -116,7 +124,7 @@
                                             </div>
                                         </div>
                                         <div class="rad btn fast pad bg borderb">
-                                            <div>Remove</div>
+                                            <div onclick="bgfileremove(event)">Remove</div>
                                         </div>
                                         <div class="flexcen rad cssvarRadio bg borderb" data-prop="--bgren">
                                             <svg class="pad rad btnIcon" data-v="auto"      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2" fill="currentColor"><path d="m0 0 2 2H0z"/></svg>
@@ -134,7 +142,6 @@
                             
                         </div>
                         
-                        <div>Image details:</div>
                         <div class="flexx flexwrap gap start">
                             <div class="flexy bg borderb rad flexcen">
                                 <div class="pad">Size</div>
@@ -167,6 +174,133 @@
                         </div>
                     
                     </div>
+
+                    <div data-v="grid" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Grid & Icons</t2>
+
+                        <div class="flexx gap flexwrap">
+                            
+                            <div class="flexy bg borderb rad flexcen">
+                                <div class="pad">Position</div>
+                                <div class="gridbtnIcon grid3">
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="top;left"><div style="transform: rotate(-135deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="top;center"><div style="transform: rotate(-90deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="top;right"><div style="transform: rotate(-45deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="center;left"><div style="transform: rotate(-180deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="center;center"><div>x</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="center;right"><div>&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="bottom;left"><div style="transform: rotate(135deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="bottom;center"><div style="transform: rotate(90deg);">&gt</div></div>
+                                    <div class="pad btnIcon rad flexcen cssvarBtn" data-prop="--iconsy;--iconsx" data-v="bottom;right"><div style="transform: rotate(45deg);">&gt</div></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="split"></div>
+                        <div class="flexceny gap"><div>Icon size</div><input type="text" class="cssvar dashed" data-prop="--iconsize"></div>
+                        <div class="flexceny gap"><div>Icon gap</div><input type="text" class="cssvar dashed" data-prop="--icongap"></div>
+                        <div class="flexceny gap"><div>Icon corner radius</div><input type="text" class="cssvar dashed" data-prop="--iconimgradius"></div>
+                        <div class="flexceny gap"><div>Icon image border</div><input type="text" class="cssvar dashed" data-prop="--iconimgborder"></div>
+                        <div class="flexceny gap"><div>Icon snapping</div><input type="checkbox" class="jsvar" data-prop="iconsnapping" checked></div>
+                        <div class="flexceny gap"><div>Icon corner snapping</div><input type="checkbox" class="jsvar" data-prop="cornersnapping"></div>
+                    
+                    </div>
+
+                    <div data-v="text" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Text</t2>
+
+                        <div class="flexceny gap"><div>Text Color</div><input type="color" class="cssvar dashed" data-prop="--text"></div>
+                        <div class="flexceny gap"><div>Text Font</div><input type="text" class="cssvar dashed" data-prop="--font"></div>
+                        <div class="flexceny gap"><div>Text Size</div><input type="text" class="cssvar dashed" data-prop="--fontsize"></div>
+
+                    </div>
+
+                    <div data-v="win" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Windows</t2>
+
+                        <div class="flexceny gap"><div>Window pad in</div><input type="text" class="cssvar dashed" data-prop="--windowpadin"></div>
+                        <div class="flexceny gap"><div>Window pad out</div><input type="text" class="cssvar dashed" data-prop="--windowpadout"></div>
+                        <div class="flexceny gap"><div>Window border</div><input type="text" class="cssvar dashed" data-prop="--windowborder"></div>
+                        <div class="flexceny gap"><div>Window corner radius</div><input type="text" class="cssvar dashed" data-prop="--windowradius"></div>
+
+                    </div>
+
+                    <div data-v="misc" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Misc</t2>
+                        
+                    </div>
+
+                    <div data-v="reset" class="elemCatePage flexcen" style="padding: 2vh; overflow-y: scroll;">
+                        <div class="flexy flexcen gap rad pad" style="border-top: 1px solid red;">
+                            <t2>RESET</t2>
+    
+                            <div>Warning: this action cannot be undone!</div>
+                            <div id="elemBtnResetAll" class="rad btn fast pad bg borderb" style="border-left: 1vh solid red;">RESET ALL DATA</div>
+                        </div>
+                    </div>
+
+                    <div data-v="pages" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Pages</t2>
+                        
+                    </div>
+
+                    <div data-v="ports" class="elemCatePage flexy noshrink start gap" style="padding: 2vh; overflow-y: scroll;">
+                        <t2>Import & Export</t2>
+                        
+                        <div class="flexx flexwrap gap">
+
+                            <div class="flexy gap">
+                                <t2>- All data:</t2>
+    
+                                <div class="flexceny gap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.28 2.22a.75.75 0 0 0-1.06 0l-5 5a.75.75 0 0 0 1.06 1.06L11 4.56v13.69a.75.75 0 0 0 1.5 0V4.56l3.72 3.72a.75.75 0 1 0 1.06-1.06zM5.25 20.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5z"/></svg>
+                                    
+                                    <div class="rad btn fast pad bg borderb">
+                                        Export all data
+                                    </div>
+                                </div>
+                                <div class="flexceny gap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);" height="2em" width="2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.28 2.22a.75.75 0 0 0-1.06 0l-5 5a.75.75 0 0 0 1.06 1.06L11 4.56v13.69a.75.75 0 0 0 1.5 0V4.56l3.72 3.72a.75.75 0 1 0 1.06-1.06zM5.25 20.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5z"/></svg>
+                                    
+                                    <div class="rad btn fast pad bg borderb">
+                                        <div class="rel full">
+                                            <div class="nomouse">Import all: Browse files</div>
+                                            <input class="abs full" type="file" accept="image/*" onchange="importAllOpen(event)" style="opacity: 0;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>Warning: importing all data cannot be undone!</div>
+
+                            </div>
+                            <div class="flexy gap">
+                                <t2>- Single page:</t2>
+    
+                                <div class="flexceny gap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.28 2.22a.75.75 0 0 0-1.06 0l-5 5a.75.75 0 0 0 1.06 1.06L11 4.56v13.69a.75.75 0 0 0 1.5 0V4.56l3.72 3.72a.75.75 0 1 0 1.06-1.06zM5.25 20.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5z"/></svg>
+                                    
+                                    <div class="rad btn fast pad bg borderb">
+                                        Export current page
+                                    </div>
+                                </div>
+                                <div class="flexceny gap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);" height="2em" width="2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.28 2.22a.75.75 0 0 0-1.06 0l-5 5a.75.75 0 0 0 1.06 1.06L11 4.56v13.69a.75.75 0 0 0 1.5 0V4.56l3.72 3.72a.75.75 0 1 0 1.06-1.06zM5.25 20.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5z"/></svg>
+                                    
+                                    <div class="rad btn fast pad bg borderb">
+                                        <div class="rel full">
+                                            <div class="nomouse">Import new page</div>
+                                            <input class="abs full" type="file" accept="image/*" onchange="importPageOpen(event)" style="opacity: 0;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                    
+                    
                 </div>
             </div>
         </div>
@@ -276,8 +410,13 @@
     <div id="normalContext" class="flexy context">
         <div class="flexceny btn" id="elemBtnOpenCmd">
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 14.25 15H1.75A1.75 1.75 0 0 1 0 13.25Zm1.75-.25a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25ZM7.25 8a.75.75 0 0 1-.22.53l-2.25 2.25a.749.749 0 0 1-1.275-.326a.75.75 0 0 1 .215-.734L5.44 8L3.72 6.28a.749.749 0 0 1 .326-1.275a.75.75 0 0 1 .734.215l2.25 2.25c.141.14.22.331.22.53m1.5 1.5h3a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1 0-1.5"/></svg>
-            <div>Open terminal</div>
+            <div>Terminal</div>
         </div>
+        <div class="flexceny btn" id="elemBtnOpenSettings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 28 28"><path fill="currentColor" d="M14 9.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9M11 14a3 3 0 1 1 6 0a3 3 0 0 1-6 0m10.71 8.395l-1.728-.759a1.72 1.72 0 0 0-1.542.086c-.467.27-.765.747-.824 1.284l-.208 1.88a.92.92 0 0 1-.703.796a11.7 11.7 0 0 1-5.412 0a.92.92 0 0 1-.702-.796l-.208-1.877a1.7 1.7 0 0 0-.838-1.281a1.7 1.7 0 0 0-1.526-.086l-1.728.759a.92.92 0 0 1-1.043-.215a12.1 12.1 0 0 1-2.707-4.672a.92.92 0 0 1 .334-1.016l1.527-1.128a1.7 1.7 0 0 0 0-2.74l-1.527-1.125a.92.92 0 0 1-.334-1.017A12.06 12.06 0 0 1 5.25 5.821a.92.92 0 0 1 1.043-.214l1.72.757a1.707 1.707 0 0 0 2.371-1.376l.21-1.878a.92.92 0 0 1 .715-.799q1.32-.294 2.704-.311c.902.01 1.8.115 2.68.311a.92.92 0 0 1 .715.8l.209 1.878a1.7 1.7 0 0 0 1.688 1.518c.233 0 .464-.049.68-.144l1.72-.757a.92.92 0 0 1 1.043.214a12.06 12.06 0 0 1 2.708 4.667a.92.92 0 0 1-.333 1.016l-1.525 1.127c-.435.32-.698.829-.698 1.37c0 .54.263 1.049.699 1.37l1.526 1.126c.316.234.45.642.334 1.017a12.1 12.1 0 0 1-2.707 4.667a.92.92 0 0 1-1.043.215m-5.447-.198a3.16 3.16 0 0 1 1.425-1.773a3.22 3.22 0 0 1 2.896-.161l1.344.59a10.6 10.6 0 0 0 1.97-3.398l-1.189-.877v-.001a3.2 3.2 0 0 1-1.309-2.578c0-1.027.497-1.98 1.307-2.576l.002-.001l1.187-.877a10.6 10.6 0 0 0-1.971-3.397l-1.333.586l-.002.001c-.406.18-.843.272-1.286.272a3.2 3.2 0 0 1-3.178-2.852v-.002l-.163-1.46a11.5 11.5 0 0 0-1.95-.193q-1.01.014-1.975.193l-.163 1.461A3.207 3.207 0 0 1 7.41 7.737l-1.336-.588a10.6 10.6 0 0 0-1.971 3.397l1.19.877a3.2 3.2 0 0 1 0 5.155l-1.19.878a10.6 10.6 0 0 0 1.97 3.403l1.345-.59a3.2 3.2 0 0 1 2.878.16a3.2 3.2 0 0 1 1.579 2.411v.005l.162 1.464c1.297.255 2.63.255 3.927 0l.162-1.467q.036-.332.138-.645"/></svg>
+            <div>Settings</div>
+        </div>
+        <div class="flexbar" style="padding: 0; margin-bottom: 1vh; margin-top: 1vh;"></div>
         <div class="flexceny btn" id="btnAddIcon">
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="M18 11a3.5 3.5 0 1 1 7 0a3.5 3.5 0 0 1-7 0m3.5-1.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3M3 7.5A4.5 4.5 0 0 1 7.5 3h17A4.5 4.5 0 0 1 29 7.5v17a4.5 4.5 0 0 1-4.5 4.5h-17A4.5 4.5 0 0 1 3 24.5zM7.5 5A2.5 2.5 0 0 0 5 7.5v17c0 .29.05.567.14.825l9.092-9.093a2.5 2.5 0 0 1 3.536 0l9.093 9.093c.09-.258.139-.536.139-.825v-17A2.5 2.5 0 0 0 24.5 5zm18 21.792l-9.146-9.146a.5.5 0 0 0-.707 0L6.5 26.792c.306.134.644.208.999.208h17a2.5 2.5 0 0 0 1-.208"/></svg>
             <div>Add icon</div>

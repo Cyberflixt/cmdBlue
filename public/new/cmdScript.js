@@ -10,7 +10,8 @@ var terminalDragged;
 const commandHelp = {
     'cls': 'Syntax: cls\nclears the output.',
     'help': 'Syntax: help [command*]\nDisplays the documentation of the given commands or all commands.',
-    'touch': 'Syntax: touch [file name*]\nCreates a file with a given name'
+    'touch': 'Syntax: touch [file name*]\nCreates a file with a given name',
+    'idle': 'Syntax: idle\nAllow user inputs forever (default terminal behavior)',
 };
 
 
@@ -52,9 +53,12 @@ function httpGet(url, success, failure){
 class TerminalCommand{
     constructor(terminal, text){
         this.ter = terminal;
-        this.raw = text;
 
-        this.text = removeEdgeSpaces(text);
+        this.commands = text.split(';');
+        this.raw = this.commands.shift();
+        this.nextCommand = this.commands.join(' ');
+
+        this.text = removeEdgeSpaces(this.raw);
         this.args = this.text.split(' ');
         this.first = this.args.shift();
         this.textRight = this.args.join(' ');
@@ -80,7 +84,7 @@ class TerminalGui{
         this.elem.style.opacity = '0';
 
         // Head
-        this.elemHead = createDiv(this.elem, 'cmdhead flexx');
+        this.elemHead = createDiv(this.elem, 'cmdhead flexceny');
         this.iconHolder = createDiv(this.elemHead, 'fullChild');
 
         this.elemTitle = createDiv(this.elemHead);
@@ -95,7 +99,7 @@ class TerminalGui{
         const border = createDiv(this.elem);
         this.elemBody = createDiv(border, 'cmdbody');
 
-        this.elemBar = createDiv(this.elemBody, 'flexx');
+        this.elemBar = createDiv(this.elemBody, 'flexceny');
         this.elemPrefix = createDiv(this.elemBar);
         this.elemPrefix.style.whiteSpace = 'pre';
         this.elemPrefix.style.userSelect = 'none';
@@ -265,13 +269,20 @@ class TerminalGui{
 }
 
 class Terminal extends TerminalGui{
-    constructor(parent){
+    constructor(parent, command){
         super(parent);
 
         this.pathArr = [];
         this.env = {};
 
-        this.inputCycle();
+        const ter = this;
+        if (command === undefined){
+            this.cmd_idle();
+        } else {
+            this.command(command, () => {
+                ter.close();
+            })
+        }
         
     }
 
@@ -283,13 +294,15 @@ class Terminal extends TerminalGui{
         return s + '/';
     }
 
-    
+    getPrefix(){
+        return this.getFullPath()+'> ';
+    }
 
     inputCycle(){
         const ter = this;
-        const prefix = this.getFullPath()+'> ';
+        const prefix = this.getPrefix();
         this.input(prefix, (input) => {
-            this.print(prefix + input);
+            //this.print(prefix + input);
             this.command(input, () => {
                 ter.inputCycle();
             });
@@ -298,14 +311,27 @@ class Terminal extends TerminalGui{
 
     command(text, resolve){
         const cmd = new TerminalCommand(this, text);
+        const prefix = this.getPrefix();
+        this.print(prefix + cmd.text);
 
         const funcname = 'cmd_' + cmd.first;
         if (this[funcname] === undefined){
             this.print(`Command "${cmd.first}" is not defined`);
             resolve();
         } else {
-            this[funcname](cmd, resolve);
+            this[funcname](cmd, () => {
+                if (cmd.commands.length > 0){
+                    this.command(cmd.nextCommand, resolve);
+                } else {
+                    resolve();
+                }
+            });
         }
+    }
+
+    cmd_idle(cmd, resolve){
+        // won't get resolved
+        this.inputCycle();
     }
 
     cmd_cls(cmd, resolve){

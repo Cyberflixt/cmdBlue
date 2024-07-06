@@ -29,6 +29,7 @@ const elemBtnAddIcon = document.getElementById('btnAddIcon');
 const elemBtnAddText = document.getElementById('btnAddText');
 const elemBtnAddWebsite = document.getElementById('btnAddWebsite');
 const elemBtnTextArea = document.getElementById('btnAddTextArea');
+const elemBtnOpenSettings = document.getElementById('elemBtnOpenSettings');
 
 // Misc
 const root = document.querySelector(':root');
@@ -36,7 +37,6 @@ const elemBackground = document.getElementById("background");
 const elemsBgImages = document.getElementsByClassName('elemBgImage');
 const elemContent = document.getElementById("content");
 const elemHolder = document.getElementById("holder");
-const elemMenu = document.getElementById("menu");
 const elemGrid = document.getElementById("grid");
 const elemIconPreview = document.getElementById('iconPreview');
 const elemIconSize = document.getElementById('elemIconSize');
@@ -44,7 +44,9 @@ const elemIconGap = document.getElementById('elemIconGap');
 const elemAnchor = document.getElementById('elemAnchor');
 const elemCssPalettes = Array.from(document.getElementsByClassName('cssvarPalette'));
 const elemCssRadio = Array.from(document.getElementsByClassName('cssvarRadio'));
+const elemCssBtn = Array.from(document.getElementsByClassName('cssvarBtn'));
 const elemSettingsHead = document.getElementById('elemSettingsHead');
+const elemBtnResetAll = document.getElementById('elemBtnResetAll');
 
 var inputVariables = {};
 const iconActionsNames = ['Nothing', 'Link', 'Command', 'Open menu'];
@@ -52,7 +54,7 @@ const iconImgFitValue = ['contain','cover','none','fill'];
 
 var menuVisible = false;
 var iconClickDist = 3;
-var iconClickDelay = 100;
+var iconClickDelay = 300;
 var iconDragged;
 var iconRightClicked;
 var currentTabName = 'home';
@@ -61,6 +63,12 @@ const defStyle = window.getComputedStyle(document.body);
 
 var serializedDataArr = [];
 var objectDataArr = [];
+
+let mouseDragElem;
+let mouseDragBx;
+let mouseDragBy;
+let mouseDragMx;
+let mouseDragMy;
 
 
 //!------------------------- Classes -------------------------//
@@ -84,8 +92,8 @@ class Widget{
 
         // Connect events
 
-        this.elem.addEventListener('mousedown', (e) => {this.mousedown(e)});
-        this.elem.addEventListener('mouseup', (e) => {this.mouseup(e)});
+        this.elem.addEventListener('mousedown', (e) => {this.mousedown(e)}, false);
+        this.elem.addEventListener('mouseup', (e) => {this.mouseup(e)}, false);
 
         objectDataArr.push(this);
         serializedDataArr.push('LOAD');
@@ -121,13 +129,20 @@ class Widget{
         let dy = e.y-this.mdy;
         let dist = Math.sqrt(dx*dx + dy+dy);
         if (dist < iconClickDist && Date.now()-this.mdt < iconClickDelay){
-            this.clicked();
+            this.clicked(e);
             return;
         }
     } clicked(e){
         // Icon left clicked
         if (this.actionType === 1){
+            // ACTION: Link
             location.href = this.actionValue;
+        } if (this.actionType === 2){
+            // ACTION: Script
+            const ter = new Terminal(elemCmdHolder, this.actionValue);
+            ter.setCenterPosition(e.x, e.y, true);
+        } if (this.actionType === 3){
+            // ACTION: Folder
         }
     }
 
@@ -450,6 +465,90 @@ class Website extends Widget{
     }
 }
 
+
+class windowBase{
+    constructor(elemHead){
+        // Settings
+        this.preserve = false;
+
+        // Init
+        this.elemHead = elemHead;
+        this.elem = elemHead.parentNode;
+    
+        this.btnA = elemHead.children[3];
+        this.btnB = elemHead.children[4];
+        this.btnC = elemHead.children[5];
+
+
+        // Anim open
+        this.open();
+        this.connectEvents();
+    }
+
+    connectEvents(){
+        const self = this;
+        
+        this.btnC.addEventListener('click', (e) => {
+            self.close();
+        });
+        this.elemHead.addEventListener('mousedown', (e) => {
+            if (e.target === self.elemHead){
+                startDrag(e, self.elem);
+            }
+        });
+    }
+
+    open(){
+        // was closed?
+        if (this.visible !== true){
+            this.elem.style.display = 'flex';
+            this.elem.style.transform = 'scale(.9)';
+            this.elem.style.opacity = '0';
+        }
+
+        this.visible = true;
+        const self = this;
+        requestAnimationFrame(() => {
+            self.elem.style.transform = '';
+            self.elem.style.opacity = '';
+        });
+    }
+    close(){
+        this.visible = false;
+
+        const self = this;
+        this.elem.style.transform = 'scale(.9)';
+        this.elem.style.opacity = '0';
+        this.elem.style.pointerEvents = 'hidden';
+        setTimeout(() => {
+            self.destroy();
+        }, 200);
+    }
+    destroy(){
+        this.visible = false;
+
+        if (this.preserve === true){
+            this.elem.style.display = 'none';
+        } else {
+            this.elem.remove();
+        }
+    }
+
+    toggle(){
+        if (this.visible === true){
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+
+    set x(v){
+        this.elem.style.left = `${v}px`;
+    } set y(v){
+        this.elem.style.top = `${v}px`;
+    }
+}
+
 var widgetClasses = {
     'Icon': Icon,
     'Label': Label,
@@ -597,6 +696,8 @@ function debugSquare(x,y,w,h, lifetime = 3000){
 //!------------------------- Saves -------------------------//
 
 
+//localStorage.clear();
+
 // Save icons
 function saveSerializedIcons(){
     localStorage.setItem('tab_'+currentTabName, JSON.stringify(serializedDataArr));
@@ -622,23 +723,68 @@ function loadSavedTab(name){
 
 
 // Css input
+
+var cssVarInputElems = {};
+
 function newCssVarInput(elem){
-    const prop = elem.dataset.prop;
+    const props = elem.dataset.prop.split(';');
+
     elem.addEventListener('change', (e) => {
-        const v = getInputValue(elem, true);
-        root.style.setProperty(prop, v);
-        localStorage.setItem(prop, v);
-        inputVariables[prop] = v;
+        // Get values
+        let values = getInputValue(elem, true);
+        if (typeof values === 'string'){
+            values = values.split(';');
+        } else {
+            values = [values];
+        }
+        const min = Math.min(values.length, props.length);
+
+        // Set all properties values
+        for (let i=0; i<min; i++){
+            const prop = props[i];
+            const v = values[i];
+
+            // Set property value
+            root.style.setProperty(prop, v);
+            localStorage.setItem(prop, v);
+            inputVariables[prop] = v;
+        }
+
+        // Events
+        for (let i=0; i<min; i++){
+            const v = values[i];
+            const inputs = cssVarInputElems[props[i]];
+            for (let j=0; j<inputs.length; j++){
+                if (inputs[j] !== elem){
+                    inputs[j].value = v;
+                }
+            }
+        }
+
+        // Refresh icons
         refreshAllIconsPositions();
     });
-    let v = localStorage.getItem(prop);
-    if (v == undefined){
-        v = defStyle.getPropertyValue(prop);
-    } else {
-        root.style.setProperty(prop, v);
+
+    // Init
+    for (let i=0; i<props.length; i++){
+        const prop = props[i];
+
+        // Add input to events list
+        if (!(prop in cssVarInputElems)){
+            cssVarInputElems[prop] = [];
+        }
+        cssVarInputElems[prop].push(elem);
+
+        // Set saved or default value
+        let v = localStorage.getItem(prop);
+        if (v == undefined){
+            v = defStyle.getPropertyValue(prop);
+        } else {
+            root.style.setProperty(prop, v);
+        }
+        setInputValue(elem, v);
+        inputVariables[prop] = v;
     }
-    setInputValue(elem, v);
-    inputVariables[prop] = v;
 }
 elemsCssVar.map(newCssVarInput);
 
@@ -712,7 +858,7 @@ class PaletteInput extends JsInput{
 
     build(parent, colors){
         // Build palette elements
-        const obj = this;
+        const self = this;
 
         const sx = Math.ceil(Math.sqrt(colors.length));
         const cellSize = '4vh';
@@ -735,7 +881,7 @@ class PaletteInput extends JsInput{
             this.cells.push(child);
 
             child.addEventListener('click', (e) => {
-                obj.select(child);
+                self.select(child);
             });
         }
 
@@ -768,9 +914,9 @@ class PaletteInput extends JsInput{
         this.cells.push(input);
 
         input.addEventListener('input', (e) => {
-            obj.select(input);
+            self.select(input);
         }); input.addEventListener('click', (e) => {
-            obj.select(input);
+            self.select(input);
         });
     }
 
@@ -802,13 +948,58 @@ class PaletteInput extends JsInput{
 
 }
 
+class BtnInput extends JsInput{
+    constructor(elem){
+        super(),
+        this.elem = elem;
+        this.dataset = elem.dataset;
+        this.values = this.dataset.v.split(';');
+        this.props = this.dataset.prop.split(';');
+
+        const self = this;
+        elem.addEventListener('click', (e) => {
+            self.value = self.dataset.v;
+            self.fire('change');
+            self.fire('input');
+            this.selected(true);
+        });
+    }
+
+    selected(bool){
+        if (bool){
+            this.elem.style.background = 'color-mix(in srgb, var(--text), transparent 70%)';
+        } else {
+            this.elem.style.background = '';
+        }
+    } checkSelected(bool){
+        let match = true;
+        for (let i=0; i<this.props.length; i++){
+            if (inputVariables[this.props[i]] !== this.values[i]){
+                match = false;
+                break;
+            }
+        }
+        this.selected(match);
+    }
+
+    get value(){
+        return this._value;
+    } set value(v){
+        if (v.split(';').length == this.props.length){
+            // Valid input, if same number values as properties
+            this._value = v;
+        }
+        this.checkSelected();
+    }
+}
+
 class RadioInput extends JsInput{
     constructor(parent){
         super();
         this.dataset = parent.dataset;
 
         // Already built
-        const obj = this;
+        const self = this;
         this.children = parent.children;
         this.values = [];
         for (let i=0; i < this.children.length; i++){
@@ -816,7 +1007,7 @@ class RadioInput extends JsInput{
             if (child.dataset.v !== undefined){
                 this.values.push(child.dataset.v);
                 child.addEventListener('click', (e) => {
-                    obj.select(child);
+                    self.select(child);
                 });
             }
         }
@@ -859,6 +1050,10 @@ elemCssPalettes.map((elem) => {
 elemCssRadio.map((elem) => {
     const radio = new RadioInput(elem);
     newCssVarInput(radio);
+});
+elemCssBtn.map((elem) => {
+    const btn = new BtnInput(elem);
+    newCssVarInput(btn);
 });
 
 
@@ -942,7 +1137,6 @@ function fileDropped(file, e){
             reader.readAsDataURL(file);
         }, e.x, e.y);
     } else if (ty == '' && file.name.includes('url')) {
-        console.log(file);
         addWidget(Icon, (widget) => {
             widget.setText(file.name.substring(0, file.name.length-4));
             widget.setImage('iconShortcut.svg');
@@ -991,43 +1185,58 @@ dropElems(elemGrid);
 dropElems(elemHolder);
 dropElems(elemContent);
 
+
 function mousemove(e){
     if (iconDragged){
-        const anchor = getAnchorPoint();
-        const size = elemIconSize.offsetHeight;
-        const x = e.x - iconDragged.mdx + iconDragged.mox;
-        const y = e.y - iconDragged.mdy + iconDragged.moy;
-        iconDragged.elem.style.left = `${x}px`;
-        iconDragged.elem.style.top  = `${y}px`;
-
-        // Snapping preview
-        if (inputVariables['iconsnapping']){
-            elemIconPreview.style.display = 'flex';
-
-            let ax, ay;
-            if (inputVariables['cornersnapping']){
-                ax = (Math.floor((x - anchor.x)/size) + .5)*size;
-                ay = (Math.floor((y - anchor.y)/size) + .5)*size;
+        let dx = e.x-iconDragged.mdx;
+        let dy = e.y-iconDragged.mdy;
+        let dist = Math.sqrt(dx*dx + dy+dy);
+        
+        if (dist > iconClickDist){
+            const anchor = getAnchorPoint();
+            const size = elemIconSize.offsetHeight;
+            const x = e.x - iconDragged.mdx + iconDragged.mox;
+            const y = e.y - iconDragged.mdy + iconDragged.moy;
+            iconDragged.elem.style.left = `${x}px`;
+            iconDragged.elem.style.top  = `${y}px`;
+    
+            // Snapping preview
+            if (inputVariables['iconsnapping']){
+                elemIconPreview.style.display = 'flex';
+    
+                let ax, ay;
+                if (inputVariables['cornersnapping']){
+                    ax = (Math.floor((x - anchor.x)/size) + .5)*size;
+                    ay = (Math.floor((y - anchor.y)/size) + .5)*size;
+                } else {
+                    ax = Math.floor((x - anchor.x)/size+.5)*size;
+                    ay = Math.floor((y - anchor.y)/size+.5)*size;
+                }
+    
+                elemIconPreview.style.left = `${ax + anchor.x}px`;
+                elemIconPreview.style.top  = `${ay + anchor.y}px`;
+                elemIconPreview.style.width = iconDragged.elem.style.width;
+                elemIconPreview.style.height = iconDragged.elem.style.height;
+    
+                iconDragged.setRelPos(
+                    ax * anchor.dx /size,
+                    ay * anchor.dy /size,
+                );
             } else {
-                ax = Math.floor((x - anchor.x)/size+.5)*size;
-                ay = Math.floor((y - anchor.y)/size+.5)*size;
+                iconDragged.setRelPos(
+                    (x - anchor.x)/size * anchor.dx,
+                    (y - anchor.y)/size * anchor.dy,
+                );
             }
-
-            elemIconPreview.style.left = `${ax + anchor.x}px`;
-            elemIconPreview.style.top  = `${ay + anchor.y}px`;
-            elemIconPreview.style.width = iconDragged.elem.style.width;
-            elemIconPreview.style.height = iconDragged.elem.style.height;
-
-            iconDragged.setRelPos(
-                ax * anchor.dx /size,
-                ay * anchor.dy /size,
-            );
-        } else {
-            iconDragged.setRelPos(
-                (x - anchor.x)/size * anchor.dx,
-                (y - anchor.y)/size * anchor.dy,
-            );
         }
+    }
+
+    // window drag
+    if (mouseDragElem){
+        const dx = mouseDragBx - mouseDragMx + e.x;
+        const dy = mouseDragBy - mouseDragMy + e.y;
+        mouseDragElem.style.left = `${dx}px`;
+        mouseDragElem.style.top = `${dy}px`;
     }
 }
 function mouseup(e){
@@ -1035,6 +1244,7 @@ function mouseup(e){
         iconDragged.applyRelPos();
         iconDragged.save();
     }
+    mouseDragElem = undefined;
     stopIconDrag();
 }
 
@@ -1124,8 +1334,11 @@ function displayWidgetContext(e, widget){
             value = parseInt(value);
         }
 
-        const match = widget[funcGet]() === value;
-        console.log(match);
+        const func = widget[funcGet];
+        let match = false;
+        if (func !== undefined){
+            match = func() === value;
+        }
 
         btn.style.border = match ? '1px solid var(--text)' : '';
     });
@@ -1352,6 +1565,17 @@ elemBtnTextArea.addEventListener('click', (e) => {
     }, contextpx, contextpy);
 });
 
+// Open settings
+const windowSettings = new windowBase(elemSettingsHead);
+windowSettings.preserve = true;
+windowSettings.destroy();
+elemBtnOpenSettings.addEventListener('click', (e) => {
+    windowSettings.open();
+    windowSettings.x = contextpx;
+    windowSettings.y = contextpy;
+    displayNormalContext(false);
+});
+
 
 //!------------------------- MISC -------------------------//
 
@@ -1368,17 +1592,10 @@ function refreshAnchor(anchor){
     elemAnchor.style.top  = `${anchor.y - elemAnchor.offsetHeight/2}px`;
 }
 
-// Side menu
-function showMenu(show){
-    menuVisible = show;
-    elemMenu.style.display = show ? 'flex' : 'none';
-    elemAnchor.style.display = show ? 'flex' : 'none';
-    refreshAllIconsPositions();
-}
 // Keybind
 document.addEventListener('keydown', function(e){
 	if(e.key === 'Escape'){
-		showMenu(!menuVisible);
+        
 	} if (e.key === 't' && false){
         const ter = new Terminal(elemCmdHolder);
         ter.setCenterPosition(window.innerWidth/2 ,window.innerHeight/2);
@@ -1400,7 +1617,7 @@ function setBackgroundImage(data){
 
 
 // Background image
-var bgfileopen = function(file) {
+var bgfileopen = function(file){
     let input = file.target;
     let reader = new FileReader();
     reader.onload = function(){
@@ -1412,6 +1629,10 @@ var bgfileopen = function(file) {
     };
     reader.readAsDataURL(input.files[0]);
 };
+var bgfileremove = function(){
+    setBackgroundImage('');
+    localStorage.setItem('bgimg', '');
+}
 
 function stopIconDrag(){
     if (iconDragged){
@@ -1424,27 +1645,57 @@ function stopIconDrag(){
     elemIconPreview.style.display = 'none';
 }
 
-class windowHead{
-    constructor(elemHead){
-        const par = elemHead.parentNode;
-    
-        const btnA = elemHead.children[3];
-        const btnB = elemHead.children[4];
-        const btnC = elemHead.children[5];
-    
-        btnC.addEventListener('click', (e) => {
-            par.remove();
-        });
-        elemHead.addEventListener('mousedown', (e) => {
-            if (e.target === elemHead){
-                console.log('start drag');
-            }
-        });
+function startDrag(e, elem){
+    mouseDragElem = elem;
+    mouseDragBx = elem.offsetLeft;
+    mouseDragBy = elem.offsetTop;
+    mouseDragMx = e.x;
+    mouseDragMy = e.y;
+}
+
+function elemCateHideShow(elem, show){
+    if (show){
+        elem.style.opacity = '1';
+        elem.style.transform = 'scale(1)';
+        elem.style.pointerEvents = 'all';
+    } else {
+        elem.style.opacity = '0';
+        elem.style.transform = 'scale(.8)';
+        elem.style.pointerEvents = 'none';
     }
 }
 
-new windowHead(elemSettingsHead);
+function handleElemsCate(parent, baseCate, basePage){
+    const elemsCate     = Array.from(parent.getElementsByClassName('elemCate')); // Buttons bars
+    const elemsCateBtn  = Array.from(parent.getElementsByClassName('elemCateBtn'));
+    const elemsCatePage = Array.from(parent.getElementsByClassName('elemCatePage'));
 
+    function setCatePage(cate, page){
+        // Hide or show elements
+        elemsCate.map((elem) => {
+            elemCateHideShow(elem, elem.dataset.v === cate);
+        }); elemsCatePage.map((elem) => {
+            elemCateHideShow(elem, elem.dataset.v === page);
+        });
+    }
+
+    elemsCateBtn.map((elem) => {
+        const [cate, page] = elem.dataset.v.split('/');
+        elem.addEventListener('click', (e) => {
+            setCatePage(cate, page);
+        });
+    });
+
+    setCatePage(baseCate, basePage);
+}
+handleElemsCate(elemSettingsHead.parentNode, '','menu');
+
+
+elemBtnResetAll.addEventListener('click', (e) => {
+    // Reset all data
+    localStorage.clear();
+    location.reload();
+});
 
 
 //!-------------------------------- INIT ---------------------------------//
@@ -1455,7 +1706,6 @@ if (bgimg){
     setBackgroundImage(atob(bgimg));
 }
 
-showMenu(false);
 stopIconDrag();
 displayNormalContext(false);
 displayWidgetContext(false);

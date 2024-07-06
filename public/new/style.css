@@ -92,6 +92,8 @@ input, .input{
     white-space: nowrap;
     min-width: 5vh;
     position: relative;
+}.dashed{
+    border-bottom: 1px dashed var(--text) !important;
 }
 input::file-selector-button{
     position: absolute;
@@ -287,7 +289,6 @@ div.paletteCell:hover{
 
 .flexbar{
     background: var(--text);
-} .flexx>.flexbar{
     width: 1px;
     height: 100%;
 } .flexy>.flexbar{
@@ -437,4 +438,29 @@ t2{
 }.gridbtnIcon.grid3{
     --grid-cell: calc(2vh + 1em);
     width: calc(var(--grid-cell) * 3);
+}
+
+
+/* Scrollbar */
+@-moz-document url-prefix() {
+    *{
+        scrollbar-width: thin;
+        scrollbar-color: var(--text) transparent;
+    }
+}
+*::-webkit-scrollbar {
+    width: 3px;
+} *::-webkit-scrollbar-track {
+    background: transparent;
+} *::-webkit-scrollbar-thumb {
+    background-color: var(--text);
+    border-radius: 1vh;
+}
+
+
+
+
+.elemCate, .elemCatePage{
+    transition: .5s;
+    transition-property: transform, opacity, display;
 }
