@@ -464,3 +464,18 @@ t2{
     transition: .5s;
     transition-property: transform, opacity, display;
 }
+
+#elemZoomBack{
+    -webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+
+    pointer-events: none;
+    opacity: 0;
+
+    transition: .2s;
+    transition-property: opacity;
+}
+#elemZoomImg{
+    transition: .2s;
+    transition-property: transform;
+}

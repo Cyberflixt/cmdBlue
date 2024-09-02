@@ -70,6 +70,11 @@ let mouseDragBy;
 let mouseDragMx;
 let mouseDragMy;
 
+var mouseX = 0;
+var mouseY = 0;
+
+var zoomImageEnable = false;
+
 
 //!------------------------- Classes -------------------------//
 
@@ -134,7 +139,12 @@ class Widget{
         }
     } clicked(e){
         // Icon left clicked
-        if (this.actionType === 1){
+        if (this.actionType === 0){
+            // Zoom if image
+            if (this.img){
+                OpenZoomImage(this.img.src)
+            }
+        } if (this.actionType === 1){
             // ACTION: Link
             location.href = this.actionValue;
         } if (this.actionType === 2){
@@ -162,12 +172,9 @@ class Widget{
         this.relx = x;
         this.rely = y;
     } applyRelPos(anchor){
-        const size = elemIconSize.offsetHeight;
-        if (anchor == undefined){
-            anchor = getAnchorPoint();
-        }
-        this.elem.style.left = `${this.relx * size * anchor.dx + anchor.x}px`;
-        this.elem.style.top  = `${this.rely * size * anchor.dy + anchor.y}px`;
+        const [absx, absy] = RelPosToAbsPos(this.relx, this.rely);
+        this.elem.style.left = absx.toString()+'px';
+        this.elem.style.top  = absy.toString()+'px';
     }
 
     setSize(sizex, sizey){
@@ -278,7 +285,7 @@ class Icon extends Widget{
     serialize(){
         return this.serializeBase({
             _ : 'Icon',
-            s : this.img.src,
+            src : this.img.src,
             l : this.label.innerText,
             f : this.imgfit,
             imr: this.imgrender,
@@ -287,7 +294,7 @@ class Icon extends Widget{
         this.unpackBase(data);
 
         this.setText(data.l);
-        this.setImage(data.s);
+        this.setImage(data.src);
         this.setImageFit(data.f);
         this.setImageRender(data.imr);
 
@@ -1062,15 +1069,17 @@ elemCssBtn.map((elem) => {
 
 // Replace right click
 document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    for (let i=0; i<objectDataArr.length; i++){
-        const icon = objectDataArr[i];
-        if (icon.includes(e.target)){
-            icon.rightclicked(e);
-            return;
+    if (!zoomImageEnable){
+        e.preventDefault();
+        for (let i=0; i<objectDataArr.length; i++){
+            const icon = objectDataArr[i];
+            if (icon.includes(e.target)){
+                icon.rightclicked(e);
+                return;
+            }
         }
+        displayNormalContext(e);
     }
-    displayNormalContext(e);
 }, false);
 
 // Close context menu when window resized
@@ -1090,13 +1099,6 @@ elemHolder.addEventListener('click', (e) => {
         }
     }
 });
-
-
-/*
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, preventDefaults, false)
-})
-*/
 
 function readFile(file, func){
     let reader = new FileReader();
@@ -1121,7 +1123,14 @@ function stringDict(str, charDef = '=', charBreak = '\n'){
     return res;
 }
 
-function fileDropped(file, e){
+function fileDropped(file, pos){
+    // No position given?
+    if (!pos){
+        // Get free space
+        const relPos = findEmptyCellPlacement();
+        pos = RelPosToAbsPos(relPos);
+    }
+
     const ty = file.type;
     if (ty.includes('image')){
         // Create icon
@@ -1135,7 +1144,7 @@ function fileDropped(file, e){
                 widget.save();
             };
             reader.readAsDataURL(file);
-        }, e.x, e.y);
+        }, pos[0], pos[1]);
     } else if (ty == '' && file.name.includes('url')) {
         addWidget(Icon, (widget) => {
             widget.setText(file.name.substring(0, file.name.length-4));
@@ -1155,13 +1164,26 @@ function fileDropped(file, e){
                 widget.save();
             };
             reader.readAsText(file);
-        }, e.x, e.y);
+        }, pos[0], pos[1]);
 
         //document.location.href = 'steam://rungameid/548430';
     } else {
         console.log('File not supported:', file);
     }
 }
+
+document.onpaste = function (event) {
+    // Element pasted on page
+
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (var index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var file = item.getAsFile();
+            fileDropped(file, [mouseX, mouseY]);
+        }
+    }
+};
 
 function dropEvents(e){
     displayNormalContext(false);
@@ -1170,7 +1192,8 @@ function dropEvents(e){
     preventEvent(e);
     const files = e.dataTransfer.files;
     for (let i=0; i<files.length; i++){
-        fileDropped(files[i], e);
+        const pos = [e.x, e.y];
+        fileDropped(files[i], pos);
     }
 } function preventEvent(e){
     e.preventDefault();
@@ -1185,8 +1208,12 @@ dropElems(elemGrid);
 dropElems(elemHolder);
 dropElems(elemContent);
 
+document.addEventListener('mousemove', (e) => {
+    // Mouse move
 
-function mousemove(e){
+    mouseX = e.x;
+    mouseY = e.y;
+
     if (iconDragged){
         let dx = e.x-iconDragged.mdx;
         let dy = e.y-iconDragged.mdy;
@@ -1238,18 +1265,18 @@ function mousemove(e){
         mouseDragElem.style.left = `${dx}px`;
         mouseDragElem.style.top = `${dy}px`;
     }
-}
-function mouseup(e){
+}, false);
+
+document.addEventListener('mouseup', (e) => {
+    // Mouse up
+
     if (iconDragged){
         iconDragged.applyRelPos();
         iconDragged.save();
     }
     mouseDragElem = undefined;
     stopIconDrag();
-}
-
-document.addEventListener('mousemove', mousemove, false);
-document.addEventListener('mouseup', mouseup, false);
+}, false);
 
 
 //!------------------------- ICON CONTEXT MENU -------------------------//
@@ -1512,6 +1539,23 @@ function displayNormalContext(e){
     positionContextElement(elemNormalContext, e);
 }
 
+function AbsPosToRelPos(x,y){
+    const size = elemIconSize.offsetHeight;
+    const anchor = getAnchorPoint();
+    return [
+        (x - anchor.x) / size * anchor.dx -.5,
+        (y - anchor.y) / size * anchor.dy -.5
+    ]
+}
+function RelPosToAbsPos(relx, rely){
+    const size = elemIconSize.offsetHeight;
+    const anchor = getAnchorPoint();
+    return [
+        relx * size * anchor.dx + anchor.x,
+        rely * size * anchor.dy + anchor.y
+    ];
+}
+
 // ADD WIDGETS
 function addWidget(ty, func, x,y){
     displayNormalContext(false);
@@ -1521,12 +1565,8 @@ function addWidget(ty, func, x,y){
 
     // Set position
     if (x !== undefined){
-        const size = elemIconSize.offsetHeight;
-        const anchor = getAnchorPoint();
-        widget.setRelPos(
-            (x - anchor.x) / size * anchor.dx -.5,
-            (y - anchor.y) / size * anchor.dy -.5
-        )
+        const [rx, ry] = AbsPosToRelPos(x, y);
+        widget.setRelPos(rx, ry);
     }
 
     widget.applyRelPos();
@@ -1594,9 +1634,7 @@ function refreshAnchor(anchor){
 
 // Keybind
 document.addEventListener('keydown', function(e){
-	if(e.key === 'Escape'){
-        
-	} if (e.key === 't' && false){
+	if (e.key === 't' && e.altKey){
         const ter = new Terminal(elemCmdHolder);
         ter.setCenterPosition(window.innerWidth/2 ,window.innerHeight/2);
         ter.clearInput();
@@ -1696,6 +1734,35 @@ elemBtnResetAll.addEventListener('click', (e) => {
     localStorage.clear();
     location.reload();
 });
+
+
+//!-------------------------------- ZOOM ---------------------------------//
+
+
+const elemZoomBack = document.getElementById('elemZoomBack');
+const elemZoomImg = document.getElementById('elemZoomImg');
+
+function OpenZoomImage(source){
+    // Show zoomed image
+    elemZoomBack.style.opacity = 1;
+    elemZoomBack.style.pointerEvents = 'auto';
+    elemZoomImg.style.transform = 'none';
+
+    elemZoomImg.src = source;
+    zoomImageEnable = true;
+}
+function CloseZoomImage(){
+    elemZoomBack.style.opacity = 0;
+    elemZoomBack.style.pointerEvents = 'none';
+    elemZoomImg.style.transform = 'scale(.5)';
+
+    zoomImageEnable = false;
+}
+
+elemZoomBack.addEventListener('click', (e) => {
+    CloseZoomImage();
+});
+CloseZoomImage();
 
 
 //!-------------------------------- INIT ---------------------------------//
