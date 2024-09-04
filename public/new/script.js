@@ -57,7 +57,9 @@ var iconClickDist = 3;
 var iconClickDelay = 300;
 var iconDragged;
 var iconRightClicked;
-var currentTabName = 'home';
+
+var defaultTabName = 'home';
+var currentTabName = defaultTabName;
 
 const defStyle = window.getComputedStyle(document.body);
 
@@ -74,6 +76,8 @@ var mouseX = 0;
 var mouseY = 0;
 
 var zoomImageEnable = false;
+
+var openedWidgets = [];
 
 
 //!------------------------- Classes -------------------------//
@@ -102,6 +106,7 @@ class Widget{
 
         objectDataArr.push(this);
         serializedDataArr.push('LOAD');
+        openedWidgets.push(this);
     }
 
     rightclicked(e){
@@ -142,7 +147,7 @@ class Widget{
         if (this.actionType === 0){
             // Zoom if image
             if (this.img){
-                OpenZoomImage(this.img.src)
+                OpenZoomImage(this.img);
             }
         } if (this.actionType === 1){
             // ACTION: Link
@@ -153,6 +158,7 @@ class Widget{
             ter.setCenterPosition(e.x, e.y, true);
         } if (this.actionType === 3){
             // ACTION: Folder
+            openTab(this.actionValue);
         }
     }
 
@@ -703,15 +709,23 @@ function debugSquare(x,y,w,h, lifetime = 3000){
 //!------------------------- Saves -------------------------//
 
 
-//localStorage.clear();
+
 
 // Save icons
 function saveSerializedIcons(){
     localStorage.setItem('tab_'+currentTabName, JSON.stringify(serializedDataArr));
 }
+function clearCurrentTab(){
+    openedWidgets.map((elem) => {
+        elem.destroy();
+    });
+    openedWidgets = [];
+}
 function loadSavedTab(name){
+    clearCurrentTab();
+
     const js = localStorage.getItem('tab_'+name);
-    if (js !== undefined){
+    if (js != null){
         const data = JSON.parse(js);
         if (data !== null){
             data.map((dict) => {
@@ -729,10 +743,54 @@ function loadSavedTab(name){
 //!------------------------- Automatic saves input -------------------------//
 
 
+
+var globals = {css_is_global: true};
+function loadGlobals(){
+    const data = localStorage.getItem('globals');
+    if (data != null){
+        console.log(data);
+        globals = JSON.parse(data);
+    }
+} function saveGlobals(){
+    localStorage.setItem('globals', JSON.stringify(globals));
+}
+loadGlobals();
+
+
 // Css input
 
 var cssVarInputElems = {};
 
+function refreshAllCssVarInput(){
+    elemsCssVar.map((elem) => {
+        const props = elem.dataset.prop.split(';');
+
+        // Init
+        for (let i=0; i<props.length; i++){
+            const prop = props[i];
+
+            // Add input to events list
+            if (!(prop in cssVarInputElems)){
+                cssVarInputElems[prop] = [];
+            }
+            cssVarInputElems[prop].push(elem);
+            console.log(prop);
+
+            // Set saved or default value
+            let key = 'css_'+currentTabName+prop;
+            if (globals.css_is_global) key = 'css_'+defaultTabName+prop;
+            let v = localStorage.getItem(key);
+            
+            if (v == undefined){
+                v = defStyle.getPropertyValue(prop);
+            } else {
+                root.style.setProperty(prop, v);
+            }
+            setInputValue(elem, v);
+            inputVariables[prop] = v;
+        }
+    });
+}
 function newCssVarInput(elem){
     const props = elem.dataset.prop.split(';');
 
@@ -753,14 +811,20 @@ function newCssVarInput(elem){
 
             // Set property value
             root.style.setProperty(prop, v);
-            localStorage.setItem(prop, v);
             inputVariables[prop] = v;
+
+            // Save
+            let key = 'css_'+currentTabName+prop;
+            if (globals.css_is_global) key = 'css_'+defaultTabName+prop;
+            localStorage.setItem(key, v);
         }
 
         // Events
         for (let i=0; i<min; i++){
             const v = values[i];
+            console.log(props[i],cssVarInputElems);
             const inputs = cssVarInputElems[props[i]];
+            console.log(inputs);
             for (let j=0; j<inputs.length; j++){
                 if (inputs[j] !== elem){
                     inputs[j].value = v;
@@ -781,9 +845,13 @@ function newCssVarInput(elem){
             cssVarInputElems[prop] = [];
         }
         cssVarInputElems[prop].push(elem);
+        console.log(prop);
 
         // Set saved or default value
-        let v = localStorage.getItem(prop);
+        let key = 'css_'+currentTabName+prop;
+        if (globals.css_is_global) key = 'css_'+defaultTabName+prop;
+        let v = localStorage.getItem(key);
+        
         if (v == undefined){
             v = defStyle.getPropertyValue(prop);
         } else {
@@ -796,20 +864,27 @@ function newCssVarInput(elem){
 elemsCssVar.map(newCssVarInput);
 
 // Misc js input
+function refreshAllJsVarInput(){
+    elemsJsVar.map((elem) => {
+        const prop = elem.dataset.prop;
+        let v = localStorage.getItem('js_'+prop) == 1;
+        if (v === undefined){
+            v = getInputValue(elem);
+        }
+        setInputValue(elem, v);
+        inputVariables[prop] = v;
+    });
+}
 elemsJsVar.map((elem) => {
+    // Connect
+    
     const prop = elem.dataset.prop;
     elem.addEventListener('change', (e) => {
         const v = getInputValue(elem);
-        localStorage.setItem(prop, v ? 1 : 0);
+        localStorage.setItem('js_'+prop, v ? 1 : 0);
         inputVariables[prop] = v;
         refreshAllIconsPositions();
     });
-    let v = localStorage.getItem(prop) == 1;
-    if (v === undefined){
-        v = getInputValue(elem);
-    }
-    setInputValue(elem, v);
-    inputVariables[prop] = v;
 });
 
 const paletteColorsBg = [
@@ -1364,7 +1439,8 @@ function displayWidgetContext(e, widget){
         const func = widget[funcGet];
         let match = false;
         if (func !== undefined){
-            match = func() === value;
+            //match = func() === value;
+            match = func.call(widget) === value;
         }
 
         btn.style.border = match ? '1px solid var(--text)' : '';
@@ -1663,14 +1739,29 @@ var bgfileopen = function(file){
         setBackgroundImage(dataURL);
 
         base64 = btoa(dataURL);
-        localStorage.setItem('bgimg', base64);
+        
+        let key = 'css_'+currentTabName+'bgimg';
+        if (globals.css_is_global) key = 'css_'+defaultTabName+'bgimg';
+        localStorage.setItem(key, base64);
     };
     reader.readAsDataURL(input.files[0]);
 };
 var bgfileremove = function(){
     setBackgroundImage('');
-    localStorage.setItem('bgimg', '');
+    
+    let key = 'css_'+currentTabName+'bgimg';
+    if (globals.css_is_global) key = 'css_'+defaultTabName+'bgimg';
+    localStorage.setItem(key, '');
 }
+function refreshBgImage(){
+    let key = 'css_'+currentTabName+'bgimg';
+    if (globals.css_is_global) key = 'css_'+defaultTabName+'bgimg';
+    let bgimg = localStorage.getItem(key);
+    if (bgimg){
+        setBackgroundImage(atob(bgimg));
+    }
+}
+refreshBgImage();
 
 function stopIconDrag(){
     if (iconDragged){
@@ -1742,13 +1833,14 @@ elemBtnResetAll.addEventListener('click', (e) => {
 const elemZoomBack = document.getElementById('elemZoomBack');
 const elemZoomImg = document.getElementById('elemZoomImg');
 
-function OpenZoomImage(source){
+function OpenZoomImage(img){
     // Show zoomed image
     elemZoomBack.style.opacity = 1;
     elemZoomBack.style.pointerEvents = 'auto';
     elemZoomImg.style.transform = 'none';
 
-    elemZoomImg.src = source;
+    elemZoomImg.src = img.src;
+    elemZoomImg.style.imageRendering = img.style.imageRendering;
     zoomImageEnable = true;
 }
 function CloseZoomImage(){
@@ -1765,17 +1857,24 @@ elemZoomBack.addEventListener('click', (e) => {
 CloseZoomImage();
 
 
+
 //!-------------------------------- INIT ---------------------------------//
 
 
-let bgimg = localStorage.getItem('bgimg');
-if (bgimg){
-    setBackgroundImage(atob(bgimg));
+
+function openTab(name){
+    currentTabName = name
+
+    stopIconDrag();
+    displayNormalContext(false);
+    displayWidgetContext(false);
+
+    refreshAllCssVarInput();
+    refreshAllJsVarInput();
+    
+    loadSavedTab(currentTabName);
 }
 
-stopIconDrag();
-displayNormalContext(false);
-displayWidgetContext(false);
 
-loadSavedTab(currentTabName);
+openTab(defaultTabName);
 
