@@ -12,8 +12,12 @@ const elemBtnBlockBulletGen = document.getElementById("elemBtnBlockBulletGen");
 const elemBtnBlockBulletSplit = document.getElementById("elemBtnBlockBulletSplit");
 const elemBtnBlockWedge = document.getElementById("elemBtnBlockWedge");
 const elemBtnBlockFlipper = document.getElementById("elemBtnBlockFlipper");
+const elemBtnBlockBreakableCreator = document.getElementById("elemBtnBlockBreakableCreator");
 
 const btnPlayStep = document.getElementById("btnPlayStep");
+const btnPlay = document.getElementById("btnPlay");
+const btnPlayFast = document.getElementById("btnPlayFast");
+const btnResetExec = document.getElementById("btnResetExec");
 
 
 const app = new PIXI.Application();
@@ -28,6 +32,7 @@ const TILE_TYPES = {
     BULLET_GEN: 4,
     BULLET_SPLIT: 5,
     FLIPPER: 6,
+    BREAKABLE_CREATOR: 7,
 };
 const TILE_TEX_PATH = {
     [TILE_TYPES.SOLID]: "assets/BlockSolid.png",
@@ -36,6 +41,7 @@ const TILE_TEX_PATH = {
     [TILE_TYPES.BULLET_GEN]: "assets/BlockBulletGen.png",
     [TILE_TYPES.BULLET_SPLIT]: "assets/BlockBulletSplit.png",
     [TILE_TYPES.FLIPPER]: "assets/BlockFlipper.png",
+    [TILE_TYPES.BREAKABLE_CREATOR]: "assets/BlockBreakableCreator.png",
 };
 
 function lerp(a,b,t)
@@ -49,6 +55,18 @@ function posmod4(x)
     if (x < 0)
         return x + 4;
     return x;
+}
+function posmod4sub1(x)
+{
+    if (x == 0)
+        return 3;
+    return x-1;
+}
+function posmod4add1(x)
+{
+    if (x == 3)
+        return 0;
+    return x+1;
 }
 
 let mouseX = 0;
@@ -75,7 +93,14 @@ class Simulator
     onBulletCreated = null;
     onBulletDestroyed = null;
     onBulletMoved = null;
+    onBulletRicochet = null;
+    onTilesChanged = null;
+    onBlockDestroyed = null;
+
     firstStep = true;
+    playing = false;
+    playSpeedMS = 1000;
+    playFastFrames = 5;
 
     constructor()
     {
@@ -89,6 +114,13 @@ class Simulator
 
     ResetBullets()
     {
+        if (this.bulletsX){
+            for (let i = 0; i < this.bulletsX.length; i++)
+            {
+                this.onBulletDestroyed(this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
+            }
+        }
+
         this.firstStep = true;
         this.bulletsX = [];
         this.bulletsY = [];
@@ -136,6 +168,12 @@ class Simulator
         return this.tilesType[this.PosToIndex(gridX, gridY)];
     }
 
+    SetTileRotation(gridX, gridY, rotation)
+    {
+        const i = this.PosToIndex(gridX, gridY);
+        this.tilesRotation[i] = posmod4(rotation);
+    }
+
     RotateTile(gridX, gridY, rotation = 1)
     {
         const i = this.PosToIndex(gridX, gridY);
@@ -171,98 +209,274 @@ class Simulator
         return [-1,0]; // 3
     }
 
-    ExecuteBulletStep()
+    ExecuteBulletStep(update)
     {
         for (let i = 0; i < this.bulletsX.length; i++)
         {
-            let x = this.bulletsX[i];
-            let y = this.bulletsY[i];
-            let rot = this.bulletsRot[i];
+            const x = this.bulletsX[i];
+            const y = this.bulletsY[i];
+            const rot = this.bulletsRot[i];
 
             // Move bullet
             const [ux, uy] = this.GetRotationUpVector(rot);
 
-            const tarX = x+ux;
-            const tarY = y+uy;
-            const tarIndex = tarX + tarY * this.width;
-            const tarType = this.tilesType[tarIndex];
-            const tarRot = this.tilesRotation[tarType];
+            //const tarX = x+ux;
+            //const tarY = y+uy;
+            const tarIndex = (x+ux) + (y+uy) * this.width;
+            const tarRot = this.tilesRotation[tarIndex];
 
-            switch (tarType)
+            switch (this.tilesType[tarIndex])
             {
                 case TILE_TYPES.EMPTY:
-                    x += ux;
-                    y += uy;
+                    this.bulletsX[i] += ux;
+                    this.bulletsY[i] += uy;
                     break;
+
                 case TILE_TYPES.WEDGE:
+                    this.bulletsX[i] += ux;
+                    this.bulletsY[i] += uy;
+                    if (rot == tarRot || rot == (tarRot + 1)%4){
+                        this.bulletsRot[i] = (rot + 2) % 4;
+                        this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    } else if (rot == (tarRot + 2)%4){
+                        this.bulletsRot[i] = posmod4sub1(rot);
+                        this.onBulletRicochet(i, x+ux, y+uy, (rot+.5) * Math.PI / 2);
+                    } else {
+                        this.bulletsRot[i] = posmod4add1(rot);
+                        this.onBulletRicochet(i, x+ux, y+uy, (rot-.5) * Math.PI / 2);
+                    }
                     break;
+
                 case TILE_TYPES.FLIPPER:
-                    x += ux;
-                    y += uy;
-                    console.log(rot, tarRot);
-                    if (rot%2 == tarRot%2)
-                        rot = posmod4(rot-1);
+                    this.bulletsX[i] += ux;
+                    this.bulletsY[i] += uy;
+                    if (rot%2 == tarRot%2){
+                        this.bulletsRot[i] = posmod4sub1(rot);
+                        this.onBulletRicochet(i, x+ux, y+uy, (rot+.5) * Math.PI / 2);
+                    }
                     else
-                        rot = (rot+1)%4;
-                    console.log("then", rot, tarRot);
-                    const [nux, nuy] = this.GetRotationUpVector(rot);
-                    x += nux;
-                    y += nuy;
+                    {
+                        this.bulletsRot[i] = posmod4add1(rot);
+                        this.onBulletRicochet(i, x+ux, y+uy, (rot-.5) * Math.PI / 2);
+                    }
 
                     this.tilesRotation[tarIndex]++;
 
                     break;
+
+                case TILE_TYPES.BREAKABLE:
+                    this.onBlockDestroyed(tarIndex, x+ux, y+uy, TILE_TYPES.BREAKABLE);
+                    this.tilesType[tarIndex] = TILE_TYPES.EMPTY;
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2
+                    break;
+
+                case TILE_TYPES.BREAKABLE_CREATOR:
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2
+
+                    if (rot == tarRot)
+                    {
+                        // Create breakable & Push blocks
+                        const [tux, tuy] = this.GetRotationUpVector(tarRot);
+                        const dirAddIndex = tux + tuy * this.width;
+
+                        let curType = TILE_TYPES.BREAKABLE;
+                        let curRot = tarRot;
+                        let curIndex = x+ux+tux + (y+uy+tuy) * this.width;
+
+                        let minIndex = 0;
+                        let maxIndex = this.width * this.height;
+                        if (tux != 0)
+                        {
+                            minIndex = (y+uy) * this.width;
+                            maxIndex = (y+uy+1) * this.width-1;
+                        }
+
+                        while (curIndex >= minIndex && curIndex < maxIndex && this.tilesType[curIndex] != 0)
+                        {
+                            const nextType = this.tilesType[curIndex];
+                            const nextRot = this.tilesRotation[curIndex];
+                            this.tilesType[curIndex] = curType;
+                            this.tilesRotation[curIndex] = curRot;
+                            curType = nextType;
+                            curRot = nextRot;
+                            
+                            curIndex += dirAddIndex;
+                        }
+                        if (curIndex >= 0 && curIndex < maxIndex)
+                        {
+                            this.tilesType[curIndex] = curType;
+                            this.tilesRotation[curIndex] = curRot;
+                        }
+
+                        break;
+                    }
                 default:
-                    rot = (rot + 2) % 4;
-                    x -= ux;
-                    y -= uy;
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
                     break;
             }
 
             // Update
-            this.bulletsX[i] = x;
-            this.bulletsY[i] = y;
-            this.bulletsRot[i] = rot;
-
-            this.onBulletMoved(i, x, y, rot);
+            //this.bulletsX[i] = x;
+            //this.bulletsY[i] = y;
+            //this.bulletsRot[i] = rot;
             
+            if (update)
+                this.onBulletMoved(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
+        }
 
+    }
+
+    ExecuteStep(update = true)
+    {
+        this.ExecuteBulletStep(update);
+
+        if (this.firstStep)
+        {
+            let i = 0;
+            for (let y = 0; y < this.height; y++)
+            {
+                for (let x = 0; x < this.width; x++)
+                {
+                    const ty = this.tilesType[i];
+                    switch (ty)
+                    {
+                        case TILE_TYPES.BULLET_GEN:
+                            if (this.firstStep)
+                            {
+                                // Create bullet
+                                const rot = this.tilesRotation[i];
+                                const [ux, uy] = this.GetRotationUpVector(rot);
+                                const bulletIndex = this.bulletsX.length;
+
+                                this.bulletsX.push(x+ux);
+                                this.bulletsY.push(y+uy);
+                                this.bulletsRot.push(rot);
+
+                                this.onBulletCreated(bulletIndex, x+ux, y+uy, rot);
+                            }
+                            break;
+                    }
+                    i++;
+                }
+            }
+            this.firstStep = false;
+        }
+
+        if (update)
+            this.onTilesChanged();
+    }
+
+    SendUpdateAllBullets()
+    {
+        for (let i = 0; i < this.bulletsX.length; i++)
+        {
+            this.onBulletMoved(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
         }
     }
 
-    ExecuteStep()
+    Play()
     {
-        this.ExecuteBulletStep();
-
-        let i = 0;
-        for (let y = 0; y < this.height; y++)
-        {
-            for (let x = 0; x < this.width; x++)
-            {
-                const ty = this.tilesType[i];
-                switch (ty)
-                {
-                    case TILE_TYPES.BULLET_GEN:
-                        if (this.firstStep)
-                        {
-                            // Create bullet
-                            const rot = this.tilesRotation[i];
-                            const [ux, uy] = this.GetRotationUpVector(rot);
-                            const bulletIndex = this.bulletsX.length;
-
-                            this.bulletsX.push(x+ux);
-                            this.bulletsY.push(y+uy);
-                            this.bulletsRot.push(rot);
-
-                            this.onBulletCreated(bulletIndex, x+ux, y+uy, rot);
-                        }
-                        break;
-                }
-                i++;
+        this.playing = true;
+        const ts = this;
+        function cycle(){
+            if (ts.playing){
+                ts.ExecuteStep();
+                setTimeout(cycle, ts.playSpeedMS);
             }
         }
+        cycle();
+    }
+    Stop(){
+        this.playing = false;
+    }
 
-        this.firstStep = false;
+    PlayFast()
+    {
+        this.playing = true;
+        const ts = this;
+        function cycle(){
+            if (ts.playing){
+                for (let i = 0; i < ts.playFastFrames; i++)
+                    ts.ExecuteStep();
+                ts.SendUpdateAllBullets();
+                ts.onTilesChanged();
+                requestAnimationFrame(cycle)
+            }
+        }
+        requestAnimationFrame(cycle);
+    }
+}
+
+
+class BulletTrail
+{
+    constructor(trailTexture, app, parent, followTarget)
+    {
+        this.texture = trailTexture;
+        
+        this.historyX = [];
+        this.historyY = [];
+
+        // historySize determines how long the trail will be.
+        this.count = 60;
+
+        // Create history array.
+        this.points = [];
+        for (let i = 0; i < this.count; i++) {
+            this.historyX.push(0);
+            this.historyY.push(0);
+        }
+        // Create rope points.
+        for (let i = 0; i < this.count; i++) {
+            this.points.push(new PIXI.Point(0, 0));
+        }
+
+        // Create the rope
+        this.rope = new PIXI.MeshRope({ texture: this.texture, points: this.points });
+
+        // Set the blendmode
+        this.rope.blendmode = 'add';
+
+        parent.addChild(this.rope);
+
+        // Listen for animate update
+        const ts = this;
+        this._update = function(){
+            ts.update(followTarget.x, followTarget.y);
+        }
+        app.ticker.add(this._update);
+    }
+
+    destroy()
+    {
+        this.rope.destroy();
+        app.ticker.remove(this._update);
+    }
+
+    update(new_x, new_y)
+    {
+        // Update the mouse values to history
+        this.historyX.pop();
+        this.historyX.unshift(new_x);
+        this.historyY.pop();
+        this.historyY.unshift(new_y);
+
+        // Update the points to correspond with history.
+        for (let i = 0; i < this.count; i++) {
+            const p = this.points[i];
+            p.x = this.historyX[i];
+            p.y = this.historyY[i];
+        }
     }
 }
 
@@ -274,6 +488,10 @@ class Simulator
     const textures = {
         gridBg: await PIXI.Assets.load("assets/GridBg.png"),
         bullet: await PIXI.Assets.load("assets/Bullet.png"),
+        red: await PIXI.Assets.load("assets/PixRed.png"),
+        white: await PIXI.Assets.load("assets/PixWhite.png"),
+        bulletTrail: await PIXI.Assets.load('assets/trailBullet.png'),
+        bulletDarken: await PIXI.Assets.load('assets/trailDarken.png'),
     };
 
     for (let value of Object.values(TILE_TYPES))
@@ -293,11 +511,25 @@ class Simulator
     // Create a container for all tiles
     const grid = new PIXI.Container();
     app.stage.addChild(grid);
+
+    const particleContainer = new PIXI.Container();
+    /*
+    const particleContainer = new PIXI.ParticleContainer(10000, {
+        scale: true,
+        position: true,
+        rotation: true,
+        alpha: true,
+        tint: true
+    });
+    */
+    grid.addChild(particleContainer);
+    const particleSystem0 = [];
+
+    //const spritea = new PIXI.Sprite(textures.red);
+    //particleContainer.addChild(spritea);
     
     // Constants
     const TILE_SIZE = 32;
-    const GRID_W = 1000; // Very large grid
-    const GRID_H = 1000;
     
     const sim = new Simulator();
     
@@ -316,16 +548,100 @@ class Simulator
     
     // Dragging tile state
     let draggedTileType = null;
+    let draggedTileRot = null;
     let draggedSprite = null;
     
-    function getGridCoords(screenX, screenY) {
+    function CreateDestructionEffect(gridX, gridY)
+    {
+        const colors = [0x183442, 0x529273, 0xadd794];
+        
+        // World position of the tile
+        const worldX = (gridX + .5) * TILE_SIZE;
+        const worldY = (gridY + .5) * TILE_SIZE;
+        
+        // Create 20-30 particles
+        const particleCount = 20 + Math.floor(Math.random() * 10);
+        for (let i = 0; i < particleCount; i++) {
+            //const particle = new PIXI.Sprite(pixelTexture);
+            const sprite = new PIXI.Sprite(textures.white);
+            
+            // Random velocity
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 4;
+            const vx = Math.cos(angle) * speed;
+            const vy = Math.sin(angle) * speed;
+            
+            // Set initial position (in world coordinates)
+            sprite.x = worldX;
+            sprite.y = worldY;
+            sprite.tint = colors[i % colors.length];
+            //sprite.tint = Math.random() * 0x808080;
+            sprite.alpha = 1;
+
+            sprite.ps_vx = vx;
+            sprite.ps_vy = vy;
+            sprite.ps_life = 1;
+            sprite.ps_decay = 0.02 + Math.random() * 0.02;
+            sprite.ps_drag = .1;
+            
+            particleSystem0.push(sprite);
+            //particleContainer.addParticle(sprite);
+            particleContainer.addChild(sprite);
+        }
+    }
+    function CreateRicochetEffect(gridX, gridY, ricoAngle)
+    {
+        const colors = [0xffcf00, 0xff8500, 0xffd053];
+        
+        // World position of the tile
+        const worldX = (gridX + .5) * TILE_SIZE;
+        const worldY = (gridY + .5) * TILE_SIZE;
+        const ricoPsAngle = ricoAngle - Math.PI / 2;
+        
+        // Create 20-30 particles
+        const particleCount = 3 + Math.floor(Math.pow(Math.random(), 4) * 20);
+        for (let i = 0; i < particleCount; i++) {
+            //const particle = new PIXI.Sprite(pixelTexture);
+            const sprite = new PIXI.Sprite(textures.white);
+            
+            // Random velocity
+            const angle = ricoPsAngle + (Math.random()-.5) * Math.PI * .3;
+            const speed = 1 + Math.random() * 20;
+            const dx = Math.cos(angle);
+            const dy = Math.sin(angle);
+            
+            // Set initial position (in world coordinates)
+            sprite.x = worldX + dx * TILE_SIZE / 3;
+            sprite.y = worldY + dy * TILE_SIZE / 3;
+            sprite.tint = colors[i % colors.length];
+            sprite.alpha = 1;
+
+            sprite.ps_vx = dx * speed;
+            sprite.ps_vy = dy * speed;
+            sprite.ps_life = 1;
+            sprite.ps_decay = 0.02 + Math.random() * 0.02;
+            sprite.ps_drag = .3;
+            
+            particleSystem0.push(sprite);
+            //particleContainer.addParticle(sprite);
+            particleContainer.addChild(sprite);
+        }
+    }
+    sim.onBlockDestroyed = function(index, x, y, type) {
+        CreateDestructionEffect(x, y);
+    };
+    sim.onBulletRicochet = function(bulletIndex, x, y, ricoAngle) {
+        CreateRicochetEffect(x, y, ricoAngle);
+    };
+
+    function ScreenToGridCoords(screenX, screenY) {
         const worldX = (screenX - cameraX) / cameraZoom;
         const worldY = (screenY - cameraY) / cameraZoom;
         const gridX = Math.floor(worldX / TILE_SIZE);
         const gridY = Math.floor(worldY / TILE_SIZE);
         return [ gridX, gridY ];
     }
-    function gridToScreenCoords(gridX, gridY) {
+    function GridToScreenCoords(gridX, gridY) {
         const worldX = (gridX + .5) * TILE_SIZE * cameraZoom + cameraX;
         const worldY = (gridY + .5) * TILE_SIZE * cameraZoom + cameraY;
         return [ worldX, worldY ];
@@ -337,6 +653,7 @@ class Simulator
     }
 
     let bullet_sprites = [];
+    let bullet_trails = [];
     sim.onBulletCreated = function(bulletIndex, x, y, rot)
     {
         const sprite = new PIXI.Sprite(textures.bullet);
@@ -351,19 +668,26 @@ class Simulator
 
         grid.addChild(sprite);
         bullet_sprites.push(sprite);
+
+        const trail = new BulletTrail(textures.bulletTrail, app, grid, sprite);
+        bullet_trails.push(trail);
     }
     sim.onBulletMoved = function(bulletIndex, x, y, rot)
     {
         const sprite = bullet_sprites[bulletIndex];
+        const trail = bullet_trails[bulletIndex];
         sprite.x = (x+.5) * TILE_SIZE;
         sprite.y = (y+.5) * TILE_SIZE;
         sprite.rotation = rot * Math.PI / 2;
+        trail.update(sprite.x, sprite.y);
     }
     sim.onBulletDestroyed = function(bulletIndex, x, y, rot)
     {
         const sprite = bullet_sprites[bulletIndex];
+        const trail = bullet_trails[bulletIndex];
         bullet_sprites.splice(bulletIndex, 1);
 
+        trail.destroy();
         sprite.destroy();
     }
     
@@ -371,9 +695,9 @@ class Simulator
         // Calculate visible tile range with padding
         const padding = 2;
         const minX = Math.max(0, Math.floor(-cameraX / cameraZoom / TILE_SIZE) - padding);
-        const maxX = Math.min(GRID_W, Math.ceil((app.screen.width - cameraX) / cameraZoom / TILE_SIZE) + padding);
+        const maxX = Math.min(sim.width, Math.ceil((app.screen.width - cameraX) / cameraZoom / TILE_SIZE) + padding);
         const minY = Math.max(0, Math.floor(-cameraY / cameraZoom / TILE_SIZE) - padding);
-        const maxY = Math.min(GRID_H, Math.ceil((app.screen.height - cameraY) / cameraZoom / TILE_SIZE) + padding);
+        const maxY = Math.min(sim.height, Math.ceil((app.screen.height - cameraY) / cameraZoom / TILE_SIZE) + padding);
         
         // Track which sprites should exist
         const shouldExist = new Set();
@@ -391,6 +715,7 @@ class Simulator
                     // Sprite
                     const sprite = spritePool.get(key);
                     if (sprite.tileType != tileType){
+                        sprite.tileType = tileType;
                         sprite.texture = textures[tileType];
                     }
 
@@ -422,6 +747,7 @@ class Simulator
                     sprite.on('pointerdown', (e) => {
                         if (e.button === 0) { // Left click
                             draggedTileType = sim.GetTileType(sprite.gridX, sprite.gridY);
+                            draggedTileRot = sim.GetTileRotation(sprite.gridX, sprite.gridY);
                             //DestroyTile();
                             setTile(x, y, TILE_TYPES.EMPTY);
                             
@@ -430,7 +756,7 @@ class Simulator
                             draggedSprite.alpha = 0.7;
                             draggedSprite.anchor.set(0.5);
 
-                            const [ screenX, screenY ] = gridToScreenCoords(sprite.gridX, sprite.gridY);
+                            const [ screenX, screenY ] = GridToScreenCoords(sprite.gridX, sprite.gridY);
                             draggedSprite.width = TILE_SIZE * cameraZoom;
                             draggedSprite.height = TILE_SIZE * cameraZoom;
                             draggedSprite.x = screenX;
@@ -460,16 +786,6 @@ class Simulator
 
         UpdateLog();
     }
-
-    function DestroyTile(x, y)
-    {
-        sim.SetTileType(x, y, TILE_TYPES.EMPTY);
-
-        const key = `${x},${y}`;
-        const sprite = spritePool.get(key);
-        sprite.destroy();
-        spritePool.delete(key);
-    }
     
     // Mouse/touch events
     app.view.addEventListener("pointerdown", (e) => {
@@ -484,12 +800,14 @@ class Simulator
     });
     
     app.view.addEventListener("pointerup", (e) => {
-        if (e.button === 0) {
+        if (e.button === 0)
+        {
             cameraDragging = false;
             
             // Drop tile if we're dragging one
             if (draggedTileType) {
-                const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
+                const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
+                sim.SetTileRotation(gridX, gridY, draggedTileRot);
                 setTile(gridX, gridY, draggedTileType);
                 
                 if (draggedSprite) {
@@ -498,15 +816,21 @@ class Simulator
                 }
                 draggedTileType = null;
             }
-        } else if (e.button === 2) { // Right click to delete
-            const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
-            setTile(gridX, gridY, TILE_TYPES.EMPTY);
+        }
+        else if (e.button === 2)
+        {
+            // Right click to delete
+            const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
+            if (sim.GetTileType(gridX, gridY) != TILE_TYPES.EMPTY){
+                setTile(gridX, gridY, TILE_TYPES.EMPTY);
+                CreateDestructionEffect(gridX, gridY);
+            }
         }
     });
     document.addEventListener("pointerup", (e) => {
         if (newBlockDraggedType != null)
         {
-            const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
+            const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
             sim.SetTileType(gridX, gridY, newBlockDraggedType);
 
             newBlockDraggedType = null;
@@ -532,7 +856,7 @@ class Simulator
 
     function UpdateLog()
     {
-        const [x, y] = getGridCoords(mouseX, mouseY);
+        const [x, y] = ScreenToGridCoords(mouseX, mouseY);
         const ty = sim.GetTileType(x,y);
         if (ty == TILE_TYPES.EMPTY)
             SetLog();
@@ -556,8 +880,8 @@ class Simulator
             const speed = 20 * 1/60;
             if (mouseX > rect.left && mouseX < rect.right)
             {
-                const [ gridX, gridY ] = getGridCoords(mouseX, mouseY);
-                const [ snapX, snapY ] = gridToScreenCoords(gridX, gridY);
+                const [ gridX, gridY ] = ScreenToGridCoords(mouseX, mouseY);
+                const [ snapX, snapY ] = GridToScreenCoords(gridX, gridY);
                 
                 newBlockDraggedX = lerp(newBlockDraggedX, snapX, speed);
                 newBlockDraggedY = lerp(newBlockDraggedY, snapY, speed);
@@ -580,7 +904,7 @@ class Simulator
 
     function OnInputRotate()
     {
-        const [ x, y ] = getGridCoords(mouseX, mouseY);
+        const [ x, y ] = ScreenToGridCoords(mouseX, mouseY);
         sim.RotateTile(x,y,1);
         UpdateVisibleTiles();
     }
@@ -598,8 +922,8 @@ class Simulator
         if (draggedSprite)
         {
             // Snap to nearest tile
-            const [ gridX, gridY ] = getGridCoords(mouseX, mouseY);
-            const [ snapX, snapY ] = gridToScreenCoords(gridX, gridY);
+            const [ gridX, gridY ] = ScreenToGridCoords(mouseX, mouseY);
+            const [ snapX, snapY ] = GridToScreenCoords(gridX, gridY);
             
             const speed = 20 * delta;
             draggedSprite.x = lerp(draggedSprite.x, snapX, speed);
@@ -699,18 +1023,60 @@ class Simulator
     btnDragNewBlock(elemBtnBlockBulletSplit, TILE_TYPES.BULLET_SPLIT);
     btnDragNewBlock(elemBtnBlockWedge, TILE_TYPES.WEDGE);
     btnDragNewBlock(elemBtnBlockFlipper, TILE_TYPES.FLIPPER);
+    btnDragNewBlock(elemBtnBlockBreakableCreator, TILE_TYPES.BREAKABLE_CREATOR);
 
-    btnPlayStep.addEventListener("click", () => {
+    btnPlayStep.addEventListener("pointerdown", () => {
+        // Play single step
         sim.ExecuteStep();
-        UpdateVisibleTiles();
+    });
+    btnPlay.addEventListener("pointerdown", () => {
+        // Toggle playing
+        if (sim.playing){
+            delete btnPlay.dataset.playing;
+            sim.Stop();
+        } else {
+            btnPlay.dataset.playing = "true";
+            sim.Play();
+        }
+    });
+    btnPlayFast.addEventListener("pointerdown", () => {
+        if (!sim.playing){
+            sim.PlayFast();
+        }
+    });
+    btnResetExec.addEventListener("pointerdown", () => {
+        sim.Stop();
+        sim.ResetBullets();
     });
 
+    sim.onTilesChanged = UpdateVisibleTiles;
+
     app.ticker.add((e) => {
-        const delta = e.deltaMS / 1000
-
-        //const stats = `Tiles: ${spritePool.size} | Grid: ${GRID_W}x${GRID_H} | Zoom: ${cameraZoom.toFixed(2)}`;
-
+        const delta = e.deltaMS / 1000;
         updateDraggedSprite(delta);
+
+        // Update particles
+        for (let i = particleSystem0.length - 1; i >= 0; i--) {
+            const sprite = particleSystem0[i];
+            
+            // Update position
+            sprite.x += sprite.ps_vx;
+            sprite.y += sprite.ps_vy;
+            
+            // Drag
+            sprite.ps_vx /= 1 + sprite.ps_drag;
+            sprite.ps_vy /= 1 + sprite.ps_drag;
+            
+            // Fade out
+            sprite.ps_life -= sprite.ps_decay;
+            sprite.alpha = sprite.ps_life;
+            
+            // Remove dead particles
+            if (sprite.ps_life <= 0) {
+                sprite.destroy();
+                particleSystem0.splice(i, 1);
+            }
+        }
     });
 })();
 

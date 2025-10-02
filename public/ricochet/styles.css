@@ -64,15 +64,17 @@ body
     transform: scale(1.1);
 }.gameBtn:active{
     transform: scale(.9);
+}.gameBtn>*{
+    pointer-events: none;
 }
 
 #btnPlay{
     position: relative;
 }
-#btnPlay:not([data-playing])>.iconPlaying{
+#btnPlay:not([data-playing])>.iconPaused{
     display: none;
 }
-#btnPlay[data-playing]>.iconPaused{
+#btnPlay[data-playing]>.iconPlaying{
     display: none;
 }
 #btnPlay>*{
