@@ -3,6 +3,18 @@ import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8.13.2/dist/pixi.min
 const elemCanvasGrid = document.getElementById('canvasGrid');
 const btnHideSidebar = document.getElementById("btnHideSidebar");
 const elemSidebar = document.getElementById("sidebar");
+const elemDraggedBlock = document.getElementById("elemDraggedBlock");
+const elemLog = document.getElementById("elemLog");
+
+const elemBtnBlockSolid = document.getElementById("elemBtnBlockSolid");
+const elemBtnBlockBreakable = document.getElementById("elemBtnBlockBreakable");
+const elemBtnBlockBulletGen = document.getElementById("elemBtnBlockBulletGen");
+const elemBtnBlockBulletSplit = document.getElementById("elemBtnBlockBulletSplit");
+const elemBtnBlockWedge = document.getElementById("elemBtnBlockWedge");
+const elemBtnBlockFlipper = document.getElementById("elemBtnBlockFlipper");
+
+const btnPlayStep = document.getElementById("btnPlayStep");
+
 
 const app = new PIXI.Application();
 PIXI.TextureStyle.defaultOptions.scaleMode = 'nearest';
@@ -13,6 +25,17 @@ const TILE_TYPES = {
     SOLID: 1,
     WEDGE: 2,
     BREAKABLE: 3,
+    BULLET_GEN: 4,
+    BULLET_SPLIT: 5,
+    FLIPPER: 6,
+};
+const TILE_TEX_PATH = {
+    [TILE_TYPES.SOLID]: "assets/BlockSolid.png",
+    [TILE_TYPES.WEDGE]: "assets/BlockWedge.png",
+    [TILE_TYPES.BREAKABLE]: "assets/BlockBreakable.png",
+    [TILE_TYPES.BULLET_GEN]: "assets/BlockBulletGen.png",
+    [TILE_TYPES.BULLET_SPLIT]: "assets/BlockBulletSplit.png",
+    [TILE_TYPES.FLIPPER]: "assets/BlockFlipper.png",
 };
 
 function lerp(a,b,t)
@@ -20,11 +43,228 @@ function lerp(a,b,t)
     return a + (b-a) * t;
 }
 
+function posmod4(x)
+{
+    x = x % 4;
+    if (x < 0)
+        return x + 4;
+    return x;
+}
+
 let mouseX = 0;
 let mouseY = 0;
-let tickerDelta = 0;
 
 let sidebarHidden = false;
+
+function SetLog(text = null)
+{
+    if (text == null)
+    {
+        elemLog.style.visibility = "hidden";
+    }
+    else
+    {
+        elemLog.style.visibility = "";
+        elemLog.innerText = text;
+    }
+}
+SetLog();
+
+class Simulator
+{
+    onBulletCreated = null;
+    onBulletDestroyed = null;
+    onBulletMoved = null;
+    firstStep = true;
+
+    constructor()
+    {
+        this.width = 1000;
+        this.height = 1000;
+        
+        this.ResetTiles();
+        this.GridRandomFill();
+        this.ResetBullets();
+    }
+
+    ResetBullets()
+    {
+        this.firstStep = true;
+        this.bulletsX = [];
+        this.bulletsY = [];
+        this.bulletsRot = [];
+    }
+
+    ResetTiles()
+    {
+        this.tilesType = new Uint8Array(this.width * this.height);
+        this.tilesRotation = new Uint8Array(this.width * this.height);
+    }
+
+    PosToIndex(x,y)
+    {
+        return y * this.width + x;
+    }
+
+    IndexToPos(i)
+    {
+        return [
+            i % this.width,
+            Math.floor(i / this.width)
+        ]
+    }
+
+    GridRandomFill()
+    {
+        // Initialize with some random tiles
+        for (let i = 0; i < 5000; i++) {
+            const x = Math.floor(Math.random() * this.width);
+            const y = Math.floor(Math.random() * this.height);
+            this.SetTileType(x, y, Math.random() > 0.5 ? TILE_TYPES.SOLID : TILE_TYPES.BREAKABLE);
+        }
+    }
+
+    SetTileType(gridX, gridY, tileType)
+    {
+        if (gridX < 0 || gridX >= this.width || gridY < 0 || gridY >= this.height) return;
+        this.tilesType[this.PosToIndex(gridX, gridY)] = tileType;
+    }
+    
+    GetTileType(gridX, gridY)
+    {
+        if (gridX < 0 || gridX >= this.width || gridY < 0 || gridY >= this.height) return TILE_TYPES.EMPTY;
+        return this.tilesType[this.PosToIndex(gridX, gridY)];
+    }
+
+    RotateTile(gridX, gridY, rotation = 1)
+    {
+        const i = this.PosToIndex(gridX, gridY);
+
+        let rot = posmod4(this.tilesRotation[i] + rotation);
+        this.tilesRotation[i] = rot;
+        return rot;
+    }
+
+    GetTileRotation(gridX, gridY)
+    {
+        return this.tilesRotation[this.PosToIndex(gridX, gridY)];
+    }
+
+    GetTileRotationRadians(gridX, gridY)
+    {
+        return this.tilesRotation[this.PosToIndex(gridX, gridY)] * Math.PI / 2;
+    }
+
+    GetRotationUpVector(rotation)
+    {
+        if (rotation < 0 || rotation >= 4)
+            console.error("Rotation out of range!");
+
+        if (rotation < 2)
+        {
+            if (rotation == 0)
+                return [0,-1]; // 0
+            return [1,0]; // 1
+        }
+        if (rotation == 2)
+            return [0,1]; // 2
+        return [-1,0]; // 3
+    }
+
+    ExecuteBulletStep()
+    {
+        for (let i = 0; i < this.bulletsX.length; i++)
+        {
+            let x = this.bulletsX[i];
+            let y = this.bulletsY[i];
+            let rot = this.bulletsRot[i];
+
+            // Move bullet
+            const [ux, uy] = this.GetRotationUpVector(rot);
+
+            const tarX = x+ux;
+            const tarY = y+uy;
+            const tarIndex = tarX + tarY * this.width;
+            const tarType = this.tilesType[tarIndex];
+            const tarRot = this.tilesRotation[tarType];
+
+            switch (tarType)
+            {
+                case TILE_TYPES.EMPTY:
+                    x += ux;
+                    y += uy;
+                    break;
+                case TILE_TYPES.WEDGE:
+                    break;
+                case TILE_TYPES.FLIPPER:
+                    x += ux;
+                    y += uy;
+                    console.log(rot, tarRot);
+                    if (rot%2 == tarRot%2)
+                        rot = posmod4(rot-1);
+                    else
+                        rot = (rot+1)%4;
+                    console.log("then", rot, tarRot);
+                    const [nux, nuy] = this.GetRotationUpVector(rot);
+                    x += nux;
+                    y += nuy;
+
+                    this.tilesRotation[tarIndex]++;
+
+                    break;
+                default:
+                    rot = (rot + 2) % 4;
+                    x -= ux;
+                    y -= uy;
+                    break;
+            }
+
+            // Update
+            this.bulletsX[i] = x;
+            this.bulletsY[i] = y;
+            this.bulletsRot[i] = rot;
+
+            this.onBulletMoved(i, x, y, rot);
+            
+
+        }
+    }
+
+    ExecuteStep()
+    {
+        this.ExecuteBulletStep();
+
+        let i = 0;
+        for (let y = 0; y < this.height; y++)
+        {
+            for (let x = 0; x < this.width; x++)
+            {
+                const ty = this.tilesType[i];
+                switch (ty)
+                {
+                    case TILE_TYPES.BULLET_GEN:
+                        if (this.firstStep)
+                        {
+                            // Create bullet
+                            const rot = this.tilesRotation[i];
+                            const [ux, uy] = this.GetRotationUpVector(rot);
+                            const bulletIndex = this.bulletsX.length;
+
+                            this.bulletsX.push(x+ux);
+                            this.bulletsY.push(y+uy);
+                            this.bulletsRot.push(rot);
+
+                            this.onBulletCreated(bulletIndex, x+ux, y+uy, rot);
+                        }
+                        break;
+                }
+                i++;
+            }
+        }
+
+        this.firstStep = false;
+    }
+}
 
 // Asynchronous IIFE
 (async () => {
@@ -32,11 +272,16 @@ let sidebarHidden = false;
 
     // Load textures
     const textures = {
-        gridBg: await PIXI.Assets.load("assets/gridBg.png"),
-        [TILE_TYPES.SOLID]: await PIXI.Assets.load("assets/BlockSolid.png"),
-        [TILE_TYPES.WEDGE]: await PIXI.Assets.load("assets/BlockWedge.png"),
-        [TILE_TYPES.BREAKABLE]: await PIXI.Assets.load("assets/BlockBreakable.png"),
+        gridBg: await PIXI.Assets.load("assets/GridBg.png"),
+        bullet: await PIXI.Assets.load("assets/Bullet.png"),
     };
+
+    for (let value of Object.values(TILE_TYPES))
+    {
+        if (value in TILE_TEX_PATH){
+            textures[value] = await PIXI.Assets.load(TILE_TEX_PATH[value]);
+        }
+    }
     
     const gridBgSprite = new PIXI.TilingSprite({
         texture: textures.gridBg,
@@ -54,21 +299,13 @@ let sidebarHidden = false;
     const GRID_W = 1000; // Very large grid
     const GRID_H = 1000;
     
-    // Grid data - stores tile types (int values)
-    const gridData = Array(GRID_H).fill(null).map(() => Array(GRID_W).fill(TILE_TYPES.EMPTY));
-    
-    // Initialize with some random tiles
-    for (let i = 0; i < 5000; i++) {
-        const x = Math.floor(Math.random() * GRID_W);
-        const y = Math.floor(Math.random() * GRID_H);
-        gridData[y][x] = Math.random() > 0.5 ? TILE_TYPES.SOLID : TILE_TYPES.BREAKABLE;
-    }
+    const sim = new Simulator();
     
     // Sprite pool - only stores currently visible sprites
     const spritePool = new Map(); // key: "x,y", value: sprite
     
     // Camera state
-    let dragging = false;
+    let cameraDragging = false;
     let dragMX = 0;
     let dragMY = 0;
     let dragCamX = 0;
@@ -86,7 +323,7 @@ let sidebarHidden = false;
         const worldY = (screenY - cameraY) / cameraZoom;
         const gridX = Math.floor(worldX / TILE_SIZE);
         const gridY = Math.floor(worldY / TILE_SIZE);
-        return { gridX, gridY };
+        return [ gridX, gridY ];
     }
     function gridToScreenCoords(gridX, gridY) {
         const worldX = (gridX + .5) * TILE_SIZE * cameraZoom + cameraX;
@@ -95,17 +332,42 @@ let sidebarHidden = false;
     }
     
     function setTile(gridX, gridY, tileType) {
-        if (gridX < 0 || gridX >= GRID_W || gridY < 0 || gridY >= GRID_H) return;
-        gridData[gridY][gridX] = tileType;
-        updateVisibleTiles();
+        sim.SetTileType(gridX, gridY, tileType);
+        UpdateVisibleTiles();
+    }
+
+    let bullet_sprites = [];
+    sim.onBulletCreated = function(bulletIndex, x, y, rot)
+    {
+        const sprite = new PIXI.Sprite(textures.bullet);
+        sprite.x = (x+.5) * TILE_SIZE;
+        sprite.y = (y+.5) * TILE_SIZE;
+        sprite.width = TILE_SIZE;
+        sprite.height = TILE_SIZE;
+        sprite.eventMode = 'static';
+        sprite.anchor.set(0.5);
+
+        sprite.rotation = rot * Math.PI / 2;
+
+        grid.addChild(sprite);
+        bullet_sprites.push(sprite);
+    }
+    sim.onBulletMoved = function(bulletIndex, x, y, rot)
+    {
+        const sprite = bullet_sprites[bulletIndex];
+        sprite.x = (x+.5) * TILE_SIZE;
+        sprite.y = (y+.5) * TILE_SIZE;
+        sprite.rotation = rot * Math.PI / 2;
+    }
+    sim.onBulletDestroyed = function(bulletIndex, x, y, rot)
+    {
+        const sprite = bullet_sprites[bulletIndex];
+        bullet_sprites.splice(bulletIndex, 1);
+
+        sprite.destroy();
     }
     
-    function getTile(gridX, gridY) {
-        if (gridX < 0 || gridX >= GRID_W || gridY < 0 || gridY >= GRID_H) return TILE_TYPES.EMPTY;
-        return gridData[gridY][gridX];
-    }
-    
-    function updateVisibleTiles() {
+    function UpdateVisibleTiles() {
         // Calculate visible tile range with padding
         const padding = 2;
         const minX = Math.max(0, Math.floor(-cameraX / cameraZoom / TILE_SIZE) - padding);
@@ -119,31 +381,49 @@ let sidebarHidden = false;
         // Create/update sprites for visible tiles
         for (let y = minY; y < maxY; y++) {
             for (let x = minX; x < maxX; x++) {
-                const tileType = gridData[y][x];
+                const tileType = sim.GetTileType(x,y);
                 if (tileType === TILE_TYPES.EMPTY) continue;
                 
                 const key = `${x},${y}`;
                 shouldExist.add(key);
                 
-                if (!spritePool.has(key)) {
+                if (spritePool.has(key)) {
+                    // Sprite
+                    const sprite = spritePool.get(key);
+                    if (sprite.tileType != tileType){
+                        sprite.texture = textures[tileType];
+                    }
+
+                    // Rotation
+                    const rot = sim.GetTileRotationRadians(x,y);
+                    if (sprite.rotation != rot)
+                        sprite.rotation = rot;
+                } else {
+                    
                     // Create new sprite
                     const sprite = new PIXI.Sprite(textures[tileType]);
-                    sprite.x = x * TILE_SIZE;
-                    sprite.y = y * TILE_SIZE;
+                    sprite.x = (x+.5) * TILE_SIZE;
+                    sprite.y = (y+.5) * TILE_SIZE;
                     sprite.width = TILE_SIZE;
                     sprite.height = TILE_SIZE;
                     sprite.eventMode = 'static';
                     sprite.cursor = 'pointer';
+                    sprite.anchor.set(0.5);
+                    
+                    const rot = sim.GetTileRotationRadians(x,y);
+                    sprite.rotation = rot;
                     
                     // Store grid coords on sprite for easy access
                     sprite.gridX = x;
                     sprite.gridY = y;
+                    sprite.tileType = tileType;
                     
                     // Click to pick up tile
                     sprite.on('pointerdown', (e) => {
                         if (e.button === 0) { // Left click
-                            draggedTileType = getTile(sprite.gridX, sprite.gridY);
-                            setTile(sprite.gridX, sprite.gridY, TILE_TYPES.EMPTY);
+                            draggedTileType = sim.GetTileType(sprite.gridX, sprite.gridY);
+                            //DestroyTile();
+                            setTile(x, y, TILE_TYPES.EMPTY);
                             
                             // Create visual feedback sprite
                             draggedSprite = new PIXI.Sprite(textures[draggedTileType]);
@@ -155,6 +435,8 @@ let sidebarHidden = false;
                             draggedSprite.height = TILE_SIZE * cameraZoom;
                             draggedSprite.x = screenX;
                             draggedSprite.y = screenY;
+                            const rot = sim.GetTileRotationRadians(x,y);
+                            draggedSprite.rotation = rot;
 
                             app.stage.addChild(draggedSprite);
                             
@@ -175,26 +457,39 @@ let sidebarHidden = false;
                 spritePool.delete(key);
             }
         }
+
+        UpdateLog();
+    }
+
+    function DestroyTile(x, y)
+    {
+        sim.SetTileType(x, y, TILE_TYPES.EMPTY);
+
+        const key = `${x},${y}`;
+        const sprite = spritePool.get(key);
+        sprite.destroy();
+        spritePool.delete(key);
     }
     
     // Mouse/touch events
     app.view.addEventListener("pointerdown", (e) => {
         if (e.button === 0 && !draggedTileType) { // Left click for dragging camera
-            dragging = true;
+            cameraDragging = true;
             dragMX = e.clientX;
             dragMY = e.clientY;
             dragCamX = cameraX;
             dragCamY = cameraY;
+            SetLog();
         }
     });
     
     app.view.addEventListener("pointerup", (e) => {
         if (e.button === 0) {
-            dragging = false;
+            cameraDragging = false;
             
             // Drop tile if we're dragging one
             if (draggedTileType) {
-                const { gridX, gridY } = getGridCoords(e.clientX, e.clientY);
+                const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
                 setTile(gridX, gridY, draggedTileType);
                 
                 if (draggedSprite) {
@@ -204,23 +499,96 @@ let sidebarHidden = false;
                 draggedTileType = null;
             }
         } else if (e.button === 2) { // Right click to delete
-            const { gridX, gridY } = getGridCoords(e.clientX, e.clientY);
+            const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
             setTile(gridX, gridY, TILE_TYPES.EMPTY);
+        }
+    });
+    document.addEventListener("pointerup", (e) => {
+        if (newBlockDraggedType != null)
+        {
+            const [ gridX, gridY ] = getGridCoords(e.clientX, e.clientY);
+            sim.SetTileType(gridX, gridY, newBlockDraggedType);
+
+            newBlockDraggedType = null;
+            elemDraggedBlock.style.visibility = "hidden";
+            UpdateVisibleTiles();
         }
     });
     
     app.view.addEventListener("pointerleave", () => {
-        dragging = false;
+        cameraDragging = false;
     });
     
     app.view.addEventListener("pointermove", (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-
-        if (dragging) {
+        // Camera dragging
+        if (cameraDragging) {
             cameraX = e.clientX - dragMX + dragCamX;
             cameraY = e.clientY - dragMY + dragCamY;
             OnCameraMoved();
+        } else {
+            UpdateLog();
+        }
+    });
+
+    function UpdateLog()
+    {
+        const [x, y] = getGridCoords(mouseX, mouseY);
+        const ty = sim.GetTileType(x,y);
+        if (ty == TILE_TYPES.EMPTY)
+            SetLog();
+        else
+            SetLog(`Type ${ty}, Rotation ${sim.GetTileRotation(x,y)}`);
+    }
+    
+    let newBlockDraggedType = null;
+    let newBlockDraggedX = null;
+    let newBlockDraggedY = null;
+
+    document.addEventListener("pointermove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        // New block dragging
+        if (newBlockDraggedType != null)
+        {
+            const rect = app.canvas.getBoundingClientRect();
+
+            const speed = 20 * 1/60;
+            if (mouseX > rect.left && mouseX < rect.right)
+            {
+                const [ gridX, gridY ] = getGridCoords(mouseX, mouseY);
+                const [ snapX, snapY ] = gridToScreenCoords(gridX, gridY);
+                
+                newBlockDraggedX = lerp(newBlockDraggedX, snapX, speed);
+                newBlockDraggedY = lerp(newBlockDraggedY, snapY, speed);
+            }
+            else
+            {
+                newBlockDraggedX = lerp(newBlockDraggedX, mouseX, speed);
+                newBlockDraggedY = lerp(newBlockDraggedY, mouseY, speed);
+            }
+            RefreshElemDraggedBlockPos();
+        }
+    });
+    function RefreshElemDraggedBlockPos()
+    {
+        const size = TILE_SIZE * cameraZoom;
+        elemDraggedBlock.style.transform = `translate(${newBlockDraggedX - size/2}px, ${newBlockDraggedY - size/2}px)`;
+        elemDraggedBlock.style.width = `${size}px`;
+        elemDraggedBlock.style.height = `${size}px`;
+    }
+
+    function OnInputRotate()
+    {
+        const [ x, y ] = getGridCoords(mouseX, mouseY);
+        sim.RotateTile(x,y,1);
+        UpdateVisibleTiles();
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key == "r")
+        {
+            OnInputRotate();
         }
     });
 
@@ -229,8 +597,8 @@ let sidebarHidden = false;
         // Update dragged sprite position
         if (draggedSprite)
         {
-            // Snap to nearest cell
-            const { gridX, gridY } = getGridCoords(mouseX, mouseY);
+            // Snap to nearest tile
+            const [ gridX, gridY ] = getGridCoords(mouseX, mouseY);
             const [ snapX, snapY ] = gridToScreenCoords(gridX, gridY);
             
             const speed = 20 * delta;
@@ -251,8 +619,12 @@ let sidebarHidden = false;
         const worldXBefore = (mouseX - cameraX) / cameraZoom;
         const worldYBefore = (mouseY - cameraY) / cameraZoom;
         
-        const zoomFactor = 1 - e.deltaY * 0.0005;
-        cameraZoom = Math.max(0.1, Math.min(5, cameraZoom * zoomFactor));
+        const zoomSpeed = .002;
+        if (e.deltaY > 0){
+            cameraZoom = Math.max(0.1, Math.min(5, cameraZoom / (1 + e.deltaY * zoomSpeed)));
+        } else {
+            cameraZoom = Math.max(0.1, Math.min(5, cameraZoom * (1 - e.deltaY * zoomSpeed)));
+        }
         
         const worldXAfter = (mouseX - cameraX) / cameraZoom;
         const worldYAfter = (mouseY - cameraY) / cameraZoom;
@@ -277,7 +649,7 @@ let sidebarHidden = false;
         gridBgSprite.tileScale.x = cameraZoom;
         gridBgSprite.tileScale.y = cameraZoom;
         
-        updateVisibleTiles();
+        UpdateVisibleTiles();
     }
     
     OnCameraMoved();
@@ -293,6 +665,7 @@ let sidebarHidden = false;
         gridBgSprite.height = height;
     }
     window.addEventListener("resize", ResizeCanvas);
+    ResizeCanvas();
 
     btnHideSidebar.addEventListener("click", () => {
         sidebarHidden = !sidebarHidden;
@@ -305,15 +678,37 @@ let sidebarHidden = false;
         }
         ResizeCanvas();
     });
-    
-    // Show stats
+
+
+    function btnDragNewBlock(elemBtn, blockType)
+    {
+        elemBtn.addEventListener("pointerdown", (e) => {
+            newBlockDraggedType = blockType;
+            elemDraggedBlock.src = TILE_TEX_PATH[blockType];
+            elemDraggedBlock.style.visibility = "";
+            newBlockDraggedX = e.clientX;
+            newBlockDraggedY = e.clientY;
+            RefreshElemDraggedBlockPos();
+        });
+    }
+    elemDraggedBlock.style.visibility = "hidden";
+
+    btnDragNewBlock(elemBtnBlockSolid, TILE_TYPES.SOLID);
+    btnDragNewBlock(elemBtnBlockBreakable, TILE_TYPES.BREAKABLE);
+    btnDragNewBlock(elemBtnBlockBulletGen, TILE_TYPES.BULLET_GEN);
+    btnDragNewBlock(elemBtnBlockBulletSplit, TILE_TYPES.BULLET_SPLIT);
+    btnDragNewBlock(elemBtnBlockWedge, TILE_TYPES.WEDGE);
+    btnDragNewBlock(elemBtnBlockFlipper, TILE_TYPES.FLIPPER);
+
+    btnPlayStep.addEventListener("click", () => {
+        sim.ExecuteStep();
+        UpdateVisibleTiles();
+    });
 
     app.ticker.add((e) => {
         const delta = e.deltaMS / 1000
-        tickerDelta = delta;
 
-        const stats = `Tiles: ${spritePool.size} | Grid: ${GRID_W}x${GRID_H} | Zoom: ${cameraZoom.toFixed(2)}`;
-        document.title = stats;
+        //const stats = `Tiles: ${spritePool.size} | Grid: ${GRID_W}x${GRID_H} | Zoom: ${cameraZoom.toFixed(2)}`;
 
         updateDraggedSprite(delta);
     });
