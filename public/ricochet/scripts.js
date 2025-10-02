@@ -99,8 +99,8 @@ class Simulator
 
     firstStep = true;
     playing = false;
-    playSpeedMS = 1000;
-    playFastFrames = 5;
+    playSpeedMS = 500;
+    playFastFrames = 1000;
 
     constructor()
     {
@@ -117,7 +117,7 @@ class Simulator
         if (this.bulletsX){
             for (let i = 0; i < this.bulletsX.length; i++)
             {
-                this.onBulletDestroyed(this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
+                this.onBulletDestroyed(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
             }
         }
 
@@ -274,6 +274,7 @@ class Simulator
                     break;
 
                 case TILE_TYPES.BREAKABLE_CREATOR:
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
                     if (rot > 1)
                         this.bulletsRot[i] = rot-2;
                     else
@@ -480,6 +481,33 @@ class BulletTrail
     }
 }
 
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function PlaySound(audioBuffer) {
+    if (!audioContext) return;
+    
+    // Resume audio context (required by browsers)
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    // If we have a loaded sound, play it
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 0.3;
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    source.start(0);
+}
+
+async function loadSound(soundPath)
+{
+    const response = await fetch(soundPath);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioContext.decodeAudioData(arrayBuffer);
+}
+
 // Asynchronous IIFE
 (async () => {
     await setup();
@@ -492,6 +520,11 @@ class BulletTrail
         white: await PIXI.Assets.load("assets/PixWhite.png"),
         bulletTrail: await PIXI.Assets.load('assets/trailBullet.png'),
         bulletDarken: await PIXI.Assets.load('assets/trailDarken.png'),
+    };
+
+    const sounds = {
+        blockBreak: await loadSound("assets/blockBreak.ogg"),
+        bulletRicochet: await loadSound("assets/bulletRicochet.ogg"),
     };
 
     for (let value of Object.values(TILE_TYPES))
@@ -632,6 +665,7 @@ class BulletTrail
     };
     sim.onBulletRicochet = function(bulletIndex, x, y, ricoAngle) {
         CreateRicochetEffect(x, y, ricoAngle);
+        //PlaySound(sounds.bulletRicochet);
     };
 
     function ScreenToGridCoords(screenX, screenY) {
@@ -683,12 +717,14 @@ class BulletTrail
     }
     sim.onBulletDestroyed = function(bulletIndex, x, y, rot)
     {
-        const sprite = bullet_sprites[bulletIndex];
         const trail = bullet_trails[bulletIndex];
-        bullet_sprites.splice(bulletIndex, 1);
+        const sprite = bullet_sprites[bulletIndex];
 
         trail.destroy();
         sprite.destroy();
+
+        bullet_sprites.splice(bulletIndex, 1);
+        bullet_trails.splice(bulletIndex, 1);
     }
     
     function UpdateVisibleTiles() {
