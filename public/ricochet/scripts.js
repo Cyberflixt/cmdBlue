@@ -5,14 +5,9 @@ const btnHideSidebar = document.getElementById("btnHideSidebar");
 const elemSidebar = document.getElementById("sidebar");
 const elemDraggedBlock = document.getElementById("elemDraggedBlock");
 const elemLog = document.getElementById("elemLog");
+const canvasGame = document.getElementById("canvasGame");
 
-const elemBtnBlockSolid = document.getElementById("elemBtnBlockSolid");
-const elemBtnBlockBreakable = document.getElementById("elemBtnBlockBreakable");
-const elemBtnBlockBulletGen = document.getElementById("elemBtnBlockBulletGen");
-const elemBtnBlockBulletSplit = document.getElementById("elemBtnBlockBulletSplit");
-const elemBtnBlockWedge = document.getElementById("elemBtnBlockWedge");
-const elemBtnBlockFlipper = document.getElementById("elemBtnBlockFlipper");
-const elemBtnBlockBreakableCreator = document.getElementById("elemBtnBlockBreakableCreator");
+const elemBtnBlockSelect = document.getElementById("elemBtnBlockSelect");
 
 const btnPlayStep = document.getElementById("btnPlayStep");
 const btnPlay = document.getElementById("btnPlay");
@@ -33,6 +28,13 @@ const TILE_TYPES = {
     BULLET_SPLIT: 5,
     FLIPPER: 6,
     BREAKABLE_CREATOR: 7,
+    DESTROYER: 8,
+
+    PEN_DRAW_TOGGLE: 9,
+    PEN_MOVE: 10,
+    PEN_RED: 11,
+    PEN_GREEN: 12,
+    PEN_BLUE: 13,
 };
 const TILE_TEX_PATH = {
     [TILE_TYPES.SOLID]: "assets/BlockSolid.png",
@@ -42,7 +44,52 @@ const TILE_TEX_PATH = {
     [TILE_TYPES.BULLET_SPLIT]: "assets/BlockBulletSplit.png",
     [TILE_TYPES.FLIPPER]: "assets/BlockFlipper.png",
     [TILE_TYPES.BREAKABLE_CREATOR]: "assets/BlockBreakableCreator.png",
+    [TILE_TYPES.DESTROYER]: "assets/BlockDestroyer.png",
+
+    [TILE_TYPES.PEN_DRAW_TOGGLE]: "assets/BlockPenToggle.png",
+    [TILE_TYPES.PEN_MOVE]: "assets/BlockPenMove.png",
+    [TILE_TYPES.PEN_RED]: "assets/BlockPenR.png",
+    [TILE_TYPES.PEN_GREEN]: "assets/BlockPenG.png",
+    [TILE_TYPES.PEN_BLUE]: "assets/BlockPenB.png",
 };
+const TILE_NAMES = {
+    [TILE_TYPES.SOLID]: "Solid block",
+    [TILE_TYPES.WEDGE]: "Wedge block",
+    [TILE_TYPES.BREAKABLE]: "Breakable block",
+    [TILE_TYPES.FLIPPER]: "Flipper block",
+    [TILE_TYPES.BREAKABLE_CREATOR]: "Breakable block creator",
+
+    [TILE_TYPES.BULLET_GEN]: "Bullet generator",
+    [TILE_TYPES.BULLET_SPLIT]: "Bullet splitter",
+    [TILE_TYPES.DESTROYER]: "Bullet destroyer",
+
+    [TILE_TYPES.PEN_DRAW_TOGGLE]: "Pen toggle",
+    [TILE_TYPES.PEN_MOVE]: "Pen move",
+    [TILE_TYPES.PEN_RED]: "Pen red toggle",
+    [TILE_TYPES.PEN_GREEN]: "Pen green toggle",
+    [TILE_TYPES.PEN_BLUE]: "Pen blue toggle",
+};
+const CATEGORY_TILES = [
+    ["Blocks", [
+        TILE_TYPES.SOLID,
+        TILE_TYPES.WEDGE,
+        TILE_TYPES.BREAKABLE,
+        TILE_TYPES.FLIPPER,
+        TILE_TYPES.BREAKABLE_CREATOR,
+    ]],
+    ["Bullet", [
+        TILE_TYPES.BULLET_GEN,
+        TILE_TYPES.BULLET_SPLIT,
+        TILE_TYPES.DESTROYER,
+    ]],
+    ["Pen", [
+        TILE_TYPES.PEN_DRAW_TOGGLE,
+        TILE_TYPES.PEN_MOVE,
+        TILE_TYPES.PEN_RED,
+        TILE_TYPES.PEN_GREEN,
+        TILE_TYPES.PEN_BLUE,
+    ]],
+]
 
 function lerp(a,b,t)
 {
@@ -100,24 +147,65 @@ class Simulator
     firstStep = true;
     playing = false;
     playSpeedMS = 500;
-    playFastFrames = 1000;
+    playFastFrames = 30;
 
-    constructor()
+    width = 10000;
+    height = 10000;
+
+    constructor(canvas)
     {
-        this.width = 1000;
-        this.height = 1000;
+        this.canvas = canvas;
         
+        this.CanvasChanged();
         this.ResetTiles();
         this.GridRandomFill();
-        this.ResetBullets();
+        this.ResetPlay();
     }
 
-    ResetBullets()
+    CanvasChanged()
+    {
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.lineWidth = 2;
+    }
+
+    RefreshPenColor()
+    {
+        if (this.penR) {
+            if (this.penG) {
+                if (this.penB)
+                    this.penColor = "#FFFFFF";
+                else
+                    this.penColor = "#FFFF00";
+            } else {
+                if (this.penB)
+                    this.penColor = "#FF00FF";
+                else
+                    this.penColor = "#FF0000";
+            }
+        } else {
+            
+            if (this.penG) {
+                if (this.penB)
+                    this.penColor = "#00FFFF";
+                else
+                    this.penColor = "#00FF00";
+            } else {
+                if (this.penB)
+                    this.penColor = "#0000FF";
+                else
+                    this.penColor = "#000000";
+            }
+        }
+        this.ctx.fillStyle = this.penColor;
+        this.ctx.strokeStyle = this.penColor;
+    }
+
+    ResetPlay()
     {
         if (this.bulletsX){
-            for (let i = 0; i < this.bulletsX.length; i++)
+            for (let i = this.bulletsX.length-1; i >= 0; i--)
             {
-                this.onBulletDestroyed(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
+                this.DestroyBullet(i)
             }
         }
 
@@ -125,6 +213,14 @@ class Simulator
         this.bulletsX = [];
         this.bulletsY = [];
         this.bulletsRot = [];
+        
+        this.penEnabled = true;
+        this.penX = 0;
+        this.penY = 0;
+        this.penR = true;
+        this.penG = true;
+        this.penB = true;
+        this.RefreshPenColor();
     }
 
     ResetTiles()
@@ -209,9 +305,26 @@ class Simulator
         return [-1,0]; // 3
     }
 
+    MovePen(x, y)
+    {
+        if (this.penEnabled)
+        {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.penX, this.penY);
+
+            this.penX = x;
+            this.penY = y;
+
+            this.ctx.lineTo(x, y);
+            this.ctx.stroke();
+        }
+    }
+
     ExecuteBulletStep(update)
     {
-        for (let i = 0; i < this.bulletsX.length; i++)
+        let bulletLen = this.bulletsX.length;
+
+        for (let i = 0; i < bulletLen; i++)
         {
             const x = this.bulletsX[i];
             const y = this.bulletsY[i];
@@ -315,8 +428,89 @@ class Simulator
                             this.tilesRotation[curIndex] = curRot;
                         }
 
-                        break;
+                    } else {
+                        if (rot > 1)
+                            this.bulletsRot[i] = rot-2;
+                        else
+                            this.bulletsRot[i] = rot+2;
+                        this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
                     }
+                    break;
+                case TILE_TYPES.BULLET_SPLIT:
+                    if (rot == tarRot)
+                    {
+                        this.bulletsX[i] = x+ux;
+                        this.bulletsY[i] = y+uy;
+                        this.bulletsRot[i] = posmod4add1(rot);
+
+                        this.CreateBullet(x+ux, y+uy, posmod4sub1(rot));
+                    } else {
+                        if (rot > 1)
+                            this.bulletsRot[i] = rot-2;
+                        else
+                            this.bulletsRot[i] = rot+2;
+                        this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    }
+                    break;
+
+                case TILE_TYPES.DESTROYER:
+                    this.DestroyBullet(i);
+                    i--;
+                    bulletLen--;
+                    continue;
+
+                case TILE_TYPES.PEN_DRAW_TOGGLE:
+                    this.penEnabled = !this.penEnabled;
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    break;
+
+                case TILE_TYPES.PEN_MOVE:
+                    this.MovePen(this.penX + ux, this.penY + uy);
+
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    break;
+
+                case TILE_TYPES.PEN_RED:
+                    this.penR = !this.penR;
+                    this.RefreshPenColor();
+
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    break;
+
+                case TILE_TYPES.PEN_GREEN:
+                    this.penG = !this.penG;
+                    this.RefreshPenColor();
+
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    break;
+
+                case TILE_TYPES.PEN_BLUE:
+                    this.penB = !this.penB;
+                    this.RefreshPenColor();
+
+                    if (rot > 1)
+                        this.bulletsRot[i] = rot-2;
+                    else
+                        this.bulletsRot[i] = rot+2;
+                    this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    break;
+
                 default:
                     if (rot > 1)
                         this.bulletsRot[i] = rot-2;
@@ -325,16 +519,31 @@ class Simulator
                     this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
                     break;
             }
-
-            // Update
-            //this.bulletsX[i] = x;
-            //this.bulletsY[i] = y;
-            //this.bulletsRot[i] = rot;
             
             if (update)
                 this.onBulletMoved(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
         }
 
+    }
+
+    DestroyBullet(i)
+    {
+        this.onBulletDestroyed(i, this.bulletsX[i], this.bulletsY[i], this.bulletsRot[i]);
+
+        this.bulletsX.splice(i,1);
+        this.bulletsY.splice(i,1);
+        this.bulletsRot.splice(i,1);
+    }
+
+    CreateBullet(x, y, rot)
+    {
+        const bulletIndex = this.bulletsX.length;
+
+        this.bulletsX.push(x);
+        this.bulletsY.push(y);
+        this.bulletsRot.push(rot);
+
+        this.onBulletCreated(bulletIndex, x, y, rot);
     }
 
     ExecuteStep(update = true)
@@ -357,13 +566,7 @@ class Simulator
                                 // Create bullet
                                 const rot = this.tilesRotation[i];
                                 const [ux, uy] = this.GetRotationUpVector(rot);
-                                const bulletIndex = this.bulletsX.length;
-
-                                this.bulletsX.push(x+ux);
-                                this.bulletsY.push(y+uy);
-                                this.bulletsRot.push(rot);
-
-                                this.onBulletCreated(bulletIndex, x+ux, y+uy, rot);
+                                this.CreateBullet(x+ux, y+uy, rot);
                             }
                             break;
                     }
@@ -433,13 +636,15 @@ class BulletTrail
 
         // Create history array.
         this.points = [];
+        const startX = followTarget.x;
+        const startY = followTarget.y;
         for (let i = 0; i < this.count; i++) {
-            this.historyX.push(0);
-            this.historyY.push(0);
+            this.historyX.push(startX);
+            this.historyY.push(startY);
         }
-        // Create rope points.
+        // Create rope points
         for (let i = 0; i < this.count; i++) {
-            this.points.push(new PIXI.Point(0, 0));
+            this.points.push(new PIXI.Point(startX, startY));
         }
 
         // Create the rope
@@ -564,7 +769,7 @@ async function loadSound(soundPath)
     // Constants
     const TILE_SIZE = 32;
     
-    const sim = new Simulator();
+    const sim = new Simulator(canvasGame);
     
     // Sprite pool - only stores currently visible sprites
     const spritePool = new Map(); // key: "x,y", value: sprite
@@ -1024,8 +1229,14 @@ async function loadSound(soundPath)
         gridBgSprite.width = width;
         gridBgSprite.height = height;
     }
-    window.addEventListener("resize", ResizeCanvas);
+    window.addEventListener("resize", () => {
+        ResizeCanvas();
+        resizeElemToParent(canvasGame);
+        sim.CanvasChanged();
+    });
     ResizeCanvas();
+    resizeElemToParent(canvasGame);
+    sim.CanvasChanged();
 
     btnHideSidebar.addEventListener("click", () => {
         sidebarHidden = !sidebarHidden;
@@ -1053,13 +1264,25 @@ async function loadSound(soundPath)
     }
     elemDraggedBlock.style.visibility = "hidden";
 
-    btnDragNewBlock(elemBtnBlockSolid, TILE_TYPES.SOLID);
-    btnDragNewBlock(elemBtnBlockBreakable, TILE_TYPES.BREAKABLE);
-    btnDragNewBlock(elemBtnBlockBulletGen, TILE_TYPES.BULLET_GEN);
-    btnDragNewBlock(elemBtnBlockBulletSplit, TILE_TYPES.BULLET_SPLIT);
-    btnDragNewBlock(elemBtnBlockWedge, TILE_TYPES.WEDGE);
-    btnDragNewBlock(elemBtnBlockFlipper, TILE_TYPES.FLIPPER);
-    btnDragNewBlock(elemBtnBlockBreakableCreator, TILE_TYPES.BREAKABLE_CREATOR);
+    elemBtnBlockSelect.style.display = "none";
+    for (let i = 0; i < CATEGORY_TILES.length; i++)
+    {
+        const categoryData = CATEGORY_TILES[i];
+        console.log(categoryData);
+        const categoryName = categoryData[0];
+        for (const tileType of categoryData[1])
+        {
+            let btn = elemBtnBlockSelect.cloneNode(true);
+
+            btn.children[0].children[0].src = TILE_TEX_PATH[tileType];
+            btn.children[0].children[1].innerText = TILE_NAMES[tileType];
+
+            btn.style.display = "";
+            elemBtnBlockSelect.parentElement.appendChild(btn);
+
+            btnDragNewBlock(btn, tileType);
+        }
+    }
 
     btnPlayStep.addEventListener("pointerdown", () => {
         // Play single step
@@ -1082,7 +1305,7 @@ async function loadSound(soundPath)
     });
     btnResetExec.addEventListener("pointerdown", () => {
         sim.Stop();
-        sim.ResetBullets();
+        sim.ResetPlay();
     });
 
     sim.onTilesChanged = UpdateVisibleTiles;
@@ -1117,13 +1340,13 @@ async function loadSound(soundPath)
 })();
 
 
-function refreshRawCanvasSize()
+function resizeElemToParent(elem)
 {
-    const rect = elemCanvasGrid.parentElement.getBoundingClientRect();
-    elemCanvasGrid.width = rect.right - rect.left;
-    elemCanvasGrid.height = rect.bottom - rect.top;
+    const rect = elem.parentElement.getBoundingClientRect();
+    elem.width = rect.right - rect.left;
+    elem.height = rect.bottom - rect.top;
 }
-refreshRawCanvasSize();
+resizeElemToParent(elemCanvasGrid);
 
 async function setup()
 {
