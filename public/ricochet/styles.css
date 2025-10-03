@@ -36,7 +36,10 @@ body
 .canvasGridParent, .canvasGameParent{
     overflow: hidden;
 }
-
+.hideabs{
+    position: absolute;
+    visibility: hidden;
+}
 
 
 .pad{

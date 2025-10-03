@@ -6,6 +6,7 @@ const elemSidebar = document.getElementById("sidebar");
 const elemDraggedBlock = document.getElementById("elemDraggedBlock");
 const elemLog = document.getElementById("elemLog");
 const canvasGame = document.getElementById("canvasGame");
+const elemInputFile = document.getElementById("elemInputFile");
 
 const elemBtnBlockSelect = document.getElementById("elemBtnBlockSelect");
 
@@ -13,7 +14,8 @@ const btnPlayStep = document.getElementById("btnPlayStep");
 const btnPlay = document.getElementById("btnPlay");
 const btnPlayFast = document.getElementById("btnPlayFast");
 const btnResetExec = document.getElementById("btnResetExec");
-
+const btnExportFile = document.getElementById("btnExportFile");
+const btnImportFile = document.getElementById("btnImportFile");
 
 const app = new PIXI.Application();
 PIXI.TextureStyle.defaultOptions.scaleMode = 'nearest';
@@ -115,6 +117,19 @@ function posmod4add1(x)
         return 0;
     return x+1;
 }
+function Merge4CrumbsInByte(a,b,c,d)
+{
+    return (a << 6) + (b << 4) + (c << 2) + d;
+}
+function SplitByteIn4Crumbs(b)
+{
+    return [
+        b >> 6, // Most significant crumb
+        (b >> 4) % 4,
+        (b >> 2) % 4,
+        b % 4,
+    ];
+}
 
 let mouseX = 0;
 let mouseY = 0;
@@ -146,16 +161,20 @@ class Simulator
 
     firstStep = true;
     playing = false;
-    playSpeedMS = 500;
+    playSpeedMS = 200;
     playFastFrames = 30;
 
-    width = 10000;
-    height = 10000;
+    width = 1000;
+    height = 1000;
 
     constructor(canvas)
     {
         this.canvas = canvas;
-        
+        this.ResetAll();
+    }
+
+    ResetAll()
+    {
         this.CanvasChanged();
         this.ResetTiles();
         this.GridRandomFill();
@@ -166,6 +185,7 @@ class Simulator
     {
         this.ctx = this.canvas.getContext("2d");
         this.ctx.lineWidth = 2;
+        this.RefreshPenColor();
     }
 
     RefreshPenColor()
@@ -317,6 +337,11 @@ class Simulator
 
             this.ctx.lineTo(x, y);
             this.ctx.stroke();
+        }
+        else
+        {
+            this.penX = x;
+            this.penY = y;
         }
     }
 
@@ -619,6 +644,95 @@ class Simulator
         }
         requestAnimationFrame(cycle);
     }
+
+    ExportToFile()
+    {
+        const tileCount = this.width * this.height;
+
+        /*
+        === Tile data ===
+        Type: 8 bits
+        Rotation: 2 bits
+        */
+        const bytes = new Uint8Array(tileCount + tileCount/4);
+        let byteIndex = 0;
+
+        // Version
+        bytes[byteIndex++] = 0;
+
+        // Width 2 bytes = 65 535
+        bytes[byteIndex++] = this.width >> 8;
+        bytes[byteIndex++] = this.width % (2 << 8);
+
+        // Height 2 bytes = 65 535
+        bytes[byteIndex++] = this.width >> 8;
+        bytes[byteIndex++] = this.width % (2 << 8);
+
+        // Tile type
+        for (let i = 0; i < tileCount; i++)
+        {
+            bytes[byteIndex] = this.tilesType[i];
+            byteIndex++;
+        }
+
+        // Tile rotation
+        for (let i = 0; i < tileCount; i+=4)
+        {
+            bytes[byteIndex] = Merge4CrumbsInByte(
+                this.tilesRotation[i],
+                this.tilesRotation[i+1],
+                this.tilesRotation[i+2],
+                this.tilesRotation[i+3],
+            );
+            byteIndex++;
+        }
+
+
+        function SaveByteArray(fileName, byte) {
+            const blob = new Blob([byte], {type: "application/octet-stream"});
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        };
+        SaveByteArray("export.rico", bytes);
+    }
+
+    LoadFromByteArray(bytes)
+    {
+        this.ResetAll();
+
+        const tileCount = this.width * this.height;
+
+        let byteIndex = 0;
+
+        // Version
+        const version = bytes[byteIndex++];
+
+        this.width = (bytes[byteIndex++] << 8) + bytes[byteIndex++];
+
+        this.height = (bytes[byteIndex++] << 8) + bytes[byteIndex++];
+
+        // Tile type
+        for (let i = 0; i < tileCount; i++)
+        {
+            this.tilesType[i] = bytes[byteIndex];
+            byteIndex++;
+        }
+
+        // Tile rotation
+        for (let i = 0; i < tileCount; i+=4)
+        {
+            const [a,b,c,d] = SplitByteIn4Crumbs(bytes[byteIndex]);
+            this.tilesRotation[i] = a;
+            this.tilesRotation[i+1] = b;
+            this.tilesRotation[i+2] = c;
+            this.tilesRotation[i+3] = d;
+            byteIndex++;
+        }
+
+        return byteIndex;
+    }
 }
 
 
@@ -780,8 +894,8 @@ async function loadSound(soundPath)
     let dragMY = 0;
     let dragCamX = 0;
     let dragCamY = 0;
-    let cameraX = 0;
-    let cameraY = 0;
+    let cameraX = -sim.width / 2 * TILE_SIZE;
+    let cameraY = -sim.height / 2 * TILE_SIZE;
     let cameraZoom = 1;
     
     // Dragging tile state
@@ -1268,7 +1382,6 @@ async function loadSound(soundPath)
     for (let i = 0; i < CATEGORY_TILES.length; i++)
     {
         const categoryData = CATEGORY_TILES[i];
-        console.log(categoryData);
         const categoryName = categoryData[0];
         for (const tileType of categoryData[1])
         {
@@ -1306,6 +1419,32 @@ async function loadSound(soundPath)
     btnResetExec.addEventListener("pointerdown", () => {
         sim.Stop();
         sim.ResetPlay();
+    });
+    btnExportFile.addEventListener("click", () => {
+        sim.ExportToFile();
+    });
+
+
+    elemInputFile.addEventListener("change", (e) => {
+        if (elemInputFile.files.length == 0) return;
+
+        const file = elemInputFile.files[0];
+
+        const reader = new FileReader();
+        reader.addEventListener('load', (e) => {
+            const buffer = e.target.result;
+            const bytes = new Uint8Array(buffer);
+            sim.LoadFromByteArray(bytes);
+            UpdateVisibleTiles();
+        });
+
+        reader.readAsArrayBuffer(file);
+    });
+
+    btnImportFile.addEventListener("click", () => {
+        // Import file
+        
+        elemInputFile.click();
     });
 
     sim.onTilesChanged = UpdateVisibleTiles;
