@@ -1,0 +1,210 @@
+
+
+
+
+/*================
+    Line series
+=================*/
+
+
+.cywidgetPlaneXY{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.cywidgetPlaneXYBounds{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.cywidgetPlaneXYGrid{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    background-image:
+        linear-gradient(to right, currentColor 1px, transparent 1px),
+        linear-gradient(to top, currentColor 1px, transparent 1px);
+    background-position: 5px calc(100% - 5px);
+    background-repeat: repeat;
+    background-size: 40px 40px;
+
+    border: 0 solid currentColor;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    opacity: .2;
+}
+
+.cywidgetAxisX, .cywidgetAxisY{
+    background-color: currentColor;
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    user-select: none;
+}
+.cywidgetAxisX{
+    left: 0;
+    top: 100%;
+    width: 100%;
+    height: 1px;
+}
+.cywidgetAxisY{
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 1px;
+}
+
+.cywidgetAxisX>*, .cywidgetAxisY>*{
+    position: absolute;
+    opacity: .5;
+}
+
+.cywidgetAxisX>*{
+    left: 50%;
+    top: 2vh;
+    transform: translate(-50%, 50%);
+}
+.cywidgetAxisY>*{
+    left: -2vh;
+    top: 50%;
+    transform: translate(-150%, -50%);
+    writing-mode:sideways-lr;
+    text-orientation:sideways;
+}
+
+.cywidgetPlaneXYGrid::after{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: linear-gradient(to top, var(--shadow), transparent 50%);
+    opacity: .8;
+}
+
+.cywidgetPlaneXY canvas{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.cywidgetAxisIncrements{
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    display: flex;
+    gap: 50px;
+}
+
+.cywidgetAxisX .cywidgetAxisIncrements{
+    width: 100%;
+    height: 0;
+    top: 1vh;
+    flex-direction: row;
+    transform: translateX(0);
+}
+.cywidgetAxisY .cywidgetAxisIncrements{
+    height: 100%;
+    width: 0;
+    left: -1vh;
+    flex-direction: row;
+    align-items: end;
+    transform: translateY(0);
+}
+.cywidgetAxisIncrements>*{
+    width: 0;
+    height: 0;
+}
+.cywidgetAxisIncrements>*>*{
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+.cywidgetAxisX .cywidgetAxisIncrements>*>*{
+    transform: translateX(-50%);
+}
+.cywidgetAxisY .cywidgetAxisIncrements>*>*{
+    transform: translate(-100%, 50%);
+}
+
+.cywidgetAxisIncrements>*>*::after{
+    content: "";
+    position: absolute;
+    background-color: var(--text);
+}
+
+.cywidgetAxisX .cywidgetAxisIncrements>*>*::after{
+    left: 50%;
+    top: -1vh;
+
+    width: 2px;
+    height: 1vh;
+    transform: translateX(-1px);
+}
+.cywidgetAxisY .cywidgetAxisIncrements>*>*::after{
+    top: 50%;
+    left: 100%;
+
+    height: 2px;
+    width: 1vh;
+    transform: translateY(-1px);
+}
+
+[data-css-grab = "true"].cywidgetPlaneXYCanvas{
+    cursor: grab;
+}
+[data-css-grab = "true"].cywidgetPlaneXYCanvas:active{
+    cursor: grabbing;
+}
+
+.cywidgetBtnResetFraming{
+    position: absolute;
+    left: calc(100% - 40px);
+    top: 0;
+    width: 40px;
+    height: 40px;
+
+    z-index: 2;
+    cursor: pointer;
+    pointer-events: none;
+
+    opacity: 0;
+    transition: .2s opacity;
+}
+.cywidgetBtnResetFraming[data-enabled = "1"]{
+    opacity: .5;
+    pointer-events: auto;
+}
+
+
+
+
+
+
+
+
+.cywidgetPieChart{
+    width: 100%;
+    height: 100%;
+}
+
+.cywidgetPieChartBounds{
+    aspect-ratio: 1 / 1;
+    max-width: 100%;
+    max-height: 100%;
+    position: relative;
+}
+
+.cywidgetPieChart canvas{
+    position: absolute;
+    left: 0;
+    top: 0;
+}

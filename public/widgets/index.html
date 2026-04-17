@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="style.css?v=1.0">
+    <link rel="stylesheet" href="stylegen.css?v=1.0">
+    <link rel="stylesheet" href="cywidgets/cywidgetsStyle.css?v=1.0">
+
+    <script src="scriptsHead.js?v=1.0"></script>
+  </head>
+  <body class="flexy flexcen pad5 gap5">
+    <div class="topbar flexcen window flexbetween">
+      <h2>Testing grounds</h2>
+      <div class="themeBtn" onclick="toggleTheme()">
+        <div>
+          <svg class="dark" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path fill="currentColor" d="M9.272 2.406a1 1 0 0 0-1.23-1.355C6.59 1.535 5.432 2.488 4.37 3.55a11.4 11.4 0 0 0 0 16.182c4.518 4.519 11.51 4.261 15.976-.205c1.062-1.062 2.014-2.22 2.498-3.673A1 1 0 0 0 21.55 14.6c-3.59 1.322-7.675.734-10.433-2.025C8.35 9.808 7.788 5.744 9.272 2.406"/></svg>
+          <svg class="light" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path class="svgFillAccent" d="M12 19a1 1 0 0 1 .993.883L13 20v1a1 1 0 0 1-1.993.117L11 21v-1a1 1 0 0 1 1-1m6.313-2.09.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7a1 1 0 0 1 1.218-1.567zm-11.306.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M4 11a1 1 0 0 1 .117 1.993L4 13H3a1 1 0 0 1-.117-1.993L3 11zm17 0a1 1 0 0 1 .117 1.993L21 13h-1a1 1 0 0 1-.117-1.993L20 11zM6.213 4.81l.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7A1 1 0 0 1 6.11 4.74zm12.894.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M12 2a1 1 0 0 1 .993.883L13 3v1a1 1 0 0 1-1.993.117L11 4V3a1 1 0 0 1 1-1m0 5a5 5 0 1 1-4.995 5.217L7 12l.005-.217A5 5 0 0 1 12 7"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="widgetGrid fg gap5">
+
+      <!-- Branch view widget -->
+      <div class="window" style="padding: 10vh;">
+        <div class="rows">
+          <div class="timeline">
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg"  transform="translate(64 64)" stroke-width="10" r="58"/></svg>
+              <div class="id">0</div>
+              <div class="desc">Description A</div>
+
+              <svg class="arrowPoint" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path class="svgStrokeAccent" d="m8 23 24 25 24-25" fill="none" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="lineFlat"></div>
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg"  transform="translate(64 64)" stroke-width="10" r="58"/></svg>
+              <div class="id">1</div>
+              <div class="desc">Description B</div>
+
+              <svg class="arrowPoint active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path class="svgStrokeAccent" d="m8 23 24 25 24-25" fill="none" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="lineFlat"></div>
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg"  transform="translate(64 64)" stroke-width="10" r="58"/></svg>
+              <div class="id">2</div>
+              <div class="desc">Description C</div>
+            </div>
+            <div class="lineFlat"></div>
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg" transform="translate(64 64)" stroke-width="10" r="58"/><circle  class="svgFillAccent" transform="translate(64 64)" r="42"/></svg>
+              <div class="id">3</div>
+              <div class="desc">Description D</div>
+            </div>
+          </div>
+
+
+          <div class="timeline">
+            <div class="revPointNull"></div>
+            <div class="lineFlatNull"></div>
+            <div class="revPointNull"></div>
+
+            <div class="lineFork">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 256"><path class="svgStrokeAccent" d="M0 5c256 0 256 246 512 246" fill="none" stroke-width="4"/></svg>
+            </div>
+
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg"  transform="translate(64 64)" stroke-width="10" r="58"/></svg>
+              <div class="id">4</div>
+              <div class="desc">Description C</div>
+            </div>
+            <div class="lineFlat"></div>
+            <div class="revPoint">
+              <svg class="iconCircle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle class="svgStrokeAccent svgFillBg"  transform="translate(64 64)" stroke-width="10" r="58"/></svg>
+              <div class="id">5</div>
+              <div class="desc">Description D</div>
+            </div>
+          </div>
+          <div class="cornerText">Revisions</div>
+        </div>
+      </div>
+
+      <!-- Line series widget -->
+      <div class="window" style="padding: 10vh;">
+        
+      </div>
+
+
+      <!-- Line series widget -->
+      <div class="window" style="padding: 10vh;">
+        
+      </div>
+
+      <!-- Branch view widget -->
+      <div class="window" style="padding: 10vh;">
+        
+      </div>
+
+
+    </div>
+    
+    <script src="cywidgets/cywidgetsScripts.js?v=1.0"></script>
+    <script src="scripts.js?v=1.0"></script>
+  </body>
+</html>

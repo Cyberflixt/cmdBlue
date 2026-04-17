@@ -133,8 +133,13 @@ body
     width: 100%;
     height: 100%;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
+.blockList>* *{
+    pointer-events: none;
+    user-select: none;
+}
 .blockList img{
     width: 5vmin;
     height: 5vmin;
@@ -144,13 +149,22 @@ body
     cursor: pointer;
     transition: .1s;
     transition-property: transform;
+}.blockList>*>*>*{
+    z-index: 2;
 }.blockList>*>*{
     display: flex;
     gap: 2vmin;
     align-items: center;
-}.blockList>*:hover{
-    transform: translateX(-1vmin);
 }
+
+.blockList>*:hover{
+    transform: translateX(1vmin);
+}.blockList>[data-selected]:hover{
+    transform: none;
+}.blockList>*:active{
+    transform: translateX(-1vmin)!important;
+}
+
 .blockList>*>::before{
     content: "";
     position: absolute;
@@ -164,9 +178,12 @@ body
     transition: .1s;
     transition-property: opacity;
 }
-
-.blockList>*:hover>*::before{
+.blockList>:hover>::before{
     opacity: .1;
+}
+.blockList>[data-selected]>::before{
+    background: cyan;
+    opacity: .2;
 }
 
 .absover{

@@ -3,7 +3,6 @@ import * as PIXI from "https://cdn.jsdelivr.net/npm/pixi.js@8.13.2/dist/pixi.min
 const elemCanvasGrid = document.getElementById('canvasGrid');
 const btnHideSidebar = document.getElementById("btnHideSidebar");
 const elemSidebar = document.getElementById("sidebar");
-const elemDraggedBlock = document.getElementById("elemDraggedBlock");
 const elemLog = document.getElementById("elemLog");
 const canvasGame = document.getElementById("canvasGame");
 const elemInputFile = document.getElementById("elemInputFile");
@@ -37,6 +36,8 @@ const TILE_TYPES = {
     PEN_RED: 11,
     PEN_GREEN: 12,
     PEN_BLUE: 13,
+
+    KEY_DOWN: 14,
 };
 const TILE_TEX_PATH = {
     [TILE_TYPES.SOLID]: "assets/BlockSolid.png",
@@ -53,6 +54,8 @@ const TILE_TEX_PATH = {
     [TILE_TYPES.PEN_RED]: "assets/BlockPenR.png",
     [TILE_TYPES.PEN_GREEN]: "assets/BlockPenG.png",
     [TILE_TYPES.PEN_BLUE]: "assets/BlockPenB.png",
+
+    [TILE_TYPES.KEY_DOWN]: "assets/BlockKeyDown.png",
 };
 const TILE_NAMES = {
     [TILE_TYPES.SOLID]: "Solid block",
@@ -70,6 +73,8 @@ const TILE_NAMES = {
     [TILE_TYPES.PEN_RED]: "Pen red toggle",
     [TILE_TYPES.PEN_GREEN]: "Pen green toggle",
     [TILE_TYPES.PEN_BLUE]: "Pen blue toggle",
+
+    [TILE_TYPES.KEY_DOWN]: "Key down passthrough",
 };
 const CATEGORY_TILES = [
     ["Blocks", [
@@ -90,6 +95,9 @@ const CATEGORY_TILES = [
         TILE_TYPES.PEN_RED,
         TILE_TYPES.PEN_GREEN,
         TILE_TYPES.PEN_BLUE,
+    ]],
+    ["Input", [
+        TILE_TYPES.KEY_DOWN,
     ]],
 ]
 
@@ -175,6 +183,10 @@ class Simulator
 
     ResetAll()
     {
+        this.tilesInputDown = [];
+        this.tilesIndexPassthrough = {};
+        this.tilesInputCallbackKeydown = {};
+        this.tilesInputCallbackKeyup = {};
         this.CanvasChanged();
         this.ResetTiles();
         this.GridRandomFill();
@@ -272,10 +284,59 @@ class Simulator
         }
     }
 
+    BeforeTileChanged(i)
+    {
+        switch(this.tilesType[i])
+        {
+            case TILE_TYPES.KEY_DOWN:
+                document.removeEventListener("keydown", this.tilesInputCallbackKeydown[i])
+                document.removeEventListener("keyup", this.tilesInputCallbackKeyup[i])
+                break;
+        }
+    }
+    
     SetTileType(gridX, gridY, tileType)
     {
         if (gridX < 0 || gridX >= this.width || gridY < 0 || gridY >= this.height) return;
-        this.tilesType[this.PosToIndex(gridX, gridY)] = tileType;
+
+        const i = this.PosToIndex(gridX, gridY);
+        this.BeforeTileChanged(i);
+
+        this.tilesType[i] = tileType;
+
+    }
+    CreateTileKeyDown(x, y, key)
+    {
+        this.tilesInputDown.push(i);
+        this.tilesIndexPassthrough[i] = true;
+
+        this.tilesInputCallbackKeydown[i] = (e) => {
+            if (e.key == key)
+            {
+                this.tilesIndexPassthrough[i] = false;
+            }
+        }
+        this.tilesInputCallbackKeyup[i] = (e) => {
+            if (e.key == key)
+            {
+                this.tilesIndexPassthrough[i] = true;
+            }
+        }
+        document.addEventListener("keydown", this.tilesInputCallbackKeydown[i]);
+        document.addEventListener("keyup", this.tilesInputCallbackKeyup[i]);
+    }
+
+    IsTileSolid(tileIndex)
+    {
+        switch (tileIndex)
+        {
+            case TILE_TYPES.KEY_DOWN:
+                if (!(tileIndex in this.tilesIndexPassthrough))
+                    console.error("Input down tile's index is not a key in tilesIndexPassthrough");
+                return this.tilesIndexPassthrough[tileIndex];
+            default:
+                return true;
+        }
     }
     
     GetTileType(gridX, gridY)
@@ -536,6 +597,19 @@ class Simulator
                     this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
                     break;
 
+                case TILE_TYPES.KEY_DOWN:
+                    if (this.IsTileSolid(tarIndex)) {
+                        if (rot > 1)
+                            this.bulletsRot[i] = rot-2;
+                        else
+                            this.bulletsRot[i] = rot+2;
+                        this.onBulletRicochet(i, x+ux, y+uy, rot * Math.PI / 2);
+                    } else {
+                        this.bulletsX[i] += ux;
+                        this.bulletsY[i] += uy;
+                    }
+                    break;
+
                 default:
                     if (rot > 1)
                         this.bulletsRot[i] = rot-2;
@@ -736,7 +810,7 @@ class Simulator
 }
 
 
-class BulletTrail
+class SpriteTrail
 {
     constructor(trailTexture, app, parent, followTarget)
     {
@@ -994,15 +1068,11 @@ async function loadSound(soundPath)
         const gridY = Math.floor(worldY / TILE_SIZE);
         return [ gridX, gridY ];
     }
+
     function GridToScreenCoords(gridX, gridY) {
         const worldX = (gridX + .5) * TILE_SIZE * cameraZoom + cameraX;
         const worldY = (gridY + .5) * TILE_SIZE * cameraZoom + cameraY;
         return [ worldX, worldY ];
-    }
-    
-    function setTile(gridX, gridY, tileType) {
-        sim.SetTileType(gridX, gridY, tileType);
-        UpdateVisibleTiles();
     }
 
     let bullet_sprites = [];
@@ -1022,9 +1092,10 @@ async function loadSound(soundPath)
         grid.addChild(sprite);
         bullet_sprites.push(sprite);
 
-        const trail = new BulletTrail(textures.bulletTrail, app, grid, sprite);
+        const trail = new SpriteTrail(textures.bulletTrail, app, grid, sprite);
         bullet_trails.push(trail);
     }
+
     sim.onBulletMoved = function(bulletIndex, x, y, rot)
     {
         const sprite = bullet_sprites[bulletIndex];
@@ -1044,6 +1115,19 @@ async function loadSound(soundPath)
 
         bullet_sprites.splice(bulletIndex, 1);
         bullet_trails.splice(bulletIndex, 1);
+    }
+
+    function DestroyTile(x, y)
+    {
+        sim.SetTileType(x, y, TILE_TYPES.EMPTY);
+
+        // Begone sprite
+        const key = `${x},${y}`;
+        const sprite = spritePool.get(key);
+        sprite.destroy();
+        spritePool.delete(key);
+
+        UpdateLog();
     }
     
     function UpdateVisibleTiles() {
@@ -1103,8 +1187,7 @@ async function loadSound(soundPath)
                         if (e.button === 0) { // Left click
                             draggedTileType = sim.GetTileType(sprite.gridX, sprite.gridY);
                             draggedTileRot = sim.GetTileRotation(sprite.gridX, sprite.gridY);
-                            //DestroyTile();
-                            setTile(x, y, TILE_TYPES.EMPTY);
+                            DestroyTile(x, y);
                             
                             // Create visual feedback sprite
                             draggedSprite = new PIXI.Sprite(textures[draggedTileType]);
@@ -1144,7 +1227,11 @@ async function loadSound(soundPath)
     
     // Mouse/touch events
     app.view.addEventListener("pointerdown", (e) => {
-        if (e.button === 0 && !draggedTileType) { // Left click for dragging camera
+        e.preventDefault();
+        const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
+
+        if (e.button === 1) // MMB
+        {
             cameraDragging = true;
             dragMX = e.clientX;
             dragMY = e.clientY;
@@ -1152,18 +1239,25 @@ async function loadSound(soundPath)
             dragCamY = cameraY;
             SetLog();
         }
+        else if (e.button == 0) // LMB
+        {
+            if (!draggedTileType && selectedBtnTileType != null) {
+                // Set tile
+                sim.SetTileType(gridX, gridY, selectedBtnTileType);
+                UpdateVisibleTiles();
+            }
+        }
     });
     
     app.view.addEventListener("pointerup", (e) => {
-        if (e.button === 0)
+        if (e.button === 0) // LMB
         {
-            cameraDragging = false;
-            
             // Drop tile if we're dragging one
             if (draggedTileType) {
                 const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
                 sim.SetTileRotation(gridX, gridY, draggedTileRot);
-                setTile(gridX, gridY, draggedTileType);
+                sim.SetTileType(gridX, gridY, draggedTileType);
+                UpdateVisibleTiles();
                 
                 if (draggedSprite) {
                     draggedSprite.destroy();
@@ -1172,25 +1266,18 @@ async function loadSound(soundPath)
                 draggedTileType = null;
             }
         }
-        else if (e.button === 2)
+        else if (e.button === 1) // MMB
+        {
+            cameraDragging = false;
+        }
+        else if (e.button === 2) // RMB
         {
             // Right click to delete
             const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
             if (sim.GetTileType(gridX, gridY) != TILE_TYPES.EMPTY){
-                setTile(gridX, gridY, TILE_TYPES.EMPTY);
+                DestroyTile(gridX, gridY);
                 CreateDestructionEffect(gridX, gridY);
             }
-        }
-    });
-    document.addEventListener("pointerup", (e) => {
-        if (newBlockDraggedType != null)
-        {
-            const [ gridX, gridY ] = ScreenToGridCoords(e.clientX, e.clientY);
-            sim.SetTileType(gridX, gridY, newBlockDraggedType);
-
-            newBlockDraggedType = null;
-            elemDraggedBlock.style.visibility = "hidden";
-            UpdateVisibleTiles();
         }
     });
     
@@ -1218,44 +1305,11 @@ async function loadSound(soundPath)
         else
             SetLog(`Type ${ty}, Rotation ${sim.GetTileRotation(x,y)}`);
     }
-    
-    let newBlockDraggedType = null;
-    let newBlockDraggedX = null;
-    let newBlockDraggedY = null;
 
     document.addEventListener("pointermove", (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-
-        // New block dragging
-        if (newBlockDraggedType != null)
-        {
-            const rect = app.canvas.getBoundingClientRect();
-
-            const speed = 20 * 1/60;
-            if (mouseX > rect.left && mouseX < rect.right)
-            {
-                const [ gridX, gridY ] = ScreenToGridCoords(mouseX, mouseY);
-                const [ snapX, snapY ] = GridToScreenCoords(gridX, gridY);
-                
-                newBlockDraggedX = lerp(newBlockDraggedX, snapX, speed);
-                newBlockDraggedY = lerp(newBlockDraggedY, snapY, speed);
-            }
-            else
-            {
-                newBlockDraggedX = lerp(newBlockDraggedX, mouseX, speed);
-                newBlockDraggedY = lerp(newBlockDraggedY, mouseY, speed);
-            }
-            RefreshElemDraggedBlockPos();
-        }
     });
-    function RefreshElemDraggedBlockPos()
-    {
-        const size = TILE_SIZE * cameraZoom;
-        elemDraggedBlock.style.transform = `translate(${newBlockDraggedX - size/2}px, ${newBlockDraggedY - size/2}px)`;
-        elemDraggedBlock.style.width = `${size}px`;
-        elemDraggedBlock.style.height = `${size}px`;
-    }
 
     function OnInputRotate()
     {
@@ -1364,19 +1418,21 @@ async function loadSound(soundPath)
         ResizeCanvas();
     });
 
-
-    function btnDragNewBlock(elemBtn, blockType)
+    let selectedBtnTileType = null;
+    let selectedBtnTileElem = null;
+    function btnDragNewBlock(elemBtn, tileType)
     {
-        elemBtn.addEventListener("pointerdown", (e) => {
-            newBlockDraggedType = blockType;
-            elemDraggedBlock.src = TILE_TEX_PATH[blockType];
-            elemDraggedBlock.style.visibility = "";
-            newBlockDraggedX = e.clientX;
-            newBlockDraggedY = e.clientY;
-            RefreshElemDraggedBlockPos();
+        elemBtn.addEventListener("pointerdown", () => {
+            // Deselect old button
+            if (selectedBtnTileElem && selectedBtnTileElem.dataset.selected)
+                delete selectedBtnTileElem.dataset.selected;
+
+            // Select new button
+            selectedBtnTileType = tileType;
+            selectedBtnTileElem = elemBtn;
+            selectedBtnTileElem.dataset.selected = "true";
         });
     }
-    elemDraggedBlock.style.visibility = "hidden";
 
     elemBtnBlockSelect.style.display = "none";
     for (let i = 0; i < CATEGORY_TILES.length; i++)

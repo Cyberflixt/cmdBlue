@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="style.css?v=1.0">
+    <link rel="stylesheet" href="stylegen.css?v=1.0">
+    <link rel="stylesheet" href="cywidgets/cywidgetsStyle.css?v=1.0">
+
+    <script src="scriptsHead.js?v=1.0"></script>
+  </head>
+  <body class="flexy flexcen">
+    <div class="topbar flexcen flexbetween">
+      <a href="/" alt="Home" class="flexcen topbar-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M3 14.5q-.2 0-.35-.15T2.5 14t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-4q-.2 0-.35-.15T2.5 10t.15-.35T3 9.5t.35.15.15.35-.15.35-.35.15M6 19q-.425 0-.712-.288T5 18t.288-.712T6 17t.713.288T7 18t-.288.713T6 19m0-4q-.425 0-.712-.288T5 14t.288-.712T6 13t.713.288T7 14t-.288.713T6 15m0-4q-.425 0-.712-.288T5 10t.288-.712T6 9t.713.288T7 10t-.288.713T6 11m0-4q-.425 0-.712-.288T5 6t.288-.712T6 5t.713.288T7 6t-.288.713T6 7m4 8.5q-.625 0-1.062-.437T8.5 14t.438-1.062T10 12.5t1.063.438T11.5 14t-.437 1.063T10 15.5m0-4q-.625 0-1.062-.437T8.5 10t.438-1.062T10 8.5t1.063.438T11.5 10t-.437 1.063T10 11.5m0 7.5q-.425 0-.712-.288T9 18t.288-.712T10 17t.713.288T11 18t-.288.713T10 19m0-12q-.425 0-.712-.288T9 6t.288-.712T10 5t.713.288T11 6t-.288.713T10 7m0 14.5q-.2 0-.35-.15T9.5 21t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-18q-.2 0-.35-.15T9.5 3t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m4 12q-.625 0-1.062-.437T12.5 14t.438-1.062T14 12.5t1.063.438T15.5 14t-.437 1.063T14 15.5m0-4q-.625 0-1.062-.437T12.5 10t.438-1.062T14 8.5t1.063.438T15.5 10t-.437 1.063T14 11.5m0 7.5q-.425 0-.712-.288T13 18t.288-.712T14 17t.713.288T15 18t-.288.713T14 19m0-12q-.425 0-.712-.288T13 6t.288-.712T14 5t.713.288T15 6t-.288.713T14 7m0 14.5q-.2 0-.35-.15T13.5 21t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-18q-.2 0-.35-.15T13.5 3t.15-.35.35-.15.35.15.15.35-.15.35-.35.15M18 19q-.425 0-.712-.288T17 18t.288-.712T18 17t.713.288T19 18t-.288.713T18 19m0-4q-.425 0-.712-.288T17 14t.288-.712T18 13t.713.288T19 14t-.288.713T18 15m0-4q-.425 0-.712-.288T17 10t.288-.712T18 9t.713.288T19 10t-.288.713T18 11m0-4q-.425 0-.712-.288T17 6t.288-.712T18 5t.713.288T19 6t-.288.713T18 7m3 7.5q-.2 0-.35-.15T20.5 14t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-4q-.2 0-.35-.15T20.5 10t.15-.35.35-.15.35.15.15.35-.15.35-.35.15"/></svg>
+        <b>Testing Grounds</b>
+      </a>
+      <div class="themeBtn" onclick="toggleTheme()">
+        <div>
+          <svg class="dark" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path fill="currentColor" d="M9.272 2.406a1 1 0 0 0-1.23-1.355C6.59 1.535 5.432 2.488 4.37 3.55a11.4 11.4 0 0 0 0 16.182c4.518 4.519 11.51 4.261 15.976-.205c1.062-1.062 2.014-2.22 2.498-3.673A1 1 0 0 0 21.55 14.6c-3.59 1.322-7.675.734-10.433-2.025C8.35 9.808 7.788 5.744 9.272 2.406"/></svg>
+          <svg class="light" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path class="svgFillAccent" d="M12 19a1 1 0 0 1 .993.883L13 20v1a1 1 0 0 1-1.993.117L11 21v-1a1 1 0 0 1 1-1m6.313-2.09.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7a1 1 0 0 1 1.218-1.567zm-11.306.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M4 11a1 1 0 0 1 .117 1.993L4 13H3a1 1 0 0 1-.117-1.993L3 11zm17 0a1 1 0 0 1 .117 1.993L21 13h-1a1 1 0 0 1-.117-1.993L20 11zM6.213 4.81l.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7A1 1 0 0 1 6.11 4.74zm12.894.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M12 2a1 1 0 0 1 .993.883L13 3v1a1 1 0 0 1-1.993.117L11 4V3a1 1 0 0 1 1-1m0 5a5 5 0 1 1-4.995 5.217L7 12l.005-.217A5 5 0 0 1 12 7"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="contentColumn">
+      <div class="flexcen">
+        <div class="flexy flexcenx">
+          <h1>PlaneXY + LineSeries</h1>
+          <p>
+            Traces a series of lines inside an interactive cartesian coordinate system.
+          </p>
+        </div>
+      </div>
+
+      <div class="widgetGrid gap5">
+
+        <!-- Line series widget -->
+        <div class="window" style="padding: 8vh;">
+
+          <div class="cywidgetPlaneXY" id="testPlaneXY0"
+            data-horizontal-axis-text="Risk" data-vertical-axis-text="Reward"
+            data-horizontal-increment="1" data-vertical-increment="3"
+            data-smooth-camera="5">
+
+            <div class="cywidgetPlaneXYBounds">
+              <div class="cywidgetPlaneXYGrid"></div>
+              <div class="cywidgetAxisX">
+                <div>X axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <div class="cywidgetAxisY">
+                <div>Y axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <svg class="cywidgetBtnResetFraming" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.994 16.692q-1.35 0-2.463-.693t-1.706-1.855q-.098-.185-.035-.382.062-.197.243-.27.154-.073.323.002.169.074.261.239.491.938 1.392 1.506t1.991.569q1.578 0 2.693-1.116 1.115-1.115 1.115-2.692t-1.115-2.692T12 8.192q-.95 0-1.767.443-.817.442-1.433 1.173h1.45q.192 0 .317.125t.125.316-.125.317-.317.126H8.116q-.344 0-.576-.232t-.232-.576V7.75q0-.192.125-.317t.316-.125.317.125.126.317v1.406q.725-.829 1.712-1.339T12 7.307q1.96 0 3.326 1.367T16.692 12t-1.366 3.326-3.332 1.366M5.616 20q-.691 0-1.153-.462T4 18.384V15.5q0-.213.144-.356T4.501 15t.356.144T5 15.5v2.885q0 .23.192.423t.423.192H8.5q.213 0 .356.144t.144.357-.144.356T8.5 20zm12.769 0H15.5q-.213 0-.356-.144T15 19.499t.144-.356T15.5 19h2.885q.23 0 .423-.192t.192-.424V15.5q0-.213.144-.356t.357-.144.356.144.143.356v2.885q0 .69-.462 1.152T18.384 20M4 8.5V5.616q0-.691.463-1.153T5.616 4H8.5q.213 0 .356.144T9 4.501t-.144.356T8.5 5H5.616q-.231 0-.424.192T5 5.616V8.5q0 .213-.144.356T4.499 9t-.356-.144T4 8.5m15 0V5.616q0-.231-.192-.424T18.384 5H15.5q-.213 0-.356-.144T15 4.499t.144-.356T15.5 4h2.885q.69 0 1.152.463T20 5.616V8.5q0 .213-.144.356T19.499 9t-.356-.144T19 8.5"/>
+              </svg>
+              <canvas class="cywidgetPlaneXYCanvas"></canvas>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Line series widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPlaneXY" id="testPlaneXY1">
+            <div class="cywidgetPlaneXYBounds">
+              <div class="cywidgetPlaneXYGrid"></div>
+              <div class="cywidgetAxisX">
+                <div>X axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <div class="cywidgetAxisY">
+                <div>Y axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <svg class="cywidgetBtnResetFraming" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.994 16.692q-1.35 0-2.463-.693t-1.706-1.855q-.098-.185-.035-.382.062-.197.243-.27.154-.073.323.002.169.074.261.239.491.938 1.392 1.506t1.991.569q1.578 0 2.693-1.116 1.115-1.115 1.115-2.692t-1.115-2.692T12 8.192q-.95 0-1.767.443-.817.442-1.433 1.173h1.45q.192 0 .317.125t.125.316-.125.317-.317.126H8.116q-.344 0-.576-.232t-.232-.576V7.75q0-.192.125-.317t.316-.125.317.125.126.317v1.406q.725-.829 1.712-1.339T12 7.307q1.96 0 3.326 1.367T16.692 12t-1.366 3.326-3.332 1.366M5.616 20q-.691 0-1.153-.462T4 18.384V15.5q0-.213.144-.356T4.501 15t.356.144T5 15.5v2.885q0 .23.192.423t.423.192H8.5q.213 0 .356.144t.144.357-.144.356T8.5 20zm12.769 0H15.5q-.213 0-.356-.144T15 19.499t.144-.356T15.5 19h2.885q.23 0 .423-.192t.192-.424V15.5q0-.213.144-.356t.357-.144.356.144.143.356v2.885q0 .69-.462 1.152T18.384 20M4 8.5V5.616q0-.691.463-1.153T5.616 4H8.5q.213 0 .356.144T9 4.501t-.144.356T8.5 5H5.616q-.231 0-.424.192T5 5.616V8.5q0 .213-.144.356T4.499 9t-.356-.144T4 8.5m15 0V5.616q0-.231-.192-.424T18.384 5H15.5q-.213 0-.356-.144T15 4.499t.144-.356T15.5 4h2.885q.69 0 1.152.463T20 5.616V8.5q0 .213-.144.356T19.499 9t-.356-.144T19 8.5"/>
+              </svg>
+              <canvas class="cywidgetPlaneXYCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Line series widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPlaneXY" id="testPlaneXY2">
+            <div class="cywidgetPlaneXYBounds">
+              <div class="cywidgetPlaneXYGrid"></div>
+              <div class="cywidgetAxisX">
+                <div>X axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <div class="cywidgetAxisY">
+                <div>Y axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <svg class="cywidgetBtnResetFraming" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.994 16.692q-1.35 0-2.463-.693t-1.706-1.855q-.098-.185-.035-.382.062-.197.243-.27.154-.073.323.002.169.074.261.239.491.938 1.392 1.506t1.991.569q1.578 0 2.693-1.116 1.115-1.115 1.115-2.692t-1.115-2.692T12 8.192q-.95 0-1.767.443-.817.442-1.433 1.173h1.45q.192 0 .317.125t.125.316-.125.317-.317.126H8.116q-.344 0-.576-.232t-.232-.576V7.75q0-.192.125-.317t.316-.125.317.125.126.317v1.406q.725-.829 1.712-1.339T12 7.307q1.96 0 3.326 1.367T16.692 12t-1.366 3.326-3.332 1.366M5.616 20q-.691 0-1.153-.462T4 18.384V15.5q0-.213.144-.356T4.501 15t.356.144T5 15.5v2.885q0 .23.192.423t.423.192H8.5q.213 0 .356.144t.144.357-.144.356T8.5 20zm12.769 0H15.5q-.213 0-.356-.144T15 19.499t.144-.356T15.5 19h2.885q.23 0 .423-.192t.192-.424V15.5q0-.213.144-.356t.357-.144.356.144.143.356v2.885q0 .69-.462 1.152T18.384 20M4 8.5V5.616q0-.691.463-1.153T5.616 4H8.5q.213 0 .356.144T9 4.501t-.144.356T8.5 5H5.616q-.231 0-.424.192T5 5.616V8.5q0 .213-.144.356T4.499 9t-.356-.144T4 8.5m15 0V5.616q0-.231-.192-.424T18.384 5H15.5q-.213 0-.356-.144T15 4.499t.144-.356T15.5 4h2.885q.69 0 1.152.463T20 5.616V8.5q0 .213-.144.356T19.499 9t-.356-.144T19 8.5"/>
+              </svg>
+              <canvas class="cywidgetPlaneXYCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line series widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPlaneXY mynerve" id="testPlaneXY3">
+            <div class="cywidgetPlaneXYBounds">
+              <div class="cywidgetPlaneXYGrid"></div>
+              <div class="cywidgetAxisX">
+                <div>X axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <div class="cywidgetAxisY">
+                <div>Y axis</div>
+                <div class="cywidgetAxisIncrements"></div>
+              </div>
+              <svg class="cywidgetBtnResetFraming" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.994 16.692q-1.35 0-2.463-.693t-1.706-1.855q-.098-.185-.035-.382.062-.197.243-.27.154-.073.323.002.169.074.261.239.491.938 1.392 1.506t1.991.569q1.578 0 2.693-1.116 1.115-1.115 1.115-2.692t-1.115-2.692T12 8.192q-.95 0-1.767.443-.817.442-1.433 1.173h1.45q.192 0 .317.125t.125.316-.125.317-.317.126H8.116q-.344 0-.576-.232t-.232-.576V7.75q0-.192.125-.317t.316-.125.317.125.126.317v1.406q.725-.829 1.712-1.339T12 7.307q1.96 0 3.326 1.367T16.692 12t-1.366 3.326-3.332 1.366M5.616 20q-.691 0-1.153-.462T4 18.384V15.5q0-.213.144-.356T4.501 15t.356.144T5 15.5v2.885q0 .23.192.423t.423.192H8.5q.213 0 .356.144t.144.357-.144.356T8.5 20zm12.769 0H15.5q-.213 0-.356-.144T15 19.499t.144-.356T15.5 19h2.885q.23 0 .423-.192t.192-.424V15.5q0-.213.144-.356t.357-.144.356.144.143.356v2.885q0 .69-.462 1.152T18.384 20M4 8.5V5.616q0-.691.463-1.153T5.616 4H8.5q.213 0 .356.144T9 4.501t-.144.356T8.5 5H5.616q-.231 0-.424.192T5 5.616V8.5q0 .213-.144.356T4.499 9t-.356-.144T4 8.5m15 0V5.616q0-.231-.192-.424T18.384 5H15.5q-.213 0-.356-.144T15 4.499t.144-.356T15.5 4h2.885q.69 0 1.152.463T20 5.616V8.5q0 .213-.144.356T19.499 9t-.356-.144T19 8.5"/>
+              </svg>
+              <canvas class="cywidgetPlaneXYCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <script src="cywidgets/cywidgetsScripts.js?v=1.0"></script>
+    <script src="scripts.js?v=1.0"></script>
+
+    <script>
+      // Plane 0 was preconfigured in html
+      let plane0 = new CywidgetPlaneXY(document.getElementById("testPlaneXY0"));
+      plane0.push(LineSeries.fromRandomSlope(10, 10, -.5, "currentColor"));
+      plane0.drawAnimation(3000);
+
+
+      let plane1 = new CywidgetPlaneXY(document.getElementById("testPlaneXY1"));
+
+      plane1.push(LineSeries.fromRandomSlope(10, 10, -.5, "orange"));
+      plane1.push(LineSeries.fromRandomSlope(10, 10, 10, "lime"));
+
+      plane1.setHorizontalAxisText("Time");
+      plane1.setVerticalAxisText("Amount");
+
+      plane1.setHorizontalIncrement(1);
+
+      plane1.drawAnimation(2000);
+      plane1.insertSmoothCamera(10);
+
+
+
+      let plane2 = new CywidgetPlaneXY(document.getElementById("testPlaneXY2"));
+
+      let series2 = LineSeries.fromRandom(10, 10, "--accent");
+      series2.drawPoints = true;
+      plane2.push(series2);
+
+      plane2.setHorizontalAxisText("Time");
+      plane2.setVerticalAxisText("Amount");
+
+      plane2.setHorizontalIncrement(1);
+      plane2.usePreset_FixedChart();
+
+      plane2.drawAnimation(2000);
+
+
+
+      let plane3 = new CywidgetPlaneXY(document.getElementById("testPlaneXY3"));
+
+      let series3 = LineSeries.fromRandom(10, 10, "crimson");
+      series3.drawPoints = true;
+      series3.customApplyContext = (ctx) => {
+        ctx.setLineDash([10, 10]);
+        ctx.lineWidth = 2;
+      }
+      series3.pointsRadius = 5;
+      series3.drawPointAtPosition = (series, ctx, x, y, pointIndex) => {
+        series.applyContext(ctx);
+        ctx.beginPath();
+        ctx.arc(x, y, series.pointsRadius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = window.getComputedStyle(document.body).getPropertyValue('--background');
+        ctx.beginPath();
+        ctx.arc(x, y, series.pointsRadius * .5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      plane3.push(series3);
+
+      plane3.setHorizontalAxisText("Time");
+      plane3.setVerticalAxisText("Amount");
+
+      plane3.setHorizontalIncrement(1);
+
+      plane3.drawAnimation(2000);
+
+      plane3.allowHorizontalZoom = false;
+      plane3.allowHorizontalDragging = false;
+    </script>
+  </body>
+</html>

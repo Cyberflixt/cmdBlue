@@ -1,0 +1,105 @@
+
+body{
+    margin: 0;
+}
+*{
+    box-sizing: border-box;
+}
+
+a{
+    text-decoration: none;
+}
+pre{
+    margin: 0;
+}
+
+.full{
+    width: 100%;
+    height: 100%;
+}
+.fullx{
+    width: 100%;
+}
+.fully{
+    height: 100%;
+}
+.textcen{
+    text-align: center;
+}
+.flexx{
+    display: flex;
+    flex-direction: row;
+}
+.flexy{
+    display: flex;
+    flex-direction: column;
+}
+.flexcen{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.flexcenx{
+    display: flex;
+    align-items: center;
+}
+.flexceny{
+    display: flex;
+    justify-content: center;
+}
+.fg{
+    flex-grow: 1;
+}
+
+.pad5{
+    padding: 5vmin;
+}
+.padx5{
+    padding-left: 5vmin;
+    padding-right: 5vmin;
+}
+.pady5{
+    padding-top: 5vmin;
+    padding-bottom: 5vmin;
+}
+.padt5{
+    padding-top: 5vmin;
+}
+.padr5{
+    padding-right: 5vmin;
+}
+.padb5{
+    padding-bottom: 5vmin;
+}
+.padl5{
+    padding-left: 5vmin;
+}
+
+.flexbetween{
+    display: flex;
+    justify-content: space-between;
+    align-items: space-between;
+}
+.flexaround{
+    display: flex;
+    justify-content: space-around;
+    align-items: space-around;
+}
+.gap5{
+    gap: 5vh;
+}
+
+.screen{
+    width: 100vw;
+    height: 100vh;
+}
+
+.noflow{
+    overflow: hidden;
+}
+.noflowx{
+    overflow-x: hidden;
+}
+.noflowy{
+    overflow-y: hidden;
+}

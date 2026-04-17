@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="style.css?v=1.0">
+    <link rel="stylesheet" href="stylegen.css?v=1.0">
+    <link rel="stylesheet" href="cywidgets/cywidgetsStyle.css?v=1.0">
+
+    <script src="scriptsHead.js?v=1.0"></script>
+  </head>
+  <body class="flexy flexcen">
+    <div class="topbar flexcen flexbetween">
+      <a href="/" alt="Home" class="flexcen topbar-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M3 14.5q-.2 0-.35-.15T2.5 14t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-4q-.2 0-.35-.15T2.5 10t.15-.35T3 9.5t.35.15.15.35-.15.35-.35.15M6 19q-.425 0-.712-.288T5 18t.288-.712T6 17t.713.288T7 18t-.288.713T6 19m0-4q-.425 0-.712-.288T5 14t.288-.712T6 13t.713.288T7 14t-.288.713T6 15m0-4q-.425 0-.712-.288T5 10t.288-.712T6 9t.713.288T7 10t-.288.713T6 11m0-4q-.425 0-.712-.288T5 6t.288-.712T6 5t.713.288T7 6t-.288.713T6 7m4 8.5q-.625 0-1.062-.437T8.5 14t.438-1.062T10 12.5t1.063.438T11.5 14t-.437 1.063T10 15.5m0-4q-.625 0-1.062-.437T8.5 10t.438-1.062T10 8.5t1.063.438T11.5 10t-.437 1.063T10 11.5m0 7.5q-.425 0-.712-.288T9 18t.288-.712T10 17t.713.288T11 18t-.288.713T10 19m0-12q-.425 0-.712-.288T9 6t.288-.712T10 5t.713.288T11 6t-.288.713T10 7m0 14.5q-.2 0-.35-.15T9.5 21t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-18q-.2 0-.35-.15T9.5 3t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m4 12q-.625 0-1.062-.437T12.5 14t.438-1.062T14 12.5t1.063.438T15.5 14t-.437 1.063T14 15.5m0-4q-.625 0-1.062-.437T12.5 10t.438-1.062T14 8.5t1.063.438T15.5 10t-.437 1.063T14 11.5m0 7.5q-.425 0-.712-.288T13 18t.288-.712T14 17t.713.288T15 18t-.288.713T14 19m0-12q-.425 0-.712-.288T13 6t.288-.712T14 5t.713.288T15 6t-.288.713T14 7m0 14.5q-.2 0-.35-.15T13.5 21t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-18q-.2 0-.35-.15T13.5 3t.15-.35.35-.15.35.15.15.35-.15.35-.35.15M18 19q-.425 0-.712-.288T17 18t.288-.712T18 17t.713.288T19 18t-.288.713T18 19m0-4q-.425 0-.712-.288T17 14t.288-.712T18 13t.713.288T19 14t-.288.713T18 15m0-4q-.425 0-.712-.288T17 10t.288-.712T18 9t.713.288T19 10t-.288.713T18 11m0-4q-.425 0-.712-.288T17 6t.288-.712T18 5t.713.288T19 6t-.288.713T18 7m3 7.5q-.2 0-.35-.15T20.5 14t.15-.35.35-.15.35.15.15.35-.15.35-.35.15m0-4q-.2 0-.35-.15T20.5 10t.15-.35.35-.15.35.15.15.35-.15.35-.35.15"/></svg>
+        <b>Testing Grounds</b>
+      </a>
+      <div class="themeBtn" onclick="toggleTheme()">
+        <div>
+          <svg class="dark" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path fill="currentColor" d="M9.272 2.406a1 1 0 0 0-1.23-1.355C6.59 1.535 5.432 2.488 4.37 3.55a11.4 11.4 0 0 0 0 16.182c4.518 4.519 11.51 4.261 15.976-.205c1.062-1.062 2.014-2.22 2.498-3.673A1 1 0 0 0 21.55 14.6c-3.59 1.322-7.675.734-10.433-2.025C8.35 9.808 7.788 5.744 9.272 2.406"/></svg>
+          <svg class="light" xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24"><path class="svgFillAccent" d="M12 19a1 1 0 0 1 .993.883L13 20v1a1 1 0 0 1-1.993.117L11 21v-1a1 1 0 0 1 1-1m6.313-2.09.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7a1 1 0 0 1 1.218-1.567zm-11.306.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M4 11a1 1 0 0 1 .117 1.993L4 13H3a1 1 0 0 1-.117-1.993L3 11zm17 0a1 1 0 0 1 .117 1.993L21 13h-1a1 1 0 0 1-.117-1.993L20 11zM6.213 4.81l.094.083.7.7a1 1 0 0 1-1.32 1.497l-.094-.083-.7-.7A1 1 0 0 1 6.11 4.74zm12.894.083a1 1 0 0 1 .083 1.32l-.083.094-.7.7a1 1 0 0 1-1.497-1.32l.083-.094.7-.7a1 1 0 0 1 1.414 0M12 2a1 1 0 0 1 .993.883L13 3v1a1 1 0 0 1-1.993.117L11 4V3a1 1 0 0 1 1-1m0 5a5 5 0 1 1-4.995 5.217L7 12l.005-.217A5 5 0 0 1 12 7"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="contentColumn">
+
+      <div class="flexcen">
+        <div class="flexy flexcenx">
+          <h1>Piecharts</h1>
+          <p>
+            Cool<br>
+            Related: <a>Sunburst chart</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="widgetGrid gap5">
+
+        <!-- Line series widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPieChart" id="chart0">
+            <div class="cywidgetPieChartBounds">
+              <canvas class="cywidgetPieChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pie chart widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPieChart" id="chart1">
+            <div class="cywidgetPieChartBounds">
+              <canvas class="cywidgetPieChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pie chart widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPieChart" id="chart2">
+            <div class="cywidgetPieChartBounds">
+              <canvas class="cywidgetPieChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pie chart widget -->
+        <div class="window" style="padding: 8vh;">
+          <div class="cywidgetPieChart" id="chart3">
+            <div class="cywidgetPieChartBounds">
+              <canvas class="cywidgetPieChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="titleBannerSection textcen fullx mynerve">
+        Your turn!
+      </div>
+
+      <div class="window flexx gap5" style="height: 50vh;">
+        <!-- Pie chart widget -->
+        <div style="background: var(--background); border-radius: 2vh; height: 100%; aspect-ratio: 1;">
+          <div class="cywidgetPieChart" id="chartTest">
+            <div class="cywidgetPieChartBounds">
+              <canvas class="cywidgetPieChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="fg fully flexy" style="gap: 2%;">
+<div class="codeblock">
+<div class="codeContainer">
+<pre class="codeformat">
+let chart = new PieChart(document.getElementById("chartTest"));
+</pre>
+</div>
+</div>
+
+<div class="codeblock fg fully">
+  <div class="codeContainer">
+    <textarea class="codeformat" spellcheck="false">// Write your code here
+
+chart.push(new PieSection(10, "Hello!"));
+</textarea>
+    <div class="btnExecCode">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 16q-.425 0-.712-.288T3 15t.288-.712T4 14h6q.425 0 .713.288T11 15t-.288.713T10 16zm0-4q-.425 0-.712-.288T3 11t.288-.712T4 10h10q.425 0 .713.288T15 11t-.288.713T14 12zm0-4q-.425 0-.712-.288T3 7t.288-.712T4 6h10q.425 0 .713.288T15 7t-.288.713T14 8zm12.775 12.475q-.125.075-.25.075t-.25-.05t-.2-.162t-.075-.263v-6.15q0-.15.075-.262t.2-.163t.25-.05t.25.075l4.6 3.05q.125.075.175.188t.05.237t-.05.238t-.175.187z"/></svg>
+    </div>
+  </div>
+</div>
+
+<div class="codeblock">
+<div class="codeContainer">
+<pre class="codeformat">
+chart.clear();
+</pre>
+<div class="btnExecCode cen">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 16q-.425 0-.712-.288T3 15t.288-.712T4 14h6q.425 0 .713.288T11 15t-.288.713T10 16zm0-4q-.425 0-.712-.288T3 11t.288-.712T4 10h10q.425 0 .713.288T15 11t-.288.713T14 12zm0-4q-.425 0-.712-.288T3 7t.288-.712T4 6h10q.425 0 .713.288T15 7t-.288.713T14 8zm12.775 12.475q-.125.075-.25.075t-.25-.05t-.2-.162t-.075-.263v-6.15q0-.15.075-.262t.2-.163t.25-.05t.25.075l4.6 3.05q.125.075.175.188t.05.237t-.05.238t-.175.187z"/></svg>
+</div>
+</div>
+</div>
+
+        </div>
+
+      </div>
+      
+    </div>
+    
+    <script src="cywidgets/cywidgetsScripts.js?v=1.0"></script>
+    <script src="scripts.js?v=1.0"></script>
+
+    <script>
+      // Chart 0 - Simple
+
+      let chart0 = new PieChart(document.getElementById("chart0"));
+      chart0.push(new PieSection(10, "Colors!", "--text", "--background"));
+      chart0.push(new PieSection(10, "Pie!", "teal", "currentColor"));
+      chart0.push(new PieSection(10, "Css!", "--accent", "black"));
+
+      chart0.presetStatic(); // Disable animations
+
+      // Chart 1
+
+      let chart1 = new PieChart(document.getElementById("chart1"));
+      let sectionA = new PieSection(10, "Lorem", "teal");
+      chart1.push(sectionA, false);
+      let sectionB = new PieSection(20, "Ipsum", "crimson");
+      sectionB.push(new PieSection(1, "I", "crimson"));
+      sectionB.push(new PieSection(2, "P", "teal"));
+      sectionB.push(new PieSection(1, "S", "crimson"));
+      sectionB.push(new PieSection(1, "U", "crimson"));
+      sectionB.push(new PieSection(1, "M", "crimson"));
+      chart1.push(sectionB, false);
+      let sectionC = new PieSection(30, "Dolor", "orange");
+      sectionC.push(new PieSection(40, "Do", "crimson"));
+      sectionC.push(new PieSection(60, "Lor", "teal"));
+      chart1.push(sectionC, false);
+
+      chart1.lineWidth = 10;
+      chart1.holeRatio = 0.4;
+      chart1.draw();
+
+      // Chart 2
+
+      let chart2 = new PieChart(document.getElementById("chart2"));
+      chart2.holeRatio = 0.4;
+      chart2.writePercentages = true;
+      chart2.angleStartDeg = -90;
+      chart2.angleEndDeg = 90;
+      chart2.lineWidth = 10;
+      let section0A = new PieSection(30, "Small", "crimson");
+      let section0B = new PieSection(70, "Large", "teal");
+      section0A.radiusFactor = .8;
+      chart2.push(section0A);
+      chart2.push(section0B);
+      let section0AA = new PieSection(70, "Crust", "orange");
+      section0AA.radiusFactor = .2;
+      section0A.push(section0AA);
+      chart2.draw();
+
+      // Chart 2
+
+      let chart3 = new PieChart(document.getElementById("chart3"));
+      chart3.holeRatio = 0.4;
+      chart3.writePercentages = true;
+      for (let i = 0; i < 10; i++){
+        let section = new PieSection(Math.random(), "");
+        section.radiusFactor = 0.5 + section.value;
+        chart3.push(section);
+      }
+
+      let chart = new PieChart(document.getElementById("chartTest"));
+    </script>
+    <script src="cycodeBlock.js"></script>
+  </body>
+</html>
